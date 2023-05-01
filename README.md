@@ -8,4 +8,5 @@
 2. track the ff values for each item in the list,
    - date today, weight, reps, sets
 3. add a good search fn
-3. include most recent etc
+4. include most recent etc
+5. add today view, and history
