@@ -158,7 +158,12 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
                                         />
                                     </LabeledFieldLayout>
 
-                                    <button className="btn btn-error btn-xs" type="button" onClick={() => remove(index)}>
+                                    <button className="btn btn-error btn-xs" type="button" onClick={() => {
+                                        if (confirm("Are you sure you want to delete this entry?")) {
+                                            remove(index)
+                                        }
+                                    }
+                                    }>
                                         x
                                     </button>
 
