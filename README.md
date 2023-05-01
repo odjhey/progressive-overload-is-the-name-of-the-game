@@ -1,5 +1,7 @@
+Try PWAs, make something useful for personal use, see https://en.wikipedia.org/wiki/Progressive_overload
 
-# Goal
+
+# Tech Goals
 1. local first, always almost offline only
 
 ### Possible features
