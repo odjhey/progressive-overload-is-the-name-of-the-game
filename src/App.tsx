@@ -34,6 +34,7 @@ export default function App() {
     register,
     control,
     handleSubmit,
+    setFocus,
     formState: { errors }
   } = useForm<FormValues>({
     defaultValues: local,
@@ -78,6 +79,11 @@ export default function App() {
                 <LabeledFieldLayout>
                   <label className="label" htmlFor={`lifts.${index}.name`}>name</label>
                   <input
+                    onKeyUp={(e) => {
+                      if (e.key === 'Enter') {
+                        setFocus(`lifts.${index}.weight`)
+                      }
+                    }}
                     tabIndex={2 + (index * TAB_FIELD_COUNT)}
                     placeholder="name"
                     {...register(`lifts.${index}.name` as const, {
@@ -90,6 +96,11 @@ export default function App() {
                 <LabeledFieldLayout>
                   <label className="label" htmlFor={`lifts.${index}.weight`}>weight</label>
                   <input
+                    onKeyUp={(e) => {
+                      if (e.key === 'Enter') {
+                        setFocus(`lifts.${index}.rep`)
+                      }
+                    }}
                     tabIndex={3 + (index * TAB_FIELD_COUNT)}
                     placeholder="weight"
                     type="number"
@@ -103,6 +114,11 @@ export default function App() {
                 <LabeledFieldLayout>
                   <label className="label" htmlFor={`lifts.${index}.uom`}>uom</label>
                   <input
+                    onKeyUp={(e) => {
+                      if (e.key === 'Enter') {
+                        setFocus(`lifts.${index}.rep`)
+                      }
+                    }}
                     tabIndex={4 + (index * TAB_FIELD_COUNT)}
                     placeholder="uom"
                     {...register(`lifts.${index}.uom` as const, {
@@ -115,6 +131,11 @@ export default function App() {
                 <LabeledFieldLayout>
                   <label className="label" htmlFor={`lifts.${index}.rep`}>rep</label>
                   <input
+                    onKeyUp={(e) => {
+                      if (e.key === 'Enter') {
+                        setFocus(`lifts.${index}.set`)
+                      }
+                    }}
                     tabIndex={5 + (index * TAB_FIELD_COUNT)}
                     placeholder="rep"
                     type="number"
@@ -130,6 +151,11 @@ export default function App() {
                 <LabeledFieldLayout>
                   <label className="label" htmlFor={`lifts.${index}.set`}>set</label>
                   <input
+                    onKeyUp={(e) => {
+                      if (e.key === 'Enter') {
+                        // TODO set focus to submit
+                      }
+                    }}
                     tabIndex={6 + (index * TAB_FIELD_COUNT)}
                     placeholder="set"
                     type="number"
