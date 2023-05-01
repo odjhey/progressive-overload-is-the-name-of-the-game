@@ -23,7 +23,6 @@ export default function Home() {
         <LiftsForm
             lifts={data}
             filterFn={(row: any) => {
-                console.log({ row })
                 if (searchTerm === "") { return true }
                 // if (row.name === "") { return true } <--- lets accept the misfeature of unable to add after search
                 return JSON.stringify(row).toLowerCase().includes(searchTerm.toLowerCase())

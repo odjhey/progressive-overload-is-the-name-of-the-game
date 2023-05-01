@@ -68,7 +68,7 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
                                     />
 
                                     <LabeledFieldLayout>
-                                        <label className="label" htmlFor={`lifts.${index}.name`}>name</label>
+                                        <label className="label text-xs text-slate-400" htmlFor={`lifts.${index}.name`}>name</label>
                                         <input
                                             onKeyUp={(e) => {
                                                 if (e.key === 'Enter') {
@@ -85,7 +85,7 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
                                     </LabeledFieldLayout>
 
                                     <LabeledFieldLayout>
-                                        <label className="label" htmlFor={`lifts.${index}.weight`}>weight</label>
+                                        <label className="label text-xs text-slate-400" htmlFor={`lifts.${index}.weight`}>weight</label>
                                         <input
                                             onKeyUp={(e) => {
                                                 if (e.key === 'Enter') {
@@ -103,7 +103,7 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
                                         /></LabeledFieldLayout>
 
                                     <LabeledFieldLayout>
-                                        <label className="label" htmlFor={`lifts.${index}.uom`}>uom</label>
+                                        <label className="label text-xs text-slate-400" htmlFor={`lifts.${index}.uom`}>uom</label>
                                         <input
                                             onKeyUp={(e) => {
                                                 if (e.key === 'Enter') {
@@ -120,7 +120,7 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
                                     </LabeledFieldLayout>
 
                                     <LabeledFieldLayout>
-                                        <label className="label" htmlFor={`lifts.${index}.rep`}>rep</label>
+                                        <label className="label text-xs text-slate-400" htmlFor={`lifts.${index}.rep`}>rep</label>
                                         <input
                                             onKeyUp={(e) => {
                                                 if (e.key === 'Enter') {
@@ -140,7 +140,7 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
 
 
                                     <LabeledFieldLayout>
-                                        <label className="label" htmlFor={`lifts.${index}.set`}>set</label>
+                                        <label className="label text-xs text-slate-400" htmlFor={`lifts.${index}.set`}>set</label>
                                         <input
                                             onKeyUp={(e) => {
                                                 if (e.key === 'Enter') {

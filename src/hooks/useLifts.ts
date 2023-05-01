@@ -13,7 +13,6 @@ export const useLifts = () => {
 
     const reloadItem = () => {
         return localforage.getItem(lskey).then((d: any) => {
-            console.log(d)
             const defaultLifts: any[] = []
             if (d && d.lifts) {
                 return d.lifts
