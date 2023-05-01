@@ -10,3 +10,4 @@
 3. add a good search fn
 4. include most recent etc
 5. add today view, and history
+6. navigation and deeplinks
