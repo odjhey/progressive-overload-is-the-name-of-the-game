@@ -1,5 +1,7 @@
+import localforage from "localforage";
 import { PropsWithChildren, useEffect } from "react";
 import { useForm, useFieldArray, } from "react-hook-form";
+import { useLifts } from "../hooks/useLifts";
 
 type FormValues = {
     lifts: {
@@ -21,14 +23,7 @@ const LabeledFieldLayout = ({ children }: PropsWithChildren) => {
 }
 
 
-
-export default function Home() {
-
-    const lskey = 'ZLDKSJF'
-
-    const local =
-        JSON.parse(localStorage.getItem(lskey) || JSON.stringify({ lifts: [] })) as FormValues
-
+const LiftsForm = ({ lifts, onSubmit }: { lifts: unknown[], onSubmit: (d: unknown[]) => Promise<unknown> }) => {
     const {
         register,
         control,
@@ -36,30 +31,24 @@ export default function Home() {
         setFocus,
         formState: { errors }
     } = useForm<FormValues>({
-        defaultValues: local,
+        defaultValues: { lifts: lifts as any[] },
         mode: "onBlur"
     });
-
-    useEffect(() => {
-        console.log(localStorage.getItem(lskey))
-
-    }, [])
-
 
     const { fields, append, remove } = useFieldArray({
         name: "lifts",
         control
     });
 
-    const onSubmit = (data: FormValues) => {
-        localStorage.setItem(lskey, JSON.stringify(data))
+    const onSubmitForm = (data: FormValues) => {
+        onSubmit(data.lifts)
     }
 
     const TAB_FIELD_COUNT = 6
 
     return (
         <div>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmitForm)}>
                 {fields.map((field, index) => {
                     return (
                         <div key={field.id}>
@@ -198,4 +187,22 @@ export default function Home() {
             </form>
         </div >
     );
+
+}
+
+export default function Home() {
+    const { data, error, loading, saveLifts } = useLifts()
+    console.log({ data, error })
+
+    if (loading) {
+        return <div>Loading...</div>
+    }
+
+    if (error) {
+        return <div>{error.message}</div>
+    }
+
+    return <LiftsForm lifts={data} onSubmit={(d: unknown[]) => saveLifts(d)}></LiftsForm>
+
+
 }
