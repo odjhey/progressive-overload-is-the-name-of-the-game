@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import { useForm, useFieldArray, } from "react-hook-form";
 
 type FormValues = {
@@ -11,6 +11,16 @@ type FormValues = {
     rep: number;
   }[];
 };
+
+const LabeledFieldLayout = ({ children }: PropsWithChildren) => {
+  return (
+
+    <div className="flex gap-1 border border-solid border-red-100">
+      {children}
+    </div>
+
+  )
+}
 
 
 export default function App() {
@@ -46,14 +56,18 @@ export default function App() {
     localStorage.setItem(lskey, JSON.stringify(data))
   }
 
+  const TAB_FIELD_COUNT = 6
+
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)}>
         {fields.map((field, index) => {
           return (
             <div key={field.id}>
-              <section className="flex flex-wrap" key={field.id}>
+              <section className="flex flex-wrap gap-1 p-1" key={field.id}>
+
                 <input
+                  tabIndex={1 + (index * TAB_FIELD_COUNT)}
                   {...register(`lifts.${index}.date` as const, {
                     required: true
                   })}
@@ -61,55 +75,77 @@ export default function App() {
                   type="datetime-local"
                 />
 
-                <input
-                  placeholder="name"
-                  {...register(`lifts.${index}.name` as const, {
-                    required: true
-                  })}
-                  className={errors?.lifts?.[index]?.name ? "error" : ""}
-                />
+                <LabeledFieldLayout>
+                  <label className="label" htmlFor={`lifts.${index}.name`}>name</label>
+                  <input
+                    tabIndex={2 + (index * TAB_FIELD_COUNT)}
+                    placeholder="name"
+                    {...register(`lifts.${index}.name` as const, {
+                      required: true
+                    })}
+                    className={errors?.lifts?.[index]?.name ? "error" : ""}
+                  />
+                </LabeledFieldLayout>
 
-                <input
-                  placeholder="weight"
-                  type="number"
-                  {...register(`lifts.${index}.weight` as const, {
-                    valueAsNumber: true,
-                    required: true
-                  })}
-                  className={errors?.lifts?.[index]?.weight ? "error" : ""}
-                />
+                <LabeledFieldLayout>
+                  <label className="label" htmlFor={`lifts.${index}.weight`}>weight</label>
+                  <input
+                    tabIndex={3 + (index * TAB_FIELD_COUNT)}
+                    placeholder="weight"
+                    type="number"
+                    {...register(`lifts.${index}.weight` as const, {
+                      valueAsNumber: true,
+                      required: true
+                    })}
+                    className={errors?.lifts?.[index]?.weight ? "error" : ""}
+                  /></LabeledFieldLayout>
 
-                <input
-                  placeholder="uom"
-                  {...register(`lifts.${index}.uom` as const, {
-                    required: true
-                  })}
-                  className={errors?.lifts?.[index]?.name ? "error" : ""}
-                />
+                <LabeledFieldLayout>
+                  <label className="label" htmlFor={`lifts.${index}.uom`}>uom</label>
+                  <input
+                    tabIndex={4 + (index * TAB_FIELD_COUNT)}
+                    placeholder="uom"
+                    {...register(`lifts.${index}.uom` as const, {
+                      required: true
+                    })}
+                    className={errors?.lifts?.[index]?.name ? "error" : ""}
+                  />
+                </LabeledFieldLayout>
 
-                <input
-                  placeholder="rep"
-                  type="number"
-                  {...register(`lifts.${index}.rep` as const, {
-                    valueAsNumber: true,
-                    required: true
-                  })}
-                  className={errors?.lifts?.[index]?.rep ? "error" : ""}
-                />
-                <input
-                  placeholder="set"
-                  type="number"
-                  {...register(`lifts.${index}.set` as const, {
-                    valueAsNumber: true,
-                    required: true
-                  })}
-                  className={errors?.lifts?.[index]?.set ? "error" : ""}
-                />
+                <LabeledFieldLayout>
+                  <label className="label" htmlFor={`lifts.${index}.rep`}>rep</label>
+                  <input
+                    tabIndex={5 + (index * TAB_FIELD_COUNT)}
+                    placeholder="rep"
+                    type="number"
+                    {...register(`lifts.${index}.rep` as const, {
+                      valueAsNumber: true,
+                      required: true
+                    })}
+                    className={errors?.lifts?.[index]?.rep ? "error" : ""}
+                  />
+                </LabeledFieldLayout>
+
+
+                <LabeledFieldLayout>
+                  <label className="label" htmlFor={`lifts.${index}.set`}>set</label>
+                  <input
+                    tabIndex={6 + (index * TAB_FIELD_COUNT)}
+                    placeholder="set"
+                    type="number"
+                    {...register(`lifts.${index}.set` as const, {
+                      valueAsNumber: true,
+                      required: true
+                    })}
+                    className={errors?.lifts?.[index]?.set ? "error" : ""}
+                  />
+                </LabeledFieldLayout>
 
                 <button className="btn btn-error btn-sm" type="button" onClick={() => remove(index)}>
                   DELETE
                 </button>
               </section>
+              <div className="bg-slate-100 p-2"></div>
             </div>
           );
         })}
