@@ -26,7 +26,6 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
     onSubmit: (d: unknown[]) => Promise<unknown>
     filterFn: (row: unknown) => boolean
 }) => {
-    console.log('form rerender', lifts)
     const {
         register,
         control,
@@ -161,6 +160,19 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
 
                                     <button className="btn btn-error btn-xs" type="button" onClick={() => remove(index)}>
                                         x
+                                    </button>
+
+                                    <button className="btn btn-accent btn-xs" type="button" onClick={() => {
+                                        append({
+                                            name: field.name,
+                                            date: (new Date()).toISOString().substring(0, 16),
+                                            rep: field.rep,
+                                            set: field.set,
+                                            weight: field.weight,
+                                            uom: field.uom,
+                                        })
+                                    }}>
+                                        copy
                                     </button>
                                 </section>
                                 <div className="bg-slate-100 p-2"></div>
