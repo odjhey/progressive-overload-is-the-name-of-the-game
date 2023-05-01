@@ -11,3 +11,5 @@
 4. include most recent etc
 5. add today view, and history
 6. navigation and deeplinks
+7. should be able to download as csv/json text
+7. should be able to upload from file
