@@ -1,28 +1,24 @@
 import { useEffect } from "react";
-import { useForm, useFieldArray, useWatch, Control } from "react-hook-form";
+import { useForm, useFieldArray, } from "react-hook-form";
 
 type FormValues = {
-  cart: {
+  lifts: {
+    date: string,
     name: string;
-    price: number;
-    quantity: number;
+    weight: number;
+    uom: string;
+    set: number;
+    rep: number;
   }[];
 };
 
-const Total = ({ control }: { control: Control<FormValues> }) => {
-  const formValues = useWatch({
-    name: "cart",
-    control
-  });
-  const total = formValues.reduce(
-    (acc, current) => acc + (current.price || 0) * (current.quantity || 0),
-    0
-  );
-  return <p>Total Amount: {total}</p>;
-};
 
 export default function App() {
 
+  const lskey = 'ZLDKSJF'
+
+  const local =
+    JSON.parse(localStorage.getItem(lskey) || JSON.stringify({ lifts: [] })) as FormValues
 
   const {
     register,
@@ -30,13 +26,10 @@ export default function App() {
     handleSubmit,
     formState: { errors }
   } = useForm<FormValues>({
-    defaultValues: {
-      cart: [{ name: "test", quantity: 1, price: 23 }]
-    },
+    defaultValues: local,
     mode: "onBlur"
   });
 
-  const lskey = 'ZLDKSJF'
   useEffect(() => {
     console.log(localStorage.getItem(lskey))
 
@@ -44,7 +37,7 @@ export default function App() {
 
 
   const { fields, append, remove } = useFieldArray({
-    name: "cart",
+    name: "lifts",
     control
   });
 
@@ -61,30 +54,58 @@ export default function App() {
             <div key={field.id}>
               <section className={"section"} key={field.id}>
                 <input
+                  {...register(`lifts.${index}.date` as const, {
+                    required: true
+                  })}
+                  className={errors?.lifts?.[index]?.date ? "error" : ""}
+                  type="datetime-local"
+                />
+
+                <input
                   placeholder="name"
-                  {...register(`cart.${index}.name` as const, {
+                  {...register(`lifts.${index}.name` as const, {
                     required: true
                   })}
-                  className={errors?.cart?.[index]?.name ? "error" : ""}
+                  className={errors?.lifts?.[index]?.name ? "error" : ""}
                 />
+
                 <input
-                  placeholder="quantity"
+                  placeholder="weight"
                   type="number"
-                  {...register(`cart.${index}.quantity` as const, {
+                  {...register(`lifts.${index}.weight` as const, {
                     valueAsNumber: true,
                     required: true
                   })}
-                  className={errors?.cart?.[index]?.quantity ? "error" : ""}
+                  className={errors?.lifts?.[index]?.weight ? "error" : ""}
                 />
+
                 <input
-                  placeholder="value"
+                  placeholder="uom"
+                  {...register(`lifts.${index}.uom` as const, {
+                    required: true
+                  })}
+                  className={errors?.lifts?.[index]?.name ? "error" : ""}
+                />
+
+                <input
+                  placeholder="rep"
                   type="number"
-                  {...register(`cart.${index}.price` as const, {
+                  {...register(`lifts.${index}.rep` as const, {
                     valueAsNumber: true,
                     required: true
                   })}
-                  className={errors?.cart?.[index]?.price ? "error" : ""}
+                  className={errors?.lifts?.[index]?.rep ? "error" : ""}
                 />
+                <input
+                  placeholder="set"
+                  type="number"
+                  {...register(`lifts.${index}.set` as const, {
+                    valueAsNumber: true,
+                    required: true
+                  })}
+                  className={errors?.lifts?.[index]?.set ? "error" : ""}
+                />
+
                 <button type="button" onClick={() => remove(index)}>
                   DELETE
                 </button>
@@ -93,16 +114,23 @@ export default function App() {
           );
         })}
 
-        <Total control={control} />
 
         <button
           type="button"
-          onClick={() =>
+          onClick={() => {
+            console.log(
+
+              "date:", (new Date()).toISOString().substring(0, 16),
+            )
             append({
               name: "",
-              quantity: 0,
-              price: 0
+              date: (new Date()).toISOString().substring(0, 16),
+              rep: 0,
+              set: 0,
+              weight: 0,
+              uom: 'lbs',
             })
+          }
           }
         >
           APPEND
