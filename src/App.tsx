@@ -1,35 +1,114 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect } from "react";
+import { useForm, useFieldArray, useWatch, Control } from "react-hook-form";
 
-function App() {
-  const [count, setCount] = useState(0)
+type FormValues = {
+  cart: {
+    name: string;
+    price: number;
+    quantity: number;
+  }[];
+};
+
+const Total = ({ control }: { control: Control<FormValues> }) => {
+  const formValues = useWatch({
+    name: "cart",
+    control
+  });
+  const total = formValues.reduce(
+    (acc, current) => acc + (current.price || 0) * (current.quantity || 0),
+    0
+  );
+  return <p>Total Amount: {total}</p>;
+};
+
+export default function App() {
+
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormValues>({
+    defaultValues: {
+      cart: [{ name: "test", quantity: 1, price: 23 }]
+    },
+    mode: "onBlur"
+  });
+
+  const lskey = 'ZLDKSJF'
+  useEffect(() => {
+    console.log(localStorage.getItem(lskey))
+
+  }, [])
+
+
+  const { fields, append, remove } = useFieldArray({
+    name: "cart",
+    control
+  });
+
+  const onSubmit = (data: FormValues) => {
+    console.log(data)
+    localStorage.setItem(lskey, JSON.stringify(data))
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {fields.map((field, index) => {
+          return (
+            <div key={field.id}>
+              <section className={"section"} key={field.id}>
+                <input
+                  placeholder="name"
+                  {...register(`cart.${index}.name` as const, {
+                    required: true
+                  })}
+                  className={errors?.cart?.[index]?.name ? "error" : ""}
+                />
+                <input
+                  placeholder="quantity"
+                  type="number"
+                  {...register(`cart.${index}.quantity` as const, {
+                    valueAsNumber: true,
+                    required: true
+                  })}
+                  className={errors?.cart?.[index]?.quantity ? "error" : ""}
+                />
+                <input
+                  placeholder="value"
+                  type="number"
+                  {...register(`cart.${index}.price` as const, {
+                    valueAsNumber: true,
+                    required: true
+                  })}
+                  className={errors?.cart?.[index]?.price ? "error" : ""}
+                />
+                <button type="button" onClick={() => remove(index)}>
+                  DELETE
+                </button>
+              </section>
+            </div>
+          );
+        })}
 
-export default App
+        <Total control={control} />
+
+        <button
+          type="button"
+          onClick={() =>
+            append({
+              name: "",
+              quantity: 0,
+              price: 0
+            })
+          }
+        >
+          APPEND
+        </button>
+        <input type="submit" />
+      </form>
+    </div>
+  );
+}
