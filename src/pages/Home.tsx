@@ -53,7 +53,6 @@ export default function Home() {
 
     const onSubmit = (data: FormValues) => {
         localStorage.setItem(lskey, JSON.stringify(data))
-        alert('Saved')
     }
 
     const TAB_FIELD_COUNT = 6
