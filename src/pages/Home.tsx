@@ -1,7 +1,7 @@
-import localforage from "localforage";
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren, useState } from "react";
 import { useForm, useFieldArray, } from "react-hook-form";
 import { useLifts } from "../hooks/useLifts";
+import { useDebouncedCallback } from 'use-debounce';
 
 type FormValues = {
     lifts: {
@@ -23,7 +23,12 @@ const LabeledFieldLayout = ({ children }: PropsWithChildren) => {
 }
 
 
-const LiftsForm = ({ lifts, onSubmit }: { lifts: unknown[], onSubmit: (d: unknown[]) => Promise<unknown> }) => {
+const LiftsForm = ({ lifts, onSubmit, filterFn }: {
+    lifts: unknown[],
+    onSubmit: (d: unknown[]) => Promise<unknown>
+    filterFn: (row: unknown) => boolean
+}) => {
+    console.log('form rerender', lifts)
     const {
         register,
         control,
@@ -31,8 +36,8 @@ const LiftsForm = ({ lifts, onSubmit }: { lifts: unknown[], onSubmit: (d: unknow
         setFocus,
         formState: { errors }
     } = useForm<FormValues>({
-        defaultValues: { lifts: lifts as any[] },
-        mode: "onBlur"
+        mode: "onBlur",
+        values: { lifts: lifts as any[] }
     });
 
     const { fields, append, remove } = useFieldArray({
@@ -49,119 +54,121 @@ const LiftsForm = ({ lifts, onSubmit }: { lifts: unknown[], onSubmit: (d: unknow
     return (
         <div>
             <form onSubmit={handleSubmit(onSubmitForm)}>
-                {fields.map((field, index) => {
-                    return (
-                        <div key={field.id}>
-                            <section className="flex flex-wrap gap-1 p-1" key={field.id}>
+                {fields
+                    .filter((row) => filterFn(row))
+                    .map((field, index) => {
+                        return (
+                            <div key={field.name}>
+                                <section className="flex flex-wrap gap-1 p-1" key={field.id}>
 
-                                <input
-                                    tabIndex={1 + (index * TAB_FIELD_COUNT)}
-                                    {...register(`lifts.${index}.date` as const, {
-                                        required: true
-                                    })}
-                                    className={errors?.lifts?.[index]?.date ? "error" : ""}
-                                    type="datetime-local"
-                                />
-
-                                <LabeledFieldLayout>
-                                    <label className="label" htmlFor={`lifts.${index}.name`}>name</label>
                                     <input
-                                        onKeyUp={(e) => {
-                                            if (e.key === 'Enter') {
-                                                setFocus(`lifts.${index}.weight`)
-                                            }
-                                        }}
-                                        tabIndex={2 + (index * TAB_FIELD_COUNT)}
-                                        placeholder="name"
-                                        {...register(`lifts.${index}.name` as const, {
+                                        tabIndex={1 + (index * TAB_FIELD_COUNT)}
+                                        {...register(`lifts.${index}.date` as const, {
                                             required: true
                                         })}
-                                        className={errors?.lifts?.[index]?.name ? "error" : ""}
+                                        className={errors?.lifts?.[index]?.date ? "error" : ""}
+                                        type="datetime-local"
                                     />
-                                </LabeledFieldLayout>
 
-                                <LabeledFieldLayout>
-                                    <label className="label" htmlFor={`lifts.${index}.weight`}>weight</label>
-                                    <input
-                                        onKeyUp={(e) => {
-                                            if (e.key === 'Enter') {
-                                                setFocus(`lifts.${index}.rep`)
-                                            }
-                                        }}
-                                        tabIndex={3 + (index * TAB_FIELD_COUNT)}
-                                        placeholder="weight"
-                                        type="number"
-                                        {...register(`lifts.${index}.weight` as const, {
-                                            valueAsNumber: true,
-                                            required: true
-                                        })}
-                                        className={errors?.lifts?.[index]?.weight ? "error" : "w-16"}
-                                    /></LabeledFieldLayout>
+                                    <LabeledFieldLayout>
+                                        <label className="label" htmlFor={`lifts.${index}.name`}>name</label>
+                                        <input
+                                            onKeyUp={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    setFocus(`lifts.${index}.weight`)
+                                                }
+                                            }}
+                                            tabIndex={2 + (index * TAB_FIELD_COUNT)}
+                                            placeholder="name"
+                                            {...register(`lifts.${index}.name` as const, {
+                                                required: true
+                                            })}
+                                            className={errors?.lifts?.[index]?.name ? "error" : ""}
+                                        />
+                                    </LabeledFieldLayout>
 
-                                <LabeledFieldLayout>
-                                    <label className="label" htmlFor={`lifts.${index}.uom`}>uom</label>
-                                    <input
-                                        onKeyUp={(e) => {
-                                            if (e.key === 'Enter') {
-                                                setFocus(`lifts.${index}.rep`)
-                                            }
-                                        }}
-                                        tabIndex={4 + (index * TAB_FIELD_COUNT)}
-                                        placeholder="uom"
-                                        {...register(`lifts.${index}.uom` as const, {
-                                            required: true
-                                        })}
-                                        className={errors?.lifts?.[index]?.name ? "error" : "w-16"}
-                                    />
-                                </LabeledFieldLayout>
+                                    <LabeledFieldLayout>
+                                        <label className="label" htmlFor={`lifts.${index}.weight`}>weight</label>
+                                        <input
+                                            onKeyUp={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    setFocus(`lifts.${index}.rep`)
+                                                }
+                                            }}
+                                            tabIndex={3 + (index * TAB_FIELD_COUNT)}
+                                            placeholder="weight"
+                                            type="number"
+                                            {...register(`lifts.${index}.weight` as const, {
+                                                valueAsNumber: true,
+                                                required: true
+                                            })}
+                                            className={errors?.lifts?.[index]?.weight ? "error" : "w-16"}
+                                        /></LabeledFieldLayout>
 
-                                <LabeledFieldLayout>
-                                    <label className="label" htmlFor={`lifts.${index}.rep`}>rep</label>
-                                    <input
-                                        onKeyUp={(e) => {
-                                            if (e.key === 'Enter') {
-                                                setFocus(`lifts.${index}.set`)
-                                            }
-                                        }}
-                                        tabIndex={5 + (index * TAB_FIELD_COUNT)}
-                                        placeholder="rep"
-                                        type="number"
-                                        {...register(`lifts.${index}.rep` as const, {
-                                            valueAsNumber: true,
-                                            required: true
-                                        })}
-                                        className={errors?.lifts?.[index]?.rep ? "error" : "w-12"}
-                                    />
-                                </LabeledFieldLayout>
+                                    <LabeledFieldLayout>
+                                        <label className="label" htmlFor={`lifts.${index}.uom`}>uom</label>
+                                        <input
+                                            onKeyUp={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    setFocus(`lifts.${index}.rep`)
+                                                }
+                                            }}
+                                            tabIndex={4 + (index * TAB_FIELD_COUNT)}
+                                            placeholder="uom"
+                                            {...register(`lifts.${index}.uom` as const, {
+                                                required: true
+                                            })}
+                                            className={errors?.lifts?.[index]?.name ? "error" : "w-16"}
+                                        />
+                                    </LabeledFieldLayout>
+
+                                    <LabeledFieldLayout>
+                                        <label className="label" htmlFor={`lifts.${index}.rep`}>rep</label>
+                                        <input
+                                            onKeyUp={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    setFocus(`lifts.${index}.set`)
+                                                }
+                                            }}
+                                            tabIndex={5 + (index * TAB_FIELD_COUNT)}
+                                            placeholder="rep"
+                                            type="number"
+                                            {...register(`lifts.${index}.rep` as const, {
+                                                valueAsNumber: true,
+                                                required: true
+                                            })}
+                                            className={errors?.lifts?.[index]?.rep ? "error" : "w-12"}
+                                        />
+                                    </LabeledFieldLayout>
 
 
-                                <LabeledFieldLayout>
-                                    <label className="label" htmlFor={`lifts.${index}.set`}>set</label>
-                                    <input
-                                        onKeyUp={(e) => {
-                                            if (e.key === 'Enter') {
-                                                // TODO set focus to submit
-                                            }
-                                        }}
-                                        tabIndex={6 + (index * TAB_FIELD_COUNT)}
-                                        placeholder="set"
-                                        type="number"
-                                        {...register(`lifts.${index}.set` as const, {
-                                            valueAsNumber: true,
-                                            required: true
-                                        })}
-                                        className={errors?.lifts?.[index]?.set ? "error" : "w-12"}
-                                    />
-                                </LabeledFieldLayout>
+                                    <LabeledFieldLayout>
+                                        <label className="label" htmlFor={`lifts.${index}.set`}>set</label>
+                                        <input
+                                            onKeyUp={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    // TODO set focus to submit
+                                                }
+                                            }}
+                                            tabIndex={6 + (index * TAB_FIELD_COUNT)}
+                                            placeholder="set"
+                                            type="number"
+                                            {...register(`lifts.${index}.set` as const, {
+                                                valueAsNumber: true,
+                                                required: true
+                                            })}
+                                            className={errors?.lifts?.[index]?.set ? "error" : "w-12"}
+                                        />
+                                    </LabeledFieldLayout>
 
-                                <button className="btn btn-error btn-xs" type="button" onClick={() => remove(index)}>
-                                    x
-                                </button>
-                            </section>
-                            <div className="bg-slate-100 p-2"></div>
-                        </div>
-                    );
-                })}
+                                    <button className="btn btn-error btn-xs" type="button" onClick={() => remove(index)}>
+                                        x
+                                    </button>
+                                </section>
+                                <div className="bg-slate-100 p-2"></div>
+                            </div>
+                        );
+                    })}
 
 
                 <div className="flex gap-1 pb-10">
@@ -190,9 +197,24 @@ const LiftsForm = ({ lifts, onSubmit }: { lifts: unknown[], onSubmit: (d: unknow
 
 }
 
+const Searchable = ({ searchTerm, children, setSearchTerm }: PropsWithChildren<{ searchTerm: string, setSearchTerm: (searchTerm: string) => void }>) => {
+
+    return (<>
+        <div className="flex justify-end p-2">
+            <input placeholder="search" defaultValue={searchTerm} className="input input-sm" onChange={e => setSearchTerm(e.target.value)}></input>
+        </div>
+        {children}
+    </>)
+
+
+}
+
 export default function Home() {
     const { data, error, loading, saveLifts } = useLifts()
-    console.log({ data, error })
+    const [searchTerm, setSearchTerm] = useState("")
+    const setSearchTermDeb = useDebouncedCallback((value) => {
+        setSearchTerm(value)
+    }, 500)
 
     if (loading) {
         return <div>Loading...</div>
@@ -202,7 +224,15 @@ export default function Home() {
         return <div>{error.message}</div>
     }
 
-    return <LiftsForm lifts={data} onSubmit={(d: unknown[]) => saveLifts(d)}></LiftsForm>
-
-
+    return <Searchable searchTerm={searchTerm} setSearchTerm={setSearchTermDeb}>
+        <LiftsForm
+            lifts={data}
+            filterFn={(row: any) => {
+                console.log({ row })
+                if (searchTerm === "") { return true }
+                // if (row.name === "") { return true } <--- lets accept the misfeature of unable to add after search
+                return JSON.stringify(row).toLowerCase().includes(searchTerm.toLowerCase())
+            }}
+            onSubmit={(d: unknown[]) => saveLifts(d)}></LiftsForm>
+    </Searchable>
 }
