@@ -52,7 +52,7 @@ export default function App() {
         {fields.map((field, index) => {
           return (
             <div key={field.id}>
-              <section className={"section"} key={field.id}>
+              <section className="flex flex-wrap" key={field.id}>
                 <input
                   {...register(`lifts.${index}.date` as const, {
                     required: true
@@ -106,7 +106,7 @@ export default function App() {
                   className={errors?.lifts?.[index]?.set ? "error" : ""}
                 />
 
-                <button type="button" onClick={() => remove(index)}>
+                <button className="btn btn-error btn-sm" type="button" onClick={() => remove(index)}>
                   DELETE
                 </button>
               </section>
@@ -115,28 +115,31 @@ export default function App() {
         })}
 
 
-        <button
-          type="button"
-          onClick={() => {
-            console.log(
+        <div className="flex gap-1">
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => {
+              console.log(
 
-              "date:", (new Date()).toISOString().substring(0, 16),
-            )
-            append({
-              name: "",
-              date: (new Date()).toISOString().substring(0, 16),
-              rep: 0,
-              set: 0,
-              weight: 0,
-              uom: 'lbs',
-            })
-          }
-          }
-        >
-          APPEND
-        </button>
-        <input type="submit" />
+                "date:", (new Date()).toISOString().substring(0, 16),
+              )
+              append({
+                name: "",
+                date: (new Date()).toISOString().substring(0, 16),
+                rep: 0,
+                set: 0,
+                weight: 0,
+                uom: 'lbs',
+              })
+            }
+            }
+          >
+            APPEND
+          </button>
+          <input className="btn btn-primary btn-sm" type="submit" />
+        </div>
       </form>
-    </div>
+    </div >
   );
 }
