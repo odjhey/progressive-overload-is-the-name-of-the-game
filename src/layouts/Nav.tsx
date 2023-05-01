@@ -11,6 +11,12 @@ export default function Nav({ children }: PropsWithChildren) {
                         <Link to="/">Home</Link>
                     </li>
                     <li className="text-primary-content">
+                        <Link to="/latest">Lasts</Link>
+                    </li>
+                    <li className="text-primary-content">
+                        <Link to="/search">Search</Link>
+                    </li>
+                    <li className="text-primary-content">
                         <Link to="/about">About</Link>
                     </li>
                 </ol>

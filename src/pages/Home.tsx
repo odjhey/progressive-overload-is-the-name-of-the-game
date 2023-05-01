@@ -52,8 +52,8 @@ export default function Home() {
     });
 
     const onSubmit = (data: FormValues) => {
-        console.log(data)
         localStorage.setItem(lskey, JSON.stringify(data))
+        alert('Saved')
     }
 
     const TAB_FIELD_COUNT = 6
@@ -107,7 +107,7 @@ export default function Home() {
                                             valueAsNumber: true,
                                             required: true
                                         })}
-                                        className={errors?.lifts?.[index]?.weight ? "error" : ""}
+                                        className={errors?.lifts?.[index]?.weight ? "error" : "w-16"}
                                     /></LabeledFieldLayout>
 
                                 <LabeledFieldLayout>
@@ -123,7 +123,7 @@ export default function Home() {
                                         {...register(`lifts.${index}.uom` as const, {
                                             required: true
                                         })}
-                                        className={errors?.lifts?.[index]?.name ? "error" : ""}
+                                        className={errors?.lifts?.[index]?.name ? "error" : "w-16"}
                                     />
                                 </LabeledFieldLayout>
 
@@ -142,7 +142,7 @@ export default function Home() {
                                             valueAsNumber: true,
                                             required: true
                                         })}
-                                        className={errors?.lifts?.[index]?.rep ? "error" : ""}
+                                        className={errors?.lifts?.[index]?.rep ? "error" : "w-12"}
                                     />
                                 </LabeledFieldLayout>
 
@@ -162,12 +162,12 @@ export default function Home() {
                                             valueAsNumber: true,
                                             required: true
                                         })}
-                                        className={errors?.lifts?.[index]?.set ? "error" : ""}
+                                        className={errors?.lifts?.[index]?.set ? "error" : "w-12"}
                                     />
                                 </LabeledFieldLayout>
 
-                                <button className="btn btn-error btn-sm" type="button" onClick={() => remove(index)}>
-                                    DELETE
+                                <button className="btn btn-error btn-xs" type="button" onClick={() => remove(index)}>
+                                    x
                                 </button>
                             </section>
                             <div className="bg-slate-100 p-2"></div>
@@ -176,15 +176,11 @@ export default function Home() {
                 })}
 
 
-                <div className="flex gap-1">
+                <div className="flex gap-1 pb-10">
                     <button
                         type="button"
                         className="btn btn-secondary btn-sm"
                         onClick={() => {
-                            console.log(
-
-                                "date:", (new Date()).toISOString().substring(0, 16),
-                            )
                             append({
                                 name: "",
                                 date: (new Date()).toISOString().substring(0, 16),
