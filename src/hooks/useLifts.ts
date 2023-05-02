@@ -51,11 +51,11 @@ export const useLifts = () => {
         return localforage.setItem(lskey, { lifts: [...data, lift] })
             .catch(e => {
                 setError(e)
-            }).then((d) => {
+            }).then((_) => {
                 // reload
                 reloadItem()
                 if (options && typeof options.onSuccess === 'function') {
-                    options.onSuccess(d)
+                    options.onSuccess(lift)
                 }
             }).finally(() => { setLoading(false) })
 

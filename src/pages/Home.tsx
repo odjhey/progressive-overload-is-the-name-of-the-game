@@ -3,6 +3,7 @@ import { useLifts } from "../hooks/useLifts";
 import { useDebouncedCallback } from 'use-debounce';
 import { Searchable } from "../components/Searchable";
 import { LiftsForm } from "../components/LiftsForm";
+import { useUrlSearchParams } from "../hooks/useUrlSearchParams";
 
 export default function Home() {
     const { data, error, loading, saveLifts } = useLifts()
@@ -10,6 +11,7 @@ export default function Home() {
     const setSearchTermDeb = useDebouncedCallback((value) => {
         setSearchTerm(value)
     }, 500)
+    const [selected] = useUrlSearchParams()
 
     if (loading) {
         return <div>Loading...</div>
@@ -19,8 +21,10 @@ export default function Home() {
         return <div>{error.message}</div>
     }
 
+    console.log(data)
     return <Searchable searchTerm={searchTerm} setSearchTerm={setSearchTermDeb}>
         <LiftsForm
+            selectedKey={(selected as any).selected ?? ""}
             lifts={data}
             filterFn={(row: any) => {
                 if (searchTerm === "") { return true }

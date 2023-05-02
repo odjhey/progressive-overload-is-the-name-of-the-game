@@ -23,10 +23,11 @@ const LabeledFieldLayout = ({ children }: PropsWithChildren) => {
 }
 
 
-export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
+export const LiftsForm = ({ lifts, onSubmit, filterFn, selectedKey }: {
     lifts: unknown[],
     onSubmit: (d: unknown[]) => Promise<unknown>
     filterFn: (row: unknown) => boolean
+    selectedKey?: string
 }) => {
     const navigate = useNavigate()
     const {
@@ -59,7 +60,7 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
                     .map((field, index) => {
                         return (
                             <div key={field.name}>
-                                <section className="flex flex-wrap gap-1 p-1" key={field.id}>
+                                <section className={`flex flex-wrap gap-1 p-1 ${selectedKey === field.date ? "border border-secondary border-solid border-2" : ""}`} key={field.id}>
 
                                     <input
                                         tabIndex={1 + (index * TAB_FIELD_COUNT)}

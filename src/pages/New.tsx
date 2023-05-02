@@ -1,11 +1,12 @@
 import { useLifts } from "../hooks/useLifts";
 import { LiftForm } from "../components/LiftForm";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { defaultParseSearch } from "../libs/searchParams";
+import { useNavigate } from "react-router-dom";
+import { useUrlSearchParams } from "../hooks/useUrlSearchParams";
+import { defaultStringifySearch } from "../libs/searchParams";
 
 export default function New() {
-    const [search] = useSearchParams()
-    const liftInSearch = defaultParseSearch(search.toString())
+    const [liftInSearch] = useUrlSearchParams()
+    console.log({ liftInSearch })
 
     const { error, loading, appendLift } = useLifts()
     const navigate = useNavigate()
@@ -27,5 +28,10 @@ export default function New() {
         weight: 0
     }
 
-    return <LiftForm lift={defaults} onSubmit={(lift) => appendLift(lift, { onSuccess: () => navigate('/') })}></LiftForm>
+    return <LiftForm lift={defaults} onSubmit={(lift) => appendLift(lift, {
+        onSuccess: (d) => navigate({
+            pathname: '/',
+            search: `${defaultStringifySearch({ selected: d.date })}`
+        })
+    })}></LiftForm >
 }
