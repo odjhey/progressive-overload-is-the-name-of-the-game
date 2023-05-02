@@ -1,5 +1,7 @@
 import { PropsWithChildren } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { defaultStringifySearch } from "../libs/searchParams";
 
 type FormValues = {
     lifts: {
@@ -26,6 +28,7 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
     onSubmit: (d: unknown[]) => Promise<unknown>
     filterFn: (row: unknown) => boolean
 }) => {
+    const navigate = useNavigate()
     const {
         register,
         control,
@@ -168,13 +171,17 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn }: {
                                     </button>
 
                                     <button className="btn btn-accent btn-xs" type="button" onClick={() => {
-                                        append({
-                                            name: field.name,
-                                            date: (new Date()).toISOString().substring(0, 16),
-                                            rep: field.rep,
-                                            set: field.set,
-                                            weight: field.weight,
-                                            uom: field.uom,
+                                        navigate({
+                                            pathname: '/new', search: `${defaultStringifySearch({
+                                                lift: {
+                                                    name: field.name,
+                                                    date: (new Date()).toISOString().substring(0, 16),
+                                                    rep: field.rep,
+                                                    set: field.set,
+                                                    weight: field.weight,
+                                                    uom: field.uom,
+                                                }
+                                            })}`
                                         })
                                     }}>
                                         copy

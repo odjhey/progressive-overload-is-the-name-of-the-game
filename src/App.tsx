@@ -4,7 +4,7 @@ import About from './pages/About';
 import Nav from './layouts/Nav';
 import Search from './pages/Search';
 import Latest from './pages/Latest';
-
+import New from './pages/New';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +18,9 @@ const router = createBrowserRouter([
   },
   {
     path: '/latest', element: <Nav><Latest></Latest></Nav>,
+  },
+  {
+    path: '/new', element: <Nav><New></New></Nav>,
   }
 ])
 

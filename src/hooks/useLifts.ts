@@ -44,5 +44,22 @@ export const useLifts = () => {
             }).finally(() => { setLoading(false) })
     }
 
-    return { loading, data, error, saveLifts }
+    const appendLift = (lift: any, options?: {
+        onSuccess: (lift: any) => void
+    }) => {
+        setLoading(true)
+        return localforage.setItem(lskey, { lifts: [...data, lift] })
+            .catch(e => {
+                setError(e)
+            }).then((d) => {
+                // reload
+                reloadItem()
+                if (options && typeof options.onSuccess === 'function') {
+                    options.onSuccess(d)
+                }
+            }).finally(() => { setLoading(false) })
+
+    }
+
+    return { loading, data, error, saveLifts, appendLift }
 }
