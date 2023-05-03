@@ -27,9 +27,23 @@ export default function Home() {
             selectedKey={(selected as any).selected ?? ""}
             lifts={data}
             filterFn={(row: any) => {
-                if (searchTerm === "") { return true }
+
+                const filterResults = []
+                // if (dateFilter) {
+                //     filterResults.push(row.date === dateFilter)
+                // }
+
                 // if (row.name === "") { return true } <--- lets accept the misfeature of unable to add after search
-                return JSON.stringify(row).toLowerCase().includes(searchTerm.toLowerCase())
+
+                if (searchTerm === "") {
+                    // none
+                } else {
+                    filterResults.push(
+                        JSON.stringify(Object.values(row)).toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                }
+
+                return filterResults.length === 0 || filterResults.every((v) => v === true)
             }}
             onSubmit={(d: unknown[]) => saveLifts(d)}></LiftsForm>
     </Searchable>

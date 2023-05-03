@@ -56,10 +56,9 @@ export const LiftsForm = ({ lifts, onSubmit, filterFn, selectedKey }: {
         <div>
             <form onSubmit={handleSubmit(onSubmitForm)}>
                 {fields
-                    .filter((row) => filterFn(row))
                     .map((field, index) => {
                         return (
-                            <div key={field.name}>
+                            <div key={field.id} className={`${filterFn(field) ? "" : "hidden"}`}>
                                 <section className={`flex flex-wrap gap-1 p-1 ${selectedKey === field.date ? "border border-secondary border-solid border-2" : ""}`} key={field.id}>
 
                                     <input
