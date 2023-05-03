@@ -1,5 +1,7 @@
 Try PWAs, make something useful for personal use, see https://en.wikipedia.org/wiki/Progressive_overload
 
+# Important
+Never ever merge something that will invalidate our users local data, always remember that we have existing users, so we have to find the best migration approach for data schema related changes.
 
 # Tech Goals
 1. local first, always almost offline only
