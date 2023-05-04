@@ -28,7 +28,8 @@ export default function New() {
         weight: 0
     }
 
-    return <LiftForm lift={defaults} onSubmit={(lift) => appendLift(lift, {
+    // we have the %20 issue about spaces and + sign
+    return <LiftForm lift={{ ...defaults, name: String(defaults.name).replaceAll('+', ' ') }} onSubmit={(lift) => appendLift(lift, {
         onSuccess: (d) => navigate({
             pathname: '/',
             search: `${defaultStringifySearch({ selected: d.date })}`
