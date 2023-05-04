@@ -28,7 +28,9 @@ export const LiftForm = ({ lift, onSubmit, }: {
         register,
         handleSubmit,
         setFocus,
-        formState: { errors }
+        setValue,
+        formState: { errors },
+        getValues
     } = useForm<FormValues>({
         mode: "onBlur",
         values: { lift }
@@ -46,7 +48,7 @@ export const LiftForm = ({ lift, onSubmit, }: {
         <div>
             <form onSubmit={handleSubmit(onSubmitForm)}>
                 <div key={lift.name}>
-                    <section className="flex flex-wrap gap-1 p-1" key={lift.date}>
+                    <section className="flex flex-col gap-1 p-1" key={lift.date}>
                         <input
                             tabIndex={1 + (index * TAB_FIELD_COUNT)}
                             {...register(`lift.date` as const, {
@@ -88,8 +90,12 @@ export const LiftForm = ({ lift, onSubmit, }: {
                                     valueAsNumber: true,
                                     required: true
                                 })}
-                                className={errors?.lift?.weight ? "error" : "w-16"}
-                            /></LabeledFieldLayout>
+                                className={errors?.lift?.weight ? "error" : "w-20"} />
+                            {["+10", "+1", "-1", "+10"].map((v) => <button key={v} className="btn btn-sm" onClick={() => {
+                                const bias = v.charAt(0) === '+' ? Number(v.substring(1)) * 1 : Number(v.substring(1)) * -1
+                                setValue('lift.weight', getValues('lift.weight') + bias)
+                            }}>{v}</button>)}
+                        </LabeledFieldLayout>
 
                         <LabeledFieldLayout>
                             <label className="label text-xs text-slate-400" htmlFor={`lift.uom`}>uom</label>
@@ -99,12 +105,11 @@ export const LiftForm = ({ lift, onSubmit, }: {
                                         setFocus(`lift.rep`)
                                     }
                                 }}
-                                tabIndex={4 + (index * TAB_FIELD_COUNT)}
                                 placeholder="uom"
                                 {...register(`lift.uom` as const, {
                                     required: true
                                 })}
-                                className={errors?.lift?.name ? "error" : "w-16"}
+                                className={errors?.lift?.uom ? "error" : "w-16"}
                             />
                         </LabeledFieldLayout>
 
@@ -116,7 +121,7 @@ export const LiftForm = ({ lift, onSubmit, }: {
                                         setFocus(`lift.set`)
                                     }
                                 }}
-                                tabIndex={5 + (index * TAB_FIELD_COUNT)}
+                                tabIndex={4 + (index * TAB_FIELD_COUNT)}
                                 placeholder="rep"
                                 type="number"
                                 {...register(`lift.rep` as const, {
@@ -125,6 +130,9 @@ export const LiftForm = ({ lift, onSubmit, }: {
                                 })}
                                 className={errors?.lift?.rep ? "error" : "w-12"}
                             />
+                            {[6, 8, 10, 12, 14].map((v) => <button key={v} className="btn btn-sm" onClick={
+                                () => setValue('lift.rep', v)
+                            }>{v}</button>)}
                         </LabeledFieldLayout>
 
                         <LabeledFieldLayout>
@@ -135,7 +143,7 @@ export const LiftForm = ({ lift, onSubmit, }: {
                                         // TODO set focus to submit
                                     }
                                 }}
-                                tabIndex={6 + (index * TAB_FIELD_COUNT)}
+                                tabIndex={5 + (index * TAB_FIELD_COUNT)}
                                 placeholder="set"
                                 type="number"
                                 {...register(`lift.set` as const, {
@@ -144,6 +152,9 @@ export const LiftForm = ({ lift, onSubmit, }: {
                                 })}
                                 className={errors?.lift?.set ? "error" : "w-12"}
                             />
+                            {[3, 4].map((v) => <button key={v} className="btn btn-sm" onClick={
+                                () => setValue('lift.set', v)
+                            }>{v}</button>)}
                         </LabeledFieldLayout>
                     </section>
                     <div className="bg-slate-100 p-2"></div>

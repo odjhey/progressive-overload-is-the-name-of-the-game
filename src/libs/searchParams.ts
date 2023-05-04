@@ -19,15 +19,11 @@ export function parseSearchWith(parser: (str: string) => any) {
         const query: Record<string, unknown> = decode(searchStr)
 
         // Try to parse any query params that might be json
-        console.log({ query })
         for (const key in query) {
             const value = query[key]
-            console.log('--value', typeof value, query[key])
             if (typeof value === 'string') {
                 try {
-                    console.log('--parsed v1', value)
                     query[key] = parser(value)
-                    console.log('--parsed value', query[key])
                 } catch (err) {
                     //
                     console.error(err)
