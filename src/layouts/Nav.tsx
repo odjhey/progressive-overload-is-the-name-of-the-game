@@ -20,6 +20,9 @@ export default function Nav({ children }: PropsWithChildren) {
               <Link to="/new">New</Link>
             </li>
             <li className="text-primary-content">
+              <Link to="/tags">Tags</Link>
+            </li>
+            <li className="text-primary-content">
               <Link to="/about">About</Link>
             </li>
           </ol>

@@ -1,13 +1,22 @@
 import localforage from 'localforage'
 import { useEffect, useState } from 'react'
 
+export type Lift = {
+  date: string
+  name: string
+  weight: number
+  uom: string
+  set: number
+  rep: number
+}
+
 // TODO: add version support
 // TODO: fix typescript
 const lskey = 'ZLDKSJF'
 export const useLifts = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error>()
-  const [data, setData] = useState<unknown[]>([])
+  const [data, setData] = useState<Lift[]>([])
 
   const reloadItem = () => {
     return localforage

@@ -2,16 +2,10 @@ import { PropsWithChildren } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { defaultStringifySearch } from '../libs/searchParams'
+import type { Lift } from '../hooks/useLifts'
 
 type FormValues = {
-  lifts: {
-    date: string
-    name: string
-    weight: number
-    uom: string
-    set: number
-    rep: number
-  }[]
+  lifts: Lift[]
 }
 
 const LabeledFieldLayout = ({ children }: PropsWithChildren) => {

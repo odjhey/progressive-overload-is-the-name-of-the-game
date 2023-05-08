@@ -64,6 +64,15 @@ export const useTags = () => {
     }
   ) => {
     setLoading(true)
+    const match = data.find(
+      (d) => d.liftName === tag.liftName && d.name === tag.name
+    )
+    if (match) {
+      // already exist, skip
+      // FIXME: no empty return
+      return
+    }
+
     return localforage
       .setItem(lskey, { tags: [...data, tag] })
       .catch((e) => {
