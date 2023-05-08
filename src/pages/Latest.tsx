@@ -1,5 +1,3 @@
 export default function Latest() {
-    return (
-        <div>Lasts</ div >
-    );
+  return <div>Lasts</div>
 }
