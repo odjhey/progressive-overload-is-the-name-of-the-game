@@ -29,12 +29,12 @@ export default function Tags() {
       <div>
         {lifts.data.map((d) => {
           return (
-            <>
+            <div key={d.name}>
               <div>{d.name}</div>
               {tags.data
                 .filter((v) => v.liftName === d.name)
                 .map((t) => {
-                  return <div>{t.name}</div>
+                  return <div key={t.name}>{t.name}</div>
                 })}
               <button
                 className="btn btn-sm"
@@ -42,7 +42,7 @@ export default function Tags() {
               >
                 +
               </button>
-            </>
+            </div>
           )
         })}
       </div>
