@@ -1,32 +1,29 @@
 import localforage from 'localforage'
 import { useEffect, useState } from 'react'
 
-export type Lift = {
-  date: string
+type Tag = {
   name: string
-  weight: number
-  uom: string
-  set: number
-  rep: number
+  liftName: string
 }
 
 // TODO: add version support
 // TODO: fix typescript
-const lskey = 'ZLDKSJF'
-export const useLifts = () => {
+const lskey = 'TAGSlksajdf'
+export const useTags = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error>()
-  const [data, setData] = useState<Lift[]>([])
+  const [data, setData] = useState<Tag[]>([])
 
   const reloadItem = () => {
     return localforage
       .getItem(lskey)
-      .then((d: any) => {
-        const defaultLifts: any[] = []
-        if (d && d.lifts) {
-          return d.lifts
+      .then((d) => {
+        const defaultTags: Tag[] = []
+        const typedD = d as { tags: Tag[] }
+        if (typedD && typedD.tags) {
+          return typedD.tags
         }
-        return defaultLifts
+        return defaultTags
       })
       .then((d) => {
         setData(d)
@@ -44,10 +41,10 @@ export const useLifts = () => {
       })
   }, [])
 
-  const saveLifts = (lifts: any[]) => {
+  const saveTags = (tags: Tag[]) => {
     setLoading(true)
     return localforage
-      .setItem(lskey, { lifts })
+      .setItem(lskey, { tags })
       .catch((e) => {
         setError(e)
       })
@@ -60,15 +57,24 @@ export const useLifts = () => {
       })
   }
 
-  const appendLift = (
-    lift: any,
+  const appendTag = (
+    tag: Tag,
     options?: {
-      onSuccess: (lift: any) => void
+      onSuccess: (tag: Tag) => void
     }
   ) => {
     setLoading(true)
+    const match = data.find(
+      (d) => d.liftName === tag.liftName && d.name === tag.name
+    )
+    if (match) {
+      // already exist, skip
+      // FIXME: no empty return
+      return
+    }
+
     return localforage
-      .setItem(lskey, { lifts: [...data, lift] })
+      .setItem(lskey, { tags: [...data, tag] })
       .catch((e) => {
         setError(e)
       })
@@ -76,7 +82,7 @@ export const useLifts = () => {
         // reload
         reloadItem()
         if (options && typeof options.onSuccess === 'function') {
-          options.onSuccess(lift)
+          options.onSuccess(tag)
         }
       })
       .finally(() => {
@@ -84,5 +90,5 @@ export const useLifts = () => {
       })
   }
 
-  return { loading, data, error, saveLifts, appendLift }
+  return { loading, data, error, saveTags, appendTag }
 }

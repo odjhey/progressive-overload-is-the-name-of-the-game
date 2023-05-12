@@ -5,6 +5,7 @@ import Nav from './layouts/Nav'
 import Search from './pages/Search'
 import Latest from './pages/Latest'
 import New from './pages/New'
+import Tags from './pages/Tags'
 
 const router = createBrowserRouter([
   {
@@ -44,6 +45,14 @@ const router = createBrowserRouter([
     element: (
       <Nav>
         <New></New>
+      </Nav>
+    ),
+  },
+  {
+    path: '/tags',
+    element: (
+      <Nav>
+        <Tags></Tags>
       </Nav>
     ),
   },
