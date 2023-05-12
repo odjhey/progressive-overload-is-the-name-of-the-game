@@ -29,15 +29,15 @@ export default function Tags() {
       <div>
         {lifts.data.map((d) => {
           return (
-            <div key={d.name}>
+            <div className='flex gap-2 items-center' key={d.name}>
               <div>{d.name}</div>
               {tags.data
                 .filter((v) => v.liftName === d.name)
                 .map((t) => {
-                  return <div key={t.name}>{t.name}</div>
+                  return <div className='badge' key={t.name}>{t.name}</div>
                 })}
               <button
-                className="btn btn-sm"
+                className="btn btn-xs"
                 onClick={() => setValue('liftName', d.name)}
               >
                 +
@@ -46,13 +46,15 @@ export default function Tags() {
           )
         })}
       </div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input {...register('name')} />
-        <input {...register('liftName')} />
-        <button type="submit" className="btn btn-sm">
-          tag
-        </button>
-      </form>
+      <div className='p-2'>
+        <form className='flex gap-2 flex-wrap items-center p-2 border-solid border-primary border' onSubmit={handleSubmit(onSubmit)}>
+          <input className='input input-bordered' {...register('name')} />
+          <input className='input input-bordered' {...register('liftName')} />
+          <button type="submit" className="btn btn-sm">
+            tag
+          </button>
+        </form>
+      </div>
     </>
   )
 }
