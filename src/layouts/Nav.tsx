@@ -3,7 +3,7 @@ import {
 } from 'react'
 import { Link } from 'react-router-dom'
 
-export default function Nav(_props: PropsWithChildren) {
+export default function Nav({ children }: PropsWithChildren) {
   return (
     <>
       <div>
@@ -29,7 +29,10 @@ export default function Nav(_props: PropsWithChildren) {
             </li>
           </ol>
         </nav>
+
       </div>
+
+      {children}
 
     </>
   )
