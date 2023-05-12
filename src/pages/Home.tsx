@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState } from 'react'
+import { PropsWithChildren, useMemo, useState } from 'react'
 import { useLifts } from '../hooks/useLifts'
 import { useDebouncedCallback } from 'use-debounce'
 import { Searchable } from '../components/Searchable'
@@ -32,6 +32,14 @@ export default function Home() {
     setSearchTerm(value)
   }, 500)
   const [selected] = useUrlSearchParams()
+  const [latestOnly, setLatestOnly] = useState(false)
+
+  const uniqueLatest = useMemo(() => {
+    const orderedData = data.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    const keys = new Set(orderedData.map((d: any) => d.name))
+    console.log({ keys: [...keys.values()] })
+    return [...keys.values()].map(k => orderedData.find((d: any) => d.name === k))
+  }, [data])
 
   if (loading) {
     return <div>Loading...</div>
@@ -41,21 +49,32 @@ export default function Home() {
     return <div>{error.message}</div>
   }
 
-  console.log(data)
   return (
     <>
-      <DateSearch setDate={setSearchTerm}></DateSearch>
-      <Searchable
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTermDeb}
-      ></Searchable>
+      <div className='flex'>
+        <DateSearch setDate={setSearchTerm}></DateSearch>
+        <Searchable
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTermDeb}
+        ></Searchable>
+        <div className='flex gap-1'>
+          <input id="latest-only" type='checkbox' onChange={(e) => setLatestOnly(e.target.checked)}></input>
+          <label htmlFor='latest-only'>latest</label>
+        </div>
+      </div>
       <LiftsForm
+
         selectedKey={(selected as any).selected ?? ''}
         lifts={data}
         filterFn={(row: any) => {
           const filterResults = []
 
           // if (row.name === "") { return true } < --- lets accept the misfeature of unable to add after search
+
+          if (latestOnly) {
+            const match = uniqueLatest.find((d: any) => d.name === row.name && d.date === row.date)
+            filterResults.push(!!match)
+          }
 
           if (searchTerm === '') {
             // none
