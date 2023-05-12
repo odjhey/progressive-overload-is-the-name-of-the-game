@@ -106,6 +106,7 @@ export const LiftForm = ({
               />
               {['+10', '+1', '-1', '+10'].map((v) => (
                 <button
+                  type='button'
                   key={v}
                   className="btn btn-sm"
                   onClick={() => {
@@ -166,6 +167,7 @@ export const LiftForm = ({
               />
               {[6, 8, 10, 12, 14].map((v) => (
                 <button
+                  type='button'
                   key={v}
                   className="btn btn-sm"
                   onClick={() => setValue('lift.rep', v)}
@@ -199,6 +201,7 @@ export const LiftForm = ({
               />
               {[3, 4].map((v) => (
                 <button
+                  type='button'
                   key={v}
                   className="btn btn-sm"
                   onClick={() => setValue('lift.set', v)}
