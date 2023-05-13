@@ -1,6 +1,4 @@
-import {
-  PropsWithChildren,
-} from 'react'
+import { PropsWithChildren } from 'react'
 import { Link } from 'react-router-dom'
 
 export default function Nav({ children }: PropsWithChildren) {
@@ -29,11 +27,9 @@ export default function Nav({ children }: PropsWithChildren) {
             </li>
           </ol>
         </nav>
-
       </div>
 
       {children}
-
     </>
   )
 }
