@@ -1,6 +1,7 @@
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { useLifts } from '../hooks/useLifts'
+import { Lift, useLifts } from '../hooks/useLifts'
 import { useTags } from '../hooks/useTags'
+import { useMemo } from 'react'
 
 type NewTag = {
   name: string
@@ -23,11 +24,22 @@ export default function Tags() {
     )
   }
 
+  const uniqueLifts = useMemo<typeof lifts.data>(() => {
+    const orderedData = lifts.data.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
+    const keys = new Set(orderedData.map((d) => d.name))
+    const isLift = (item: Lift | undefined): item is Lift => item !== undefined
+    return [...keys.values()]
+      .map((k) => orderedData.find((d) => d.name === k))
+      .filter(isLift)
+  }, [lifts.data])
+
   return (
     <>
       <div>Tags</div>
       <div>
-        {lifts.data.map((d) => {
+        {uniqueLifts.map((d) => {
           return (
             <div className="flex gap-2 items-center" key={d.name}>
               <div>{d.name}</div>
