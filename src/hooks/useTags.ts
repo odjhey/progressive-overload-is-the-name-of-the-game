@@ -1,7 +1,7 @@
 import localforage from 'localforage'
 import { useEffect, useState } from 'react'
 
-type Tag = {
+export type Tag = {
   name: string
   liftName: string
 }
