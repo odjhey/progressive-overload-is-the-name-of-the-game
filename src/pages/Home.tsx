@@ -30,6 +30,7 @@ export default function Home() {
   const { data, error, loading, saveLifts } = useLifts()
   const { data: tags } = useTags()
   const [searchTerm, setSearchTerm] = useState('')
+  const [tagSearch, setTagSearch] = useState('')
   const setSearchTermDeb = useDebouncedCallback((value) => {
     setSearchTerm(value)
   }, 500)
@@ -63,6 +64,11 @@ export default function Home() {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTermDeb}
         ></Searchable>
+        <Searchable
+          placeholder="tag search"
+          searchTerm={tagSearch}
+          setSearchTerm={setTagSearch}
+        ></Searchable>
         <div className="flex gap-1">
           <input
             id="latest-only"
@@ -84,6 +90,15 @@ export default function Home() {
           if (latestOnly) {
             const match = uniqueLatest.find(
               (d) => d.name === row.name && d.date === row.date
+            )
+            filterResults.push(!!match)
+          }
+
+          if (tagSearch !== '') {
+            const match = tags.find(
+              (t) =>
+                t.liftName === row.name &&
+                t.name.toLowerCase().includes(tagSearch.toLowerCase())
             )
             filterResults.push(!!match)
           }
