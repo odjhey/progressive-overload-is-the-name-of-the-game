@@ -4,6 +4,7 @@ import { useDebouncedCallback } from 'use-debounce'
 import { Searchable } from '../components/Searchable'
 import { LiftsForm } from '../components/LiftsForm'
 import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
+import { useTags } from '../hooks/useTags'
 
 const DateSearch = (
   props: PropsWithChildren<{
@@ -27,6 +28,7 @@ const DateSearch = (
 
 export default function Home() {
   const { data, error, loading, saveLifts } = useLifts()
+  const { data: tags } = useTags()
   const [searchTerm, setSearchTerm] = useState('')
   const setSearchTermDeb = useDebouncedCallback((value) => {
     setSearchTerm(value)
@@ -73,6 +75,7 @@ export default function Home() {
       <LiftsForm
         selectedKey={(selected as any).selected ?? ''}
         lifts={data}
+        tags={tags}
         filterFn={(row: any) => {
           const filterResults = []
 

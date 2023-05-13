@@ -3,6 +3,7 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { defaultStringifySearch } from '../libs/searchParams'
 import type { Lift } from '../hooks/useLifts'
+import { Tag } from '../hooks/useTags'
 
 type FormValues = {
   lifts: Lift[]
@@ -21,11 +22,13 @@ export const LiftsForm = ({
   onSubmit,
   filterFn,
   selectedKey,
+  tags,
 }: {
   lifts: unknown[]
   onSubmit: (d: unknown[]) => Promise<unknown>
   filterFn: (row: unknown) => boolean
   selectedKey?: string
+  tags: Tag[]
 }) => {
   const navigate = useNavigate()
   const {
@@ -36,7 +39,7 @@ export const LiftsForm = ({
     formState: { errors },
   } = useForm<FormValues>({
     mode: 'onBlur',
-    values: { lifts: lifts as any[] },
+    values: { lifts: lifts as Lift[] },
   })
 
   const { fields, append, remove } = useFieldArray({
@@ -62,7 +65,7 @@ export const LiftsForm = ({
               <section
                 className={`flex flex-wrap gap-1 p-1 ${
                   selectedKey === field.date
-                    ? 'border border-secondary border-solid border-2'
+                    ? 'border-secondary border-solid border-2'
                     : ''
                 }`}
                 key={field.id}
@@ -193,6 +196,12 @@ export const LiftsForm = ({
                     className={errors?.lifts?.[index]?.set ? 'error' : 'w-12'}
                   />
                 </LabeledFieldLayout>
+
+                {tags
+                  .filter((t) => t.liftName === field.name)
+                  .map((t) => {
+                    return <span className="badge badge-info">{t.name}</span>
+                  })}
 
                 <button
                   className="btn btn-error btn-xs"
