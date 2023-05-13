@@ -15,7 +15,7 @@ const DateSearch = (
   return (
     <>
       <input
-        className="input input-sm"
+        className="input input-sm input-bordered"
         type="date"
         onChange={(e) => {
           setDate(e.target.value)
@@ -58,7 +58,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex">
+      <div className="flex flex-col">
         <DateSearch setDate={setSearchTerm}></DateSearch>
         <Searchable
           searchTerm={searchTerm}
@@ -78,6 +78,7 @@ export default function Home() {
           <label htmlFor="latest-only">latest</label>
         </div>
       </div>
+      <div className="bg-secondary w-full h-1 my-2"></div>
       <LiftsForm
         selectedKey={(selected as any).selected ?? ''}
         lifts={data}
