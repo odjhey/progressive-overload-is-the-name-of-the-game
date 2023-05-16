@@ -1,35 +1,56 @@
 import { PropsWithChildren } from 'react'
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
+import {
+  IconHome,
+  IconSearch,
+  IconNewSection,
+  IconTags,
+  IconInfoCircle,
+} from '@tabler/icons-react'
 
 export default function Nav({ children }: PropsWithChildren) {
   return (
     <>
-      <div>
-        <nav>
-          <ol className="flex gap-4 p-2 bg-primary">
-            <li className="text-primary-content">
-              <Link to="/">Home</Link>
-            </li>
-            <li className="text-primary-content">
-              <Link to="/latest">Lasts</Link>
-            </li>
-            <li className="text-primary-content">
-              <Link to="/search">Search</Link>
-            </li>
-            <li className="text-primary-content">
-              <Link to="/new">New</Link>
-            </li>
-            <li className="text-primary-content">
-              <Link to="/tags">Tags</Link>
-            </li>
-            <li className="text-primary-content">
-              <Link to="/about">About</Link>
-            </li>
-          </ol>
-        </nav>
-      </div>
-
-      {children}
+      <nav className="navbar bg-primary"></nav>
+      <div className="pb-10">{children}</div>
+      <nav className="btm-nav bg-primary">
+        <NavLink
+          className={({ isActive }) => (isActive ? 'active' : '')}
+          to="/"
+        >
+          <IconHome></IconHome>
+        </NavLink>
+        <NavLink
+          to="/latest"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          Lasts
+        </NavLink>
+        <NavLink
+          to="/search"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          <IconSearch></IconSearch>
+        </NavLink>
+        <NavLink
+          to="/new"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          <IconNewSection></IconNewSection>
+        </NavLink>
+        <NavLink
+          to="/tags"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          <IconTags></IconTags>
+        </NavLink>
+        <NavLink
+          to="/about"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          <IconInfoCircle></IconInfoCircle>
+        </NavLink>
+      </nav>
     </>
   )
 }
