@@ -64,11 +64,22 @@ export default function Home() {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTermDeb}
         ></Searchable>
-        <Searchable
-          placeholder="tag search"
-          searchTerm={tagSearch}
-          setSearchTerm={setTagSearch}
-        ></Searchable>
+        <div className="flex gap-1 items-center">
+          <Searchable
+            placeholder="tag search"
+            searchTerm={tagSearch}
+            setSearchTerm={setTagSearch}
+          ></Searchable>
+          {['push', 'pull'].map((d) => (
+            <button
+              className="btn btn-xs"
+              key={d}
+              onClick={() => setTagSearch(d)}
+            >
+              {d}
+            </button>
+          ))}
+        </div>
         <div className="flex gap-1">
           <input
             id="latest-only"

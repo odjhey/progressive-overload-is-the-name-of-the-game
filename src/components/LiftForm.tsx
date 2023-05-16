@@ -104,7 +104,7 @@ export const LiftForm = ({
                 })}
                 className={errors?.lift?.weight ? 'error' : 'w-20'}
               />
-              {['+10', '+1', '-1', '+10'].map((v) => (
+              {['+10', '+1', '-1', '-10'].map((v) => (
                 <button
                   type="button"
                   key={v}
