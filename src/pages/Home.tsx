@@ -1,5 +1,5 @@
-import { PropsWithChildren, useMemo, useState } from 'react'
-import { Lift, useLifts } from '../hooks/useLifts'
+import { PropsWithChildren, useState } from 'react'
+import { useLifts } from '../hooks/useLifts'
 import { useDebouncedCallback } from 'use-debounce'
 import { Searchable } from '../components/Searchable'
 import { LiftsForm } from '../components/LiftsForm'
@@ -27,7 +27,7 @@ const DateSearch = (
 }
 
 export default function Home() {
-  const { data, error, loading, saveLifts } = useLifts()
+  const { data, error, loading, unique, saveLifts } = useLifts()
   const { data: tags } = useTags()
   const [searchTerm, setSearchTerm] = useState('')
   const [tagSearch, setTagSearch] = useState('')
@@ -36,17 +36,6 @@ export default function Home() {
   }, 500)
   const [selected] = useUrlSearchParams()
   const [latestOnly, setLatestOnly] = useState(false)
-
-  const uniqueLatest = useMemo<typeof data>(() => {
-    const orderedData = data.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    )
-    const keys = new Set(orderedData.map((d) => d.name))
-    const isLift = (item: Lift | undefined): item is Lift => item !== undefined
-    return [...keys.values()]
-      .map((k) => orderedData.find((d) => d.name === k))
-      .filter(isLift)
-  }, [data])
 
   if (loading) {
     return <div>Loading...</div>
@@ -100,7 +89,7 @@ export default function Home() {
           // if (row.name === "") { return true } < --- lets accept the misfeature of unable to add after search
 
           if (latestOnly) {
-            const match = uniqueLatest.find(
+            const match = unique.find(
               (d) => d.name === row.name && d.date === row.date
             )
             filterResults.push(!!match)

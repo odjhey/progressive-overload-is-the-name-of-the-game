@@ -1,5 +1,5 @@
 import localforage from 'localforage'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export type Lift = {
   date: string
@@ -17,6 +17,17 @@ export const useLifts = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error>()
   const [data, setData] = useState<Lift[]>([])
+
+  const unique = useMemo<typeof data>(() => {
+    const orderedData = data.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
+    const keys = new Set(orderedData.map((d) => d.name))
+    const isLift = (item: Lift | undefined): item is Lift => item !== undefined
+    return [...keys.values()]
+      .map((k) => orderedData.find((d) => d.name === k))
+      .filter(isLift)
+  }, [data])
 
   const reloadItem = () => {
     return localforage
@@ -84,5 +95,5 @@ export const useLifts = () => {
       })
   }
 
-  return { loading, data, error, saveLifts, appendLift }
+  return { loading, data, unique, error, saveLifts, appendLift }
 }
