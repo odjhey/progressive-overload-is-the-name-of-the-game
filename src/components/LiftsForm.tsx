@@ -56,6 +56,25 @@ export const LiftsForm = ({
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmitForm)}>
+        <div className="flex gap-1 pb-10">
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => {
+              append({
+                name: '',
+                date: new Date().toISOString().substring(0, 16),
+                rep: 0,
+                set: 0,
+                weight: 0,
+                uom: 'lbs',
+              })
+            }}
+          >
+            APPEND
+          </button>
+          <input className="btn btn-primary btn-sm" type="submit" />
+        </div>
         {fields.map((field, index) => {
           return (
             <div
@@ -243,26 +262,6 @@ export const LiftsForm = ({
             </div>
           )
         })}
-
-        <div className="flex gap-1 pb-10">
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={() => {
-              append({
-                name: '',
-                date: new Date().toISOString().substring(0, 16),
-                rep: 0,
-                set: 0,
-                weight: 0,
-                uom: 'lbs',
-              })
-            }}
-          >
-            APPEND
-          </button>
-          <input className="btn btn-primary btn-sm" type="submit" />
-        </div>
       </form>
     </div>
   )
