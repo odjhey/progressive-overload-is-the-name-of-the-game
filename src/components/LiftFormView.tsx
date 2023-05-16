@@ -1,5 +1,7 @@
 import { PropsWithChildren } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { defaultStringifySearch } from '../libs/searchParams'
 
 type FormValues = {
   lift: {
@@ -20,68 +22,57 @@ const LabeledFieldLayout = ({ children }: PropsWithChildren) => {
   )
 }
 
-export const LiftForm = ({
-  lift,
-  onSubmit,
-}: {
-  lift: FormValues['lift']
-  onSubmit: (d: unknown) => Promise<unknown>
-}) => {
+export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
   const {
     register,
-    handleSubmit,
     setFocus,
-    setValue,
     formState: { errors },
-    getValues,
   } = useForm<FormValues>({
     mode: 'onBlur',
     values: { lift },
   })
 
-  const onSubmitForm = (data: FormValues) => {
-    onSubmit(data.lift)
-  }
+  const navigate = useNavigate()
 
   const TAB_FIELD_COUNT = 6
   const index = 0
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmitForm)}>
-        <div key={lift.name}>
-          <section className="flex flex-col gap-1 p-1" key={lift.date}>
+      <div key={lift.name}>
+        <section className="flex flex-col gap-1 p-1" key={lift.date}>
+          <input
+            tabIndex={1 + index * TAB_FIELD_COUNT}
+            {...register(`lift.date` as const, {
+              required: true,
+            })}
+            className={errors?.lift?.date ? 'error' : ''}
+            type="datetime-local"
+          />
+
+          <LabeledFieldLayout>
+            <label
+              className="label text-xs text-slate-400"
+              htmlFor={`lift.name`}
+            >
+              name
+            </label>
             <input
-              tabIndex={1 + index * TAB_FIELD_COUNT}
-              {...register(`lift.date` as const, {
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  setFocus(`lift.weight`)
+                }
+              }}
+              tabIndex={2 + index * TAB_FIELD_COUNT}
+              placeholder="name"
+              {...register(`lift.name` as const, {
                 required: true,
               })}
-              className={errors?.lift?.date ? 'error' : ''}
-              type="datetime-local"
+              className={errors?.lift?.name ? 'error' : ''}
             />
+          </LabeledFieldLayout>
 
-            <LabeledFieldLayout>
-              <label
-                className="label text-xs text-slate-400"
-                htmlFor={`lift.name`}
-              >
-                name
-              </label>
-              <input
-                onKeyUp={(e) => {
-                  if (e.key === 'Enter') {
-                    setFocus(`lift.weight`)
-                  }
-                }}
-                tabIndex={2 + index * TAB_FIELD_COUNT}
-                placeholder="name"
-                {...register(`lift.name` as const, {
-                  required: true,
-                })}
-                className={errors?.lift?.name ? 'error' : ''}
-              />
-            </LabeledFieldLayout>
-
+          <div className="flex">
             <LabeledFieldLayout>
               <label
                 className="label text-xs text-slate-400"
@@ -104,22 +95,6 @@ export const LiftForm = ({
                 })}
                 className={errors?.lift?.weight ? 'error' : 'w-20'}
               />
-              {['+10', '+1', '-1', '-10'].map((v) => (
-                <button
-                  type="button"
-                  key={v}
-                  className="btn btn-sm"
-                  onClick={() => {
-                    const bias =
-                      v.charAt(0) === '+'
-                        ? Number(v.substring(1)) * 1
-                        : Number(v.substring(1)) * -1
-                    setValue('lift.weight', getValues('lift.weight') + bias)
-                  }}
-                >
-                  {v}
-                </button>
-              ))}
             </LabeledFieldLayout>
 
             <LabeledFieldLayout>
@@ -165,16 +140,6 @@ export const LiftForm = ({
                 })}
                 className={errors?.lift?.rep ? 'error' : 'w-12'}
               />
-              {[6, 8, 10, 12, 14].map((v) => (
-                <button
-                  type="button"
-                  key={v}
-                  className="btn btn-sm"
-                  onClick={() => setValue('lift.rep', v)}
-                >
-                  {v}
-                </button>
-              ))}
             </LabeledFieldLayout>
 
             <LabeledFieldLayout>
@@ -199,25 +164,34 @@ export const LiftForm = ({
                 })}
                 className={errors?.lift?.set ? 'error' : 'w-12'}
               />
-              {[3, 4].map((v) => (
-                <button
-                  type="button"
-                  key={v}
-                  className="btn btn-sm"
-                  onClick={() => setValue('lift.set', v)}
-                >
-                  {v}
-                </button>
-              ))}
             </LabeledFieldLayout>
-          </section>
-          <div className="bg-slate-100 p-2"></div>
-        </div>
+          </div>
+        </section>
+      </div>
 
-        <div className="flex gap-1 pb-10">
-          <input className="btn btn-primary btn-sm" type="submit" />
-        </div>
-      </form>
+      <button
+        className="btn btn-accent btn-xs"
+        type="button"
+        onClick={() => {
+          navigate({
+            pathname: '/new',
+            search: `${defaultStringifySearch({
+              lift: {
+                name: lift.name,
+                date: new Date().toISOString().substring(0, 16),
+                rep: lift.rep,
+                set: lift.set,
+                weight: lift.weight,
+                uom: lift.uom,
+              },
+            })}`,
+          })
+        }}
+      >
+        copy
+      </button>
+
+      <div className="bg-slate-100 p-2"></div>
     </div>
   )
 }
