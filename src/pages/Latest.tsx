@@ -43,7 +43,7 @@ export default function Latest() {
               {data
                 .filter((d) => d.name === lift.name)
                 .map((d) => {
-                  return <LiftFormView lift={lift}></LiftFormView>
+                  return <LiftFormView lift={d}></LiftFormView>
                 })}
             </div>
           </div>
