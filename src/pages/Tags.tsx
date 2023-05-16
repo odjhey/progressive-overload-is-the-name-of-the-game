@@ -12,7 +12,7 @@ export default function Tags() {
   const lifts = useLifts()
   const tags = useTags()
 
-  const { register, handleSubmit, setValue } = useForm<NewTag>()
+  const { register, handleSubmit, setValue, setFocus } = useForm<NewTag>()
   const onSubmit: SubmitHandler<NewTag> = (data) => {
     tags.appendTag(
       { liftName: data.liftName, name: data.name },
@@ -22,6 +22,7 @@ export default function Tags() {
         },
       }
     )
+    window.scrollTo({ top: 0 })
   }
 
   const uniqueLifts = useMemo<typeof lifts.data>(() => {
@@ -54,7 +55,10 @@ export default function Tags() {
                 })}
               <button
                 className="btn btn-xs"
-                onClick={() => setValue('liftName', d.name)}
+                onClick={() => {
+                  setValue('liftName', d.name)
+                  setFocus('name')
+                }}
               >
                 +
               </button>
@@ -67,8 +71,14 @@ export default function Tags() {
           className="flex gap-2 flex-wrap items-center p-2 border-solid border-primary border"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <input className="input input-bordered" {...register('name')} />
-          <input className="input input-bordered" {...register('liftName')} />
+          <input
+            className="input input-bordered"
+            {...register('name', { required: true })}
+          />
+          <input
+            className="input input-bordered"
+            {...register('liftName', { required: true })}
+          />
           <button type="submit" className="btn btn-sm">
             tag
           </button>
