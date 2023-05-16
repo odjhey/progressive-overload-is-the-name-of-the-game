@@ -1,5 +1,5 @@
 import localforage from 'localforage'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export type Tag = {
   name: string
@@ -13,6 +13,11 @@ export const useTags = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error>()
   const [data, setData] = useState<Tag[]>([])
+
+  const unique = useMemo(() => {
+    const tagNames = data.map((d) => d.name)
+    return [...new Set(tagNames)]
+  }, [data])
 
   const reloadItem = () => {
     return localforage
@@ -90,5 +95,5 @@ export const useTags = () => {
       })
   }
 
-  return { loading, data, error, saveTags, appendTag }
+  return { loading, data, error, unique, saveTags, appendTag }
 }
