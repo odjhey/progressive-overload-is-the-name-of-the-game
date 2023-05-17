@@ -71,6 +71,43 @@ export const useLifts = () => {
       })
   }
 
+  const upsertLift = (
+    lift: Lift,
+    options?: {
+      onSuccess: (lift: Lift) => void
+    }
+  ) => {
+    setLoading(true)
+
+    const index = data.findIndex(
+      (d) => d.date === lift.date && d.name === lift.name
+    )
+
+    const updatedLifts =
+      index > -1
+        ? (() => {
+            data[index] = lift
+            return [...data]
+          })()
+        : [...data, lift]
+
+    return localforage
+      .setItem(lskey, { lifts: updatedLifts })
+      .catch((e) => {
+        setError(e)
+      })
+      .then((_) => {
+        // reload
+        reloadItem()
+        if (options && typeof options.onSuccess === 'function') {
+          options.onSuccess(lift)
+        }
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
   const appendLift = (
     lift: any,
     options?: {
@@ -95,5 +132,5 @@ export const useLifts = () => {
       })
   }
 
-  return { loading, data, unique, error, saveLifts, appendLift }
+  return { loading, data, unique, error, saveLifts, appendLift, upsertLift }
 }

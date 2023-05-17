@@ -53,7 +53,7 @@ export default function Latest() {
               filterFn(lift) ? '' : 'hidden'
             } `}
           >
-            <div>
+            <div className="flex items-center gap-1">
               <button
                 className="btn btn-sm btn-ghost"
                 onClick={() => {
@@ -69,11 +69,13 @@ export default function Latest() {
               >
                 {lift.name}
               </button>
-              {tags
-                .filter((d) => d.liftName === lift.name)
-                .map((t) => {
-                  return <span className="badge">{t.name}</span>
-                })}
+              <div className="flex gap-1 items-center">
+                {tags
+                  .filter((d) => d.liftName === lift.name)
+                  .map((t) => {
+                    return <span className="badge">{t.name}</span>
+                  })}
+              </div>
             </div>
             <div
               className={`flex flex-wrap border border-solid border-red-300 ${
