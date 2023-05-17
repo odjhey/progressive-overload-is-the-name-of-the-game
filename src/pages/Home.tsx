@@ -27,7 +27,7 @@ const DateSearch = (
 }
 
 export default function Home() {
-  const { data, error, loading, unique, saveLifts } = useLifts()
+  const { data, error, loading, unique } = useLifts()
   const { data: tags } = useTags()
   const [searchTerm, setSearchTerm] = useState('')
   const [tagSearch, setTagSearch] = useState('')
@@ -118,7 +118,6 @@ export default function Home() {
             filterResults.length === 0 || filterResults.every((v) => v === true)
           )
         }}
-        onSubmit={(d: unknown[]) => saveLifts(d)}
       ></LiftsForm>
     </>
   )

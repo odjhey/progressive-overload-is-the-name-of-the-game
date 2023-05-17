@@ -19,13 +19,11 @@ const LabeledFieldLayout = ({ children }: PropsWithChildren) => {
 
 export const LiftsForm = ({
   lifts,
-  onSubmit,
   filterFn,
   selectedKey,
   tags,
 }: {
   lifts: unknown[]
-  onSubmit: (d: unknown[]) => Promise<unknown>
   filterFn: (row: unknown) => boolean
   selectedKey?: string
   tags: Tag[]
@@ -34,7 +32,6 @@ export const LiftsForm = ({
   const {
     register,
     control,
-    handleSubmit,
     setFocus,
     formState: { errors },
   } = useForm<FormValues>({
@@ -47,15 +44,11 @@ export const LiftsForm = ({
     control,
   })
 
-  const onSubmitForm = (data: FormValues) => {
-    onSubmit(data.lifts)
-  }
-
   const TAB_FIELD_COUNT = 6
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmitForm)}>
+      <form>
         {fields.map((field, index) => {
           return (
             <div
