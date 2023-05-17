@@ -40,11 +40,12 @@ export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
   return (
     <div>
       <div key={lift.name}>
-        <section className="flex flex-col gap-1 p-1" key={lift.date}>
+        <section className="flex flex-row flex-wrap gap-1 p-1" key={lift.date}>
           <input
             tabIndex={1 + index * TAB_FIELD_COUNT}
             {...register(`lift.date` as const, {
               required: true,
+              disabled: true,
             })}
             className={errors?.lift?.date ? 'error' : ''}
             type="datetime-local"
@@ -67,6 +68,7 @@ export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
               placeholder="name"
               {...register(`lift.name` as const, {
                 required: true,
+                disabled: true,
               })}
               className={errors?.lift?.name ? 'error' : ''}
             />
@@ -92,6 +94,7 @@ export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
                 {...register(`lift.weight` as const, {
                   valueAsNumber: true,
                   required: true,
+                  disabled: true,
                 })}
                 className={errors?.lift?.weight ? 'error' : 'w-20'}
               />
@@ -113,6 +116,7 @@ export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
                 placeholder="uom"
                 {...register(`lift.uom` as const, {
                   required: true,
+                  disabled: true,
                 })}
                 className={errors?.lift?.uom ? 'error' : 'w-16'}
               />
@@ -137,6 +141,7 @@ export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
                 {...register(`lift.rep` as const, {
                   valueAsNumber: true,
                   required: true,
+                  disabled: true,
                 })}
                 className={errors?.lift?.rep ? 'error' : 'w-12'}
               />
@@ -161,6 +166,7 @@ export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
                 {...register(`lift.set` as const, {
                   valueAsNumber: true,
                   required: true,
+                  disabled: true,
                 })}
                 className={errors?.lift?.set ? 'error' : 'w-12'}
               />

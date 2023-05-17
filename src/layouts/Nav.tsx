@@ -12,8 +12,8 @@ export default function Nav({ children }: PropsWithChildren) {
   return (
     <>
       <nav className="navbar bg-primary"></nav>
-      <div className="pb-10">{children}</div>
-      <nav className="btm-nav bg-primary">
+      <div className="pb-14">{children}</div>
+      <nav className="btm-nav bg-primary pb-4">
         <NavLink
           className={({ isActive }) => (isActive ? 'active' : '')}
           to="/"

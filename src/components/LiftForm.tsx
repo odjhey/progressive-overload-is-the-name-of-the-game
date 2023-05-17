@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react'
 import { useForm } from 'react-hook-form'
+import { Lift } from '../hooks/useLifts'
 
 type FormValues = {
   lift: {
@@ -25,7 +26,7 @@ export const LiftForm = ({
   onSubmit,
 }: {
   lift: FormValues['lift']
-  onSubmit: (d: unknown) => Promise<unknown>
+  onSubmit: (d: Lift) => Promise<unknown>
 }) => {
   const {
     register,

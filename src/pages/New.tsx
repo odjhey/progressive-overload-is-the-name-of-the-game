@@ -1,4 +1,4 @@
-import { useLifts } from '../hooks/useLifts'
+import { Lift, useLifts } from '../hooks/useLifts'
 import { LiftForm } from '../components/LiftForm'
 import { useNavigate } from 'react-router-dom'
 import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
@@ -8,7 +8,7 @@ export default function New() {
   const [liftInSearch] = useUrlSearchParams()
   console.log({ liftInSearch })
 
-  const { error, loading, appendLift } = useLifts()
+  const { error, loading, upsertLift } = useLifts()
   const navigate = useNavigate()
 
   if (loading) {
@@ -32,8 +32,8 @@ export default function New() {
   return (
     <LiftForm
       lift={{ ...defaults, name: String(defaults.name).replaceAll('+', ' ') }}
-      onSubmit={(lift) =>
-        appendLift(lift, {
+      onSubmit={(lift: Lift) =>
+        upsertLift(lift, {
           onSuccess: (d) =>
             navigate({
               pathname: '/',
