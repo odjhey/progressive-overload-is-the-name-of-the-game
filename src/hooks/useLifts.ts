@@ -71,6 +71,44 @@ export const useLifts = () => {
       })
   }
 
+  const deleteLift = (
+    keys: Pick<Lift, 'date' | 'name'>,
+    options?: {
+      onSuccess: (lift: Lift) => void
+    }
+  ) => {
+    setLoading(true)
+
+    const index = data.findIndex(
+      (d) => d.date === keys.date && d.name === keys.name
+    )
+    const toBeDeleted = data[index]
+
+    const updatedLifts =
+      index > -1
+        ? (() => {
+            data.splice(index, 1)
+            return [...data]
+          })()
+        : [...data]
+
+    return localforage
+      .setItem(lskey, { lifts: updatedLifts })
+      .catch((e) => {
+        setError(e)
+      })
+      .then((_) => {
+        // reload
+        reloadItem()
+        if (options && typeof options.onSuccess === 'function') {
+          options.onSuccess(toBeDeleted)
+        }
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
   const upsertLift = (
     lift: Lift,
     options?: {
@@ -132,5 +170,14 @@ export const useLifts = () => {
       })
   }
 
-  return { loading, data, unique, error, saveLifts, appendLift, upsertLift }
+  return {
+    loading,
+    data,
+    unique,
+    error,
+    saveLifts,
+    appendLift,
+    upsertLift,
+    deleteLift,
+  }
 }
