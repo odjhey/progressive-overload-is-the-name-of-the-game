@@ -8,7 +8,7 @@ export default function New() {
   const [liftInSearch] = useUrlSearchParams()
   console.log({ liftInSearch })
 
-  const { error, loading, upsertLift } = useLifts()
+  const { error, loading, upsertLift, deleteLift } = useLifts()
   const navigate = useNavigate()
 
   if (loading) {
@@ -32,6 +32,14 @@ export default function New() {
   return (
     <LiftForm
       lift={{ ...defaults, name: String(defaults.name).replaceAll('+', ' ') }}
+      onDelete={(k) =>
+        deleteLift(k, {
+          onSuccess: (d) =>
+            navigate({
+              pathname: '/',
+            }),
+        })
+      }
       onSubmit={(lift: Lift) =>
         upsertLift(lift, {
           onSuccess: (d) =>

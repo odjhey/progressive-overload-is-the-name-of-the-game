@@ -24,9 +24,11 @@ const LabeledFieldLayout = ({ children }: PropsWithChildren) => {
 export const LiftForm = ({
   lift,
   onSubmit,
+  onDelete,
 }: {
   lift: FormValues['lift']
   onSubmit: (d: Lift) => Promise<unknown>
+  onDelete: (keys: Pick<Lift, 'name' | 'date'>) => Promise<unknown>
 }) => {
   const {
     register,
@@ -217,6 +219,17 @@ export const LiftForm = ({
 
         <div className="flex gap-1 pb-10">
           <input className="btn btn-primary btn-sm" type="submit" />
+          <button
+            className="btn btn-error btn-sm"
+            type="button"
+            onClick={() => {
+              if (confirm('Are you sure you want to delete?')) {
+                onDelete(lift)
+              }
+            }}
+          >
+            x
+          </button>
         </div>
       </form>
     </div>
