@@ -34,7 +34,7 @@ export default function New() {
       lift={{ ...defaults, name: String(defaults.name).replaceAll('+', ' ') }}
       onDelete={(k) =>
         deleteLift(k, {
-          onSuccess: (d) =>
+          onSuccess: (_) =>
             navigate({
               pathname: '/',
             }),
