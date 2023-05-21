@@ -63,40 +63,37 @@ export const LiftsForm = ({
                 }`}
                 key={field.id}
               >
-                <input
-                  tabIndex={1 + index * TAB_FIELD_COUNT}
-                  {...register(`lifts.${index}.date` as const, {
-                    required: true,
-                    disabled: true,
-                  })}
-                  className={errors?.lifts?.[index]?.date ? 'error' : ''}
-                  type="datetime-local"
-                />
+                <div className="flex">
+                  <input
+                    onKeyUp={(e) => {
+                      if (e.key === 'Enter') {
+                        setFocus(`lifts.${index}.weight`)
+                      }
+                    }}
+                    tabIndex={2 + index * TAB_FIELD_COUNT}
+                    placeholder="name"
+                    {...register(`lifts.${index}.name` as const, {
+                      required: true,
+                      disabled: true,
+                    })}
+                    className={
+                      errors?.lifts?.[index]?.name
+                        ? 'error'
+                        : 'input input-sm input-bordered'
+                    }
+                  />
+                  <input
+                    tabIndex={1 + index * TAB_FIELD_COUNT}
+                    {...register(`lifts.${index}.date` as const, {
+                      required: true,
+                      disabled: true,
+                    })}
+                    className={errors?.lifts?.[index]?.date ? 'error' : ''}
+                    type="datetime-local"
+                  />
+                </div>
 
                 <div className="flex flex-wrap flex-row">
-                  <LabeledFieldLayout>
-                    <label
-                      className="label text-xs text-slate-400"
-                      htmlFor={`lifts.${index}.name`}
-                    >
-                      name
-                    </label>
-                    <input
-                      onKeyUp={(e) => {
-                        if (e.key === 'Enter') {
-                          setFocus(`lifts.${index}.weight`)
-                        }
-                      }}
-                      tabIndex={2 + index * TAB_FIELD_COUNT}
-                      placeholder="name"
-                      {...register(`lifts.${index}.name` as const, {
-                        required: true,
-                        disabled: true,
-                      })}
-                      className={errors?.lifts?.[index]?.name ? 'error' : ''}
-                    />
-                  </LabeledFieldLayout>
-
                   <LabeledFieldLayout>
                     <label
                       className="label text-xs text-slate-400"
