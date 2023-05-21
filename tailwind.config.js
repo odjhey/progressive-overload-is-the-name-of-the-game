@@ -6,4 +6,15 @@ export default {
   },
   // eslint-disable-next-line no-undef
   plugins: [require('daisyui')],
+  daisyui: {
+    themes: [
+      {
+        bumblebee: {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires, no-undef
+          ...require('daisyui/src/colors/themes')['[data-theme=bumblebee]'],
+          'info-content': '#EEE',
+        },
+      },
+    ],
+  },
 }
