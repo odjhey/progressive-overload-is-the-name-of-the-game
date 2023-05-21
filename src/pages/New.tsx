@@ -6,7 +6,6 @@ import { defaultStringifySearch } from '../libs/searchParams'
 
 export default function New() {
   const [liftInSearch] = useUrlSearchParams()
-  console.log({ liftInSearch })
 
   const { error, loading, upsertLift, deleteLift } = useLifts()
   const navigate = useNavigate()

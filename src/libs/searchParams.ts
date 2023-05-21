@@ -25,7 +25,7 @@ export function parseSearchWith(parser: (str: string) => any) {
           query[key] = parser(value)
         } catch (err) {
           //
-          console.error(err)
+          // console.warn(err)
         }
       }
     }
