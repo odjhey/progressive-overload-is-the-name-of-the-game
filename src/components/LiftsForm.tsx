@@ -48,7 +48,7 @@ export const LiftsForm = ({
                 }`}
                 key={field.id}
               >
-                <div className="card">
+                <div className="card card-compact">
                   <div className="card-body">
                     <span className="card-title flex justify-between">
                       {field.name}{' '}
@@ -119,8 +119,10 @@ export const LiftsForm = ({
                     </div>
                   </div>
                 </div>
+                <div className="divider">
+                  <span className="text-slate-300">oOo</span>
+                </div>
               </section>
-              <div className="bg-slate-100 p-2"></div>
             </div>
           )
         })}
