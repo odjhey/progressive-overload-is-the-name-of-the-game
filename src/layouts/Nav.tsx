@@ -24,12 +24,6 @@ export default function Nav({ children }: PropsWithChildren) {
           to="/latest"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
-          Lasts
-        </NavLink>
-        <NavLink
-          to="/search"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
           <IconSearch></IconSearch>
         </NavLink>
         <NavLink
