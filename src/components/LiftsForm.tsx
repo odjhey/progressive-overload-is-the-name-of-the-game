@@ -1,20 +1,12 @@
-import { PropsWithChildren } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { defaultStringifySearch } from '../libs/searchParams'
 import type { Lift } from '../hooks/useLifts'
 import { Tag } from '../hooks/useTags'
+import { IconEdit, IconCopy } from '@tabler/icons-react'
 
 type FormValues = {
   lifts: Lift[]
-}
-
-const LabeledFieldLayout = ({ children }: PropsWithChildren) => {
-  return (
-    <div className="flex gap-1 border border-solid border-red-100">
-      {children}
-    </div>
-  )
 }
 
 export const LiftsForm = ({
@@ -29,12 +21,7 @@ export const LiftsForm = ({
   tags: Tag[]
 }) => {
   const navigate = useNavigate()
-  const {
-    register,
-    control,
-    setFocus,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const { control } = useForm<FormValues>({
     mode: 'onBlur',
     values: { lifts: lifts as Lift[] },
   })
@@ -44,207 +31,94 @@ export const LiftsForm = ({
     control,
   })
 
-  const TAB_FIELD_COUNT = 6
-
   return (
     <div>
       <form>
-        {fields.map((field, index) => {
+        {fields.map((field, _index) => {
           return (
             <div
               key={field.id}
               className={`${filterFn(field) ? '' : 'hidden'}`}
             >
               <section
-                className={`flex flex-wrap gap-1 p-1 ${
+                className={`${
                   selectedKey === field.date
                     ? 'border-secondary border-solid border-2'
                     : ''
                 }`}
                 key={field.id}
               >
-                <div className="flex">
-                  <input
-                    onKeyUp={(e) => {
-                      if (e.key === 'Enter') {
-                        setFocus(`lifts.${index}.weight`)
-                      }
-                    }}
-                    tabIndex={2 + index * TAB_FIELD_COUNT}
-                    placeholder="name"
-                    {...register(`lifts.${index}.name` as const, {
-                      required: true,
-                      disabled: true,
-                    })}
-                    className={
-                      errors?.lifts?.[index]?.name
-                        ? 'error'
-                        : 'input input-sm input-bordered'
-                    }
-                  />
-                  <input
-                    tabIndex={1 + index * TAB_FIELD_COUNT}
-                    {...register(`lifts.${index}.date` as const, {
-                      required: true,
-                      disabled: true,
-                    })}
-                    className={errors?.lifts?.[index]?.date ? 'error' : ''}
-                    type="datetime-local"
-                  />
+                <div className="card">
+                  <div className="card-body">
+                    <span className="card-title flex justify-between">
+                      {field.name}{' '}
+                      <span className="text-sm text-slate-500">
+                        {field.date}
+                      </span>
+                    </span>
+                    <div className="flex gap-3">
+                      <div>
+                        <span className="font-bold">{field.weight}</span>{' '}
+                        <span>{field.uom}</span>
+                      </div>
+                      <div>
+                        <span className="font-bold">{field.set}</span>{' '}
+                        <span className="text-slate-500">sets x </span>
+                        <span className="font-bold">{field.rep}</span>{' '}
+                        <span className="text-slate-500">reps</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      {tags
+                        .filter((t) => t.liftName === field.name)
+                        .map((t) => {
+                          return (
+                            <span className="badge badge-info">{t.name}</span>
+                          )
+                        })}
+                    </div>
+                    <div className="card-actions justify-between">
+                      <IconEdit
+                        type="button"
+                        onClick={() => {
+                          navigate({
+                            pathname: '/new',
+                            search: `${defaultStringifySearch({
+                              lift: {
+                                name: field.name,
+                                date: field.date,
+                                rep: field.rep,
+                                set: field.set,
+                                weight: field.weight,
+                                uom: field.uom,
+                              },
+                            })}`,
+                          })
+                        }}
+                      ></IconEdit>
+                      <IconCopy
+                        type="button"
+                        onClick={() => {
+                          navigate({
+                            pathname: '/new',
+                            search: `${defaultStringifySearch({
+                              lift: {
+                                name: field.name,
+                                date: new Date().toISOString().substring(0, 16),
+                                rep: field.rep,
+                                set: field.set,
+                                weight: field.weight,
+                                uom: field.uom,
+                              },
+                            })}`,
+                          })
+                        }}
+                      >
+                        copy
+                      </IconCopy>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="flex flex-wrap flex-row">
-                  <LabeledFieldLayout>
-                    <label
-                      className="label text-xs text-slate-400"
-                      htmlFor={`lifts.${index}.weight`}
-                    >
-                      weight
-                    </label>
-                    <input
-                      onKeyUp={(e) => {
-                        if (e.key === 'Enter') {
-                          setFocus(`lifts.${index}.rep`)
-                        }
-                      }}
-                      tabIndex={3 + index * TAB_FIELD_COUNT}
-                      placeholder="weight"
-                      type="number"
-                      {...register(`lifts.${index}.weight` as const, {
-                        valueAsNumber: true,
-                        required: true,
-                        disabled: true,
-                      })}
-                      className={
-                        errors?.lifts?.[index]?.weight ? 'error' : 'w-16'
-                      }
-                    />
-                  </LabeledFieldLayout>
-
-                  <LabeledFieldLayout>
-                    <label
-                      className="label text-xs text-slate-400"
-                      htmlFor={`lifts.${index}.uom`}
-                    >
-                      uom
-                    </label>
-                    <input
-                      onKeyUp={(e) => {
-                        if (e.key === 'Enter') {
-                          setFocus(`lifts.${index}.rep`)
-                        }
-                      }}
-                      tabIndex={4 + index * TAB_FIELD_COUNT}
-                      placeholder="uom"
-                      {...register(`lifts.${index}.uom` as const, {
-                        required: true,
-                        disabled: true,
-                      })}
-                      className={
-                        errors?.lifts?.[index]?.name ? 'error' : 'w-16'
-                      }
-                    />
-                  </LabeledFieldLayout>
-
-                  <LabeledFieldLayout>
-                    <label
-                      className="label text-xs text-slate-400"
-                      htmlFor={`lifts.${index}.rep`}
-                    >
-                      rep
-                    </label>
-                    <input
-                      onKeyUp={(e) => {
-                        if (e.key === 'Enter') {
-                          setFocus(`lifts.${index}.set`)
-                        }
-                      }}
-                      tabIndex={5 + index * TAB_FIELD_COUNT}
-                      placeholder="rep"
-                      type="number"
-                      {...register(`lifts.${index}.rep` as const, {
-                        valueAsNumber: true,
-                        required: true,
-                        disabled: true,
-                      })}
-                      className={errors?.lifts?.[index]?.rep ? 'error' : 'w-12'}
-                    />
-                  </LabeledFieldLayout>
-
-                  <LabeledFieldLayout>
-                    <label
-                      className="label text-xs text-slate-400"
-                      htmlFor={`lifts.${index}.set`}
-                    >
-                      set
-                    </label>
-                    <input
-                      onKeyUp={(e) => {
-                        if (e.key === 'Enter') {
-                          // TODO set focus to submit
-                        }
-                      }}
-                      tabIndex={6 + index * TAB_FIELD_COUNT}
-                      placeholder="set"
-                      type="number"
-                      {...register(`lifts.${index}.set` as const, {
-                        valueAsNumber: true,
-                        required: true,
-                        disabled: true,
-                      })}
-                      className={errors?.lifts?.[index]?.set ? 'error' : 'w-12'}
-                    />
-                  </LabeledFieldLayout>
-                </div>
-
-                {tags
-                  .filter((t) => t.liftName === field.name)
-                  .map((t) => {
-                    return <span className="badge badge-info">{t.name}</span>
-                  })}
-
-                <button
-                  className="btn btn-accent btn-xs"
-                  type="button"
-                  onClick={() => {
-                    navigate({
-                      pathname: '/new',
-                      search: `${defaultStringifySearch({
-                        lift: {
-                          name: field.name,
-                          date: new Date().toISOString().substring(0, 16),
-                          rep: field.rep,
-                          set: field.set,
-                          weight: field.weight,
-                          uom: field.uom,
-                        },
-                      })}`,
-                    })
-                  }}
-                >
-                  copy
-                </button>
-                <button
-                  className="btn btn-accent btn-xs"
-                  type="button"
-                  onClick={() => {
-                    navigate({
-                      pathname: '/new',
-                      search: `${defaultStringifySearch({
-                        lift: {
-                          name: field.name,
-                          date: field.date,
-                          rep: field.rep,
-                          set: field.set,
-                          weight: field.weight,
-                          uom: field.uom,
-                        },
-                      })}`,
-                    })
-                  }}
-                >
-                  edit
-                </button>
               </section>
               <div className="bg-slate-100 p-2"></div>
             </div>
