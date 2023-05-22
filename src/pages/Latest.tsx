@@ -3,21 +3,23 @@ import { Lift, useLifts } from '../hooks/useLifts'
 import { LiftFormView } from '../components/LiftFormView'
 import { useTags } from '../hooks/useTags'
 import { Searchable } from '../components/Searchable'
+import { usePersistentFilters } from '../hooks/usePersistentFilters'
 
 export default function Latest() {
   const { unique, data } = useLifts()
   const [openList, setOpenList] = useState<string[]>([])
   const { data: tags, unique: uniqueTags } = useTags()
-  const [tagSearch, setTagSearch] = useState('')
+  const { data: filters, saveFilters } = usePersistentFilters()
 
   const filterFn = (row: Lift) => {
     const filterResults = []
 
-    if (tagSearch !== '') {
+    if (filters && filters.tags.length > 0) {
       const match = tags.find(
         (t) =>
           t.liftName === row.name &&
-          t.name.toLowerCase().includes(tagSearch.toLowerCase())
+          // TODO: fix hard coded index
+          t.name.toLowerCase().includes(filters.tags[0].toLowerCase())
       )
       filterResults.push(!!match)
     }
@@ -30,15 +32,17 @@ export default function Latest() {
       <div className="flex flex-col items-start gap-1">
         <Searchable
           placeholder="tag search"
-          searchTerm={tagSearch}
-          setSearchTerm={setTagSearch}
+          searchTerm={filters ? filters.tags[0] : ''}
+          setSearchTerm={(term: string) => {
+            saveFilters({ tags: [term] })
+          }}
         ></Searchable>
         <div className="flex flex-wrap gap-1">
           {uniqueTags.map((d) => (
             <button
               className="btn btn-xs"
               key={d}
-              onClick={() => setTagSearch(d)}
+              onClick={() => saveFilters({ tags: [d] })}
             >
               {d}
             </button>
@@ -49,6 +53,7 @@ export default function Latest() {
       {unique.map((lift) => {
         return (
           <div
+            key={lift.date + lift.name}
             className={`flex flex-col items-start gap-2 ${
               filterFn(lift) ? '' : 'hidden'
             } `}
@@ -73,7 +78,11 @@ export default function Latest() {
                 {tags
                   .filter((d) => d.liftName === lift.name)
                   .map((t) => {
-                    return <span className="badge">{t.name}</span>
+                    return (
+                      <span key={t.name} className="badge">
+                        {t.name}
+                      </span>
+                    )
                   })}
               </div>
             </div>
@@ -85,7 +94,9 @@ export default function Latest() {
               {data
                 .filter((d) => d.name === lift.name)
                 .map((d) => {
-                  return <LiftFormView lift={d}></LiftFormView>
+                  return (
+                    <LiftFormView key={d.date + d.name} lift={d}></LiftFormView>
+                  )
                 })}
             </div>
           </div>
