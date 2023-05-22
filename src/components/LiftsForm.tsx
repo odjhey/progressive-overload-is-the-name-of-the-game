@@ -50,10 +50,10 @@ export const LiftsForm = ({
               >
                 <div className="card card-compact">
                   <div className="card-body">
-                    <span className="card-title flex justify-between">
+                    <span className="card-title text-sm flex justify-between">
                       {field.name}{' '}
-                      <span className="text-sm text-slate-500">
-                        {field.date}
+                      <span className="text-xs text-slate-500">
+                        {new Date(field.date).toLocaleDateString()}
                       </span>
                     </span>
                     <div className="flex gap-3">
@@ -68,17 +68,9 @@ export const LiftsForm = ({
                         <span className="text-slate-500">reps</span>
                       </div>
                     </div>
-                    <div className="flex gap-1">
-                      {tags
-                        .filter((t) => t.liftName === field.name)
-                        .map((t) => {
-                          return (
-                            <span className="badge badge-info">{t.name}</span>
-                          )
-                        })}
-                    </div>
                     <div className="card-actions justify-between">
                       <IconEdit
+                        size={14}
                         type="button"
                         onClick={() => {
                           navigate({
@@ -96,7 +88,19 @@ export const LiftsForm = ({
                           })
                         }}
                       ></IconEdit>
+                      <div className="flex gap-1">
+                        {[...tags]
+                          .filter((t) => t.liftName === field.name)
+                          .map((t) => {
+                            return (
+                              <span className="badge badge-sm badge-info">
+                                {t.name}
+                              </span>
+                            )
+                          })}
+                      </div>
                       <IconCopy
+                        size={20}
                         type="button"
                         onClick={() => {
                           navigate({
@@ -118,9 +122,6 @@ export const LiftsForm = ({
                       </IconCopy>
                     </div>
                   </div>
-                </div>
-                <div className="divider">
-                  <span className="text-slate-300">oOo</span>
                 </div>
               </section>
             </div>
