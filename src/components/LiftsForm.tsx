@@ -93,7 +93,10 @@ export const LiftsForm = ({
                           .filter((t) => t.liftName === field.name)
                           .map((t) => {
                             return (
-                              <span className="badge badge-sm badge-info">
+                              <span
+                                key={t.name}
+                                className="badge badge-sm badge-info"
+                              >
                                 {t.name}
                               </span>
                             )
