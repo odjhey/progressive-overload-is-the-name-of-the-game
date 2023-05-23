@@ -14,13 +14,24 @@ const DateSearch = (
   const { setDate, children } = props
   return (
     <>
-      <input
-        className="input input-sm input-bordered"
-        type="date"
-        onChange={(e) => {
-          setDate(e.target.value)
-        }}
-      ></input>
+      <div className="space-x-2">
+        <input
+          className="input input-sm input-bordered"
+          type="date"
+          onChange={(e) => {
+            setDate(e.target.value)
+          }}
+        ></input>
+        <button
+          type="button"
+          className="btn btn-xs"
+          onClick={() => {
+            setDate(new Date().toISOString().slice(0, 10))
+          }}
+        >
+          today
+        </button>
+      </div>
       {children}
     </>
   )
