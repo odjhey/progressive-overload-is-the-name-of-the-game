@@ -11,7 +11,7 @@ export const LiftRow = ({
     set: number
     weight: number
     uom: string
-    tags: string[]
+    tags?: string[]
   }
   actions: {
     copy: () => void
@@ -41,15 +41,17 @@ export const LiftRow = ({
         </div>
         <div className="card-actions justify-between">
           <IconEdit size={14} type="button" onClick={actions.edit}></IconEdit>
-          <div className="flex gap-1">
-            {lift.tags.map((n) => {
-              return (
-                <span key={n} className="badge badge-sm badge-info">
-                  {n}
-                </span>
-              )
-            })}
-          </div>
+          {lift.tags && lift.tags.length > 0 && (
+            <div className="flex gap-1">
+              {lift.tags.map((n) => {
+                return (
+                  <span key={n} className="badge badge-sm badge-info">
+                    {n}
+                  </span>
+                )
+              })}
+            </div>
+          )}
           <IconCopy size={20} type="button" onClick={actions.copy}>
             copy
           </IconCopy>

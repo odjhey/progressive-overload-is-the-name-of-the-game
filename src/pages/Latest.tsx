@@ -87,16 +87,14 @@ export default function Latest() {
               </div>
             </div>
             <div
-              className={`flex flex-wrap border border-solid border-red-300 ${
+              className={`container border border-solid border-red-300 ${
                 openList.find((o) => lift.name === o) ? '' : 'hidden'
               }`}
             >
               {data
                 .filter((d) => d.name === lift.name)
                 .map((d) => {
-                  return (
-                    <LiftFormView key={d.date + d.name} lift={d}></LiftFormView>
-                  )
+                  return <LiftFormView lift={d}></LiftFormView>
                 })}
             </div>
           </div>
