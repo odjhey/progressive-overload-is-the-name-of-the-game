@@ -29,7 +29,7 @@ export default function Latest() {
 
   return (
     <>
-      <div className="flex flex-col items-start gap-1">
+      <div>
         <Searchable
           placeholder="tag search"
           searchTerm={filters ? filters.tags[0] : ''}
@@ -48,58 +48,62 @@ export default function Latest() {
             </button>
           ))}
         </div>
-      </div>
-      <div className="h-2 w-full my-2 bg-accent-content"></div>
-      {unique.map((lift) => {
-        return (
-          <div
-            key={lift.date + lift.name}
-            className={`flex flex-col items-start gap-2 ${
-              filterFn(lift) ? '' : 'hidden'
-            } `}
-          >
-            <div className="flex items-center gap-1">
-              <button
-                className="btn btn-sm btn-ghost"
-                onClick={() => {
-                  setOpenList((prev) => {
-                    const match = prev.find((v) => v === lift.name)
-                    if (match) {
-                      return prev.filter((p) => p !== match)
-                    }
-                    return [...prev, lift.name]
-                  })
-                }}
-                key={lift.name}
+        {unique.map((lift) => {
+          return (
+            <div
+              key={lift.date + lift.name}
+              className={`flex flex-col items-start gap-2 ${
+                filterFn(lift) ? '' : 'hidden'
+              } `}
+            >
+              <div className="flex items-center gap-1">
+                <button
+                  className="btn btn-sm btn-ghost"
+                  onClick={() => {
+                    setOpenList((prev) => {
+                      const match = prev.find((v) => v === lift.name)
+                      if (match) {
+                        return prev.filter((p) => p !== match)
+                      }
+                      return [...prev, lift.name]
+                    })
+                  }}
+                  key={lift.name}
+                >
+                  {lift.name}
+                </button>
+                <div className="flex flex-wrap gap-1">
+                  {tags
+                    .filter((d) => d.liftName === lift.name)
+                    .map((t) => {
+                      return (
+                        <span key={t.name} className="badge">
+                          {t.name}
+                        </span>
+                      )
+                    })}
+                </div>
+              </div>
+              <div
+                className={`container border border-solid border-red-300 ${
+                  openList.find((o) => lift.name === o) ? '' : 'hidden'
+                }`}
               >
-                {lift.name}
-              </button>
-              <div className="flex gap-1 items-center">
-                {tags
-                  .filter((d) => d.liftName === lift.name)
-                  .map((t) => {
+                {data
+                  .filter((d) => d.name === lift.name)
+                  .map((d) => {
                     return (
-                      <span key={t.name} className="badge">
-                        {t.name}
-                      </span>
+                      <LiftFormView
+                        key={d.date + d.name}
+                        lift={d}
+                      ></LiftFormView>
                     )
                   })}
               </div>
             </div>
-            <div
-              className={`container border border-solid border-red-300 ${
-                openList.find((o) => lift.name === o) ? '' : 'hidden'
-              }`}
-            >
-              {data
-                .filter((d) => d.name === lift.name)
-                .map((d) => {
-                  return <LiftFormView lift={d}></LiftFormView>
-                })}
-            </div>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
     </>
   )
 }
