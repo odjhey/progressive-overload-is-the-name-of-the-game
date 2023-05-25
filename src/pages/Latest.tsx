@@ -52,11 +52,9 @@ export default function Latest() {
           return (
             <div
               key={lift.date + lift.name}
-              className={`flex flex-col items-start gap-2 ${
-                filterFn(lift) ? '' : 'hidden'
-              } `}
+              className={`space-y-1 ${filterFn(lift) ? '' : 'hidden'} `}
             >
-              <div className="flex items-center gap-1">
+              <div className="flex flex-row flex-wrap justify-start items-center gap-1">
                 <button
                   className="btn btn-sm btn-ghost"
                   onClick={() => {
@@ -70,19 +68,18 @@ export default function Latest() {
                   }}
                   key={lift.name}
                 >
-                  {lift.name}
+                  {lift.name.substring(0, 20) +
+                    (lift.name.length > 20 ? '...' : '')}
                 </button>
-                <div className="flex flex-wrap gap-1">
-                  {tags
-                    .filter((d) => d.liftName === lift.name)
-                    .map((t) => {
-                      return (
-                        <span key={t.name} className="badge">
-                          {t.name}
-                        </span>
-                      )
-                    })}
-                </div>
+                {tags
+                  .filter((d) => d.liftName === lift.name)
+                  .map((t) => {
+                    return (
+                      <span key={t.name} className="badge">
+                        {t.name}
+                      </span>
+                    )
+                  })}
               </div>
               <div
                 className={`container border border-solid border-red-300 ${
