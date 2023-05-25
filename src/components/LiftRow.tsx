@@ -1,18 +1,11 @@
 import { IconEdit, IconCopy } from '@tabler/icons-react'
+import type { Lift } from '../hooks/useLifts'
 
 export const LiftRow = ({
   lift,
   actions,
 }: {
-  lift: {
-    name: string
-    date: string
-    rep: number
-    set: number
-    weight: number
-    uom: string
-    tags?: string[]
-  }
+  lift: Lift & { tags?: string[] }
   actions: {
     copy: () => void
     edit: () => void
@@ -38,6 +31,11 @@ export const LiftRow = ({
             <span className="font-bold">{lift.rep}</span>{' '}
             <span className="text-slate-500">reps</span>
           </div>
+          {lift.comment && (
+            <div>
+              <span>{lift.comment}</span>
+            </div>
+          )}
         </div>
         <div className="card-actions justify-between">
           <IconEdit size={14} type="button" onClick={actions.edit}></IconEdit>

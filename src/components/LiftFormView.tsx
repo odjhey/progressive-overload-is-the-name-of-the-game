@@ -10,6 +10,7 @@ type FormValues = {
     uom: string
     set: number
     rep: number
+    comment: string
   }
 }
 
@@ -31,6 +32,7 @@ export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
                 set: lift.set,
                 weight: lift.weight,
                 uom: lift.uom,
+                comment: lift.comment,
               },
             })}`,
           })
@@ -46,6 +48,7 @@ export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
                 set: lift.set,
                 weight: lift.weight,
                 uom: lift.uom,
+                comment: lift.comment,
               },
             })}`,
           })
