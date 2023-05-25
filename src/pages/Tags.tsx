@@ -42,7 +42,7 @@ export default function Tags() {
       <div>
         {uniqueLifts.map((d) => {
           return (
-            <div className="flex gap-2 items-center" key={d.name}>
+            <div className="flex flex-wrap space-x-1 items-center" key={d.name}>
               <div>{d.name}</div>
               {tags.data
                 .filter((v) => v.liftName === d.name)
