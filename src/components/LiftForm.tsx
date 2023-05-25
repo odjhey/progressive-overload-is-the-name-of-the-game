@@ -10,6 +10,7 @@ type FormValues = {
     uom: string
     set: number
     rep: number
+    comment: string
   }
 }
 
@@ -212,6 +213,28 @@ export const LiftForm = ({
                   {v}
                 </button>
               ))}
+            </LabeledFieldLayout>
+            <LabeledFieldLayout>
+              <label
+                className="label text-xs text-slate-400"
+                htmlFor={`lift.comment`}
+              >
+                notes
+              </label>
+              <input
+                onKeyUp={(e) => {
+                  if (e.key === 'Enter') {
+                    // TODO set focus to submit
+                  }
+                }}
+                tabIndex={6 + index * TAB_FIELD_COUNT}
+                placeholder="notes"
+                type="text"
+                {...register(`lift.comment` as const, {
+                  required: false,
+                })}
+                className={errors?.lift?.comment ? 'error' : 'w-22'}
+              />
             </LabeledFieldLayout>
           </section>
           <div className="bg-slate-100 p-2"></div>

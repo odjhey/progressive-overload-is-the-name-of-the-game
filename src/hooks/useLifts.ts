@@ -8,6 +8,7 @@ export type Lift = {
   uom: string
   set: number
   rep: number
+  comment: string
 }
 
 // TODO: add version support
