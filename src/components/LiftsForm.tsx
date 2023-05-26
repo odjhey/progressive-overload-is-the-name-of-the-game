@@ -67,6 +67,7 @@ export const LiftsForm = ({
                             set: field.set,
                             weight: field.weight,
                             uom: field.uom,
+                            comment: field.comment,
                           },
                         })}`,
                       })
@@ -82,6 +83,7 @@ export const LiftsForm = ({
                             set: field.set,
                             weight: field.weight,
                             uom: field.uom,
+                            comment: field.comment,
                           },
                         })}`,
                       })

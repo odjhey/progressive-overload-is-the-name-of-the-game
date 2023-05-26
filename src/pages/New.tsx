@@ -30,7 +30,13 @@ export default function New() {
   // we have the %20 issue about spaces and + sign
   return (
     <LiftForm
-      lift={{ ...defaults, name: String(defaults.name).replaceAll('+', ' ') }}
+      lift={{
+        ...defaults,
+        name: String(defaults.name).replaceAll('+', ' '),
+        comment: defaults.comment
+          ? String(defaults.comment).replaceAll('+', ' ')
+          : '',
+      }}
       onDelete={(k) =>
         deleteLift(k, {
           onSuccess: (_) =>
