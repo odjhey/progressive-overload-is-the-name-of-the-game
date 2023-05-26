@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 export type PersistentFilter = {
   tags: string[]
+  term: string
 }
 
 // TODO: add version support
@@ -11,15 +12,20 @@ const lskey = 'PersistendFilterakj'
 export const usePersistentFilters = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error>()
-  const [data, setData] = useState<PersistentFilter>({ tags: [] })
+  const [data, setData] = useState<PersistentFilter>({ tags: [], term: '' })
 
   const reloadItem = () => {
     return localforage
       .getItem(lskey)
       .then((d) => {
-        const defaultTags: PersistentFilter = { tags: [] }
+        const defaultTags: PersistentFilter = { tags: [], term: '' }
         const typedD = d as PersistentFilter
-        if (typedD) {
+        if (
+          typedD &&
+          // below is some form of backward compat check
+          typedD.tags &&
+          typedD.term !== undefined
+        ) {
           return typedD
         }
         return defaultTags

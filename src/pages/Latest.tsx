@@ -31,10 +31,13 @@ export default function Latest() {
     <>
       <div>
         <Searchable
+          clear={() => {
+            saveFilters({ ...filters, tags: [] })
+          }}
           placeholder="tag search"
-          searchTerm={filters ? filters.tags[0] : ''}
+          searchTerm={filters.tags[0]}
           setSearchTerm={(term: string) => {
-            saveFilters({ tags: [term] })
+            saveFilters({ tags: [term], term: '' })
           }}
         ></Searchable>
         <div className="flex flex-wrap gap-1">
@@ -42,7 +45,7 @@ export default function Latest() {
             <button
               className="btn btn-xs"
               key={d}
-              onClick={() => saveFilters({ tags: [d] })}
+              onClick={() => saveFilters({ tags: [d], term: '' })}
             >
               {d}
             </button>
