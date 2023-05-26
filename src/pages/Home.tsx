@@ -5,6 +5,7 @@ import { Searchable } from '../components/Searchable'
 import { LiftsForm } from '../components/LiftsForm'
 import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
 import { useTags } from '../hooks/useTags'
+import { usePersistentFilters } from '../hooks/usePersistentFilters'
 
 const DateSearch = (
   props: PropsWithChildren<{
@@ -40,10 +41,9 @@ const DateSearch = (
 export default function Home() {
   const { data, error, loading, unique } = useLifts()
   const { data: tags } = useTags()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [tagSearch, setTagSearch] = useState('')
+  const { data: filters, saveFilters } = usePersistentFilters()
   const setSearchTermDeb = useDebouncedCallback((value) => {
-    setSearchTerm(value)
+    saveFilters({ ...filters, term: value })
   }, 500)
   const [selected] = useUrlSearchParams()
   const [latestOnly, setLatestOnly] = useState(false)
@@ -59,22 +59,28 @@ export default function Home() {
   return (
     <>
       <div className="flex flex-col">
-        <DateSearch setDate={setSearchTerm}></DateSearch>
+        <DateSearch
+          setDate={(v: string) => saveFilters({ ...filters, term: v })}
+        ></DateSearch>
         <Searchable
-          searchTerm={searchTerm}
+          clear={() => saveFilters({ ...filters, term: '' })}
+          searchTerm={filters.term}
           setSearchTerm={setSearchTermDeb}
         ></Searchable>
         <div className="flex gap-1 items-center">
           <Searchable
+            clear={() => saveFilters({ ...filters, tags: [] })}
             placeholder="tag search"
-            searchTerm={tagSearch}
-            setSearchTerm={setTagSearch}
+            searchTerm={filters.tags[0]}
+            setSearchTerm={(v: string) =>
+              saveFilters({ ...filters, tags: [v] })
+            }
           ></Searchable>
           {['push', 'pull'].map((d) => (
             <button
               className="btn btn-xs"
               key={d}
-              onClick={() => setTagSearch(d)}
+              onClick={() => saveFilters({ ...filters, tags: [d] })}
             >
               {d}
             </button>
@@ -106,22 +112,22 @@ export default function Home() {
             filterResults.push(!!match)
           }
 
-          if (tagSearch !== '') {
+          if (filters.tags.length > 0 && filters.tags[0] !== '') {
             const match = tags.find(
               (t) =>
                 t.liftName === row.name &&
-                t.name.toLowerCase().includes(tagSearch.toLowerCase())
+                t.name.toLowerCase().includes(filters.tags[0].toLowerCase())
             )
             filterResults.push(!!match)
           }
 
-          if (searchTerm === '') {
+          if (filters.term === '') {
             // none
           } else {
             filterResults.push(
               JSON.stringify(Object.values(row))
                 .toLowerCase()
-                .includes(searchTerm.toLowerCase())
+                .includes(filters.term.toLowerCase())
             )
           }
 

@@ -6,9 +6,11 @@ export const Searchable = ({
   children,
   setSearchTerm,
   placeholder,
+  clear,
 }: PropsWithChildren<{
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
+  clear: () => void
   placeholder?: string
 }>) => {
   return (
@@ -18,12 +20,11 @@ export const Searchable = ({
           placeholder={placeholder || 'Search'}
           defaultValue={searchTerm}
           className="input input-sm input-bordered"
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+          }}
         ></input>
-        <IconX
-          className="border border-solid border-red-300"
-          onClick={() => setSearchTerm('')}
-        />
+        <IconX className="border border-solid border-red-300" onClick={clear} />
       </div>
       {children}
     </>
