@@ -15,7 +15,7 @@ const DateSearch = (
   const { setDate, children } = props
   return (
     <>
-      <div className="space-x-2">
+      <div className="flex flex-wrap items-center space-x-2">
         <input
           className="input input-sm input-bordered"
           type="date"
