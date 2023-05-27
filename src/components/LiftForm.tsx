@@ -1,6 +1,7 @@
 import { PropsWithChildren } from 'react'
 import { useForm } from 'react-hook-form'
 import { Lift } from '../hooks/useLifts'
+import { IconX } from '@tabler/icons-react'
 
 type FormValues = {
   lift: {
@@ -16,7 +17,7 @@ type FormValues = {
 
 const LabeledFieldLayout = ({ children }: PropsWithChildren) => {
   return (
-    <div className="flex gap-1 border border-solid border-red-100">
+    <div className="flex gap-1 border border-solid border-red-100 flex-wrap">
       {children}
     </div>
   )
@@ -64,27 +65,19 @@ export const LiftForm = ({
               type="datetime-local"
             />
 
-            <LabeledFieldLayout>
-              <label
-                className="label text-xs text-slate-400"
-                htmlFor={`lift.name`}
-              >
-                name
-              </label>
-              <input
-                onKeyUp={(e) => {
-                  if (e.key === 'Enter') {
-                    setFocus(`lift.weight`)
-                  }
-                }}
-                tabIndex={2 + index * TAB_FIELD_COUNT}
-                placeholder="name"
-                {...register(`lift.name` as const, {
-                  required: true,
-                })}
-                className={errors?.lift?.name ? 'error' : ''}
-              />
-            </LabeledFieldLayout>
+            <input
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  setFocus(`lift.weight`)
+                }
+              }}
+              tabIndex={2 + index * TAB_FIELD_COUNT}
+              placeholder="name"
+              {...register(`lift.name` as const, {
+                required: true,
+              })}
+              className={`input w-full ${errors?.lift?.name ? 'error' : ''}`}
+            />
 
             <LabeledFieldLayout>
               <label
@@ -106,8 +99,17 @@ export const LiftForm = ({
                   valueAsNumber: true,
                   required: true,
                 })}
-                className={errors?.lift?.weight ? 'error' : 'w-20'}
+                className={errors?.lift?.weight ? 'error' : 'w-8'}
               />
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                onClick={() => {
+                  setValue('lift.weight', 0)
+                }}
+              >
+                <IconX size={14}></IconX>
+              </button>
               {['+10', '+1', '-1', '-10'].map((v) => (
                 <button
                   type="button"
@@ -214,28 +216,20 @@ export const LiftForm = ({
                 </button>
               ))}
             </LabeledFieldLayout>
-            <LabeledFieldLayout>
-              <label
-                className="label text-xs text-slate-400"
-                htmlFor={`lift.comment`}
-              >
-                notes
-              </label>
-              <input
-                onKeyUp={(e) => {
-                  if (e.key === 'Enter') {
-                    // TODO set focus to submit
-                  }
-                }}
-                tabIndex={6 + index * TAB_FIELD_COUNT}
-                placeholder="notes"
-                type="text"
-                {...register(`lift.comment` as const, {
-                  required: false,
-                })}
-                className={errors?.lift?.comment ? 'error' : 'w-22'}
-              />
-            </LabeledFieldLayout>
+            <input
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  // TODO set focus to submit
+                }
+              }}
+              tabIndex={6 + index * TAB_FIELD_COUNT}
+              placeholder="notes"
+              type="text"
+              {...register(`lift.comment` as const, {
+                required: false,
+              })}
+              className={`input w-full ${errors?.lift?.comment ? 'error' : ''}`}
+            />
           </section>
           <div className="bg-slate-100 p-2"></div>
         </div>
