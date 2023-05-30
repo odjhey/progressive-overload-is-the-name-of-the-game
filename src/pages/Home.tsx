@@ -15,24 +15,22 @@ const DateSearch = (
   const { setDate, children } = props
   return (
     <>
-      <div className="flex flex-wrap items-center space-x-2">
-        <input
-          className="input input-sm input-bordered"
-          type="date"
-          onChange={(e) => {
-            setDate(e.target.value)
-          }}
-        ></input>
-        <button
-          type="button"
-          className="btn btn-xs"
-          onClick={() => {
-            setDate(new Date().toISOString().slice(0, 10))
-          }}
-        >
-          today
-        </button>
-      </div>
+      <input
+        className="input input-sm input-bordered"
+        type="date"
+        onChange={(e) => {
+          setDate(e.target.value)
+        }}
+      ></input>
+      <button
+        type="button"
+        className="btn btn-xs"
+        onClick={() => {
+          setDate(new Date().toISOString().slice(0, 10))
+        }}
+      >
+        today
+      </button>
       {children}
     </>
   )
@@ -46,7 +44,7 @@ export default function Home() {
     saveFilters({ ...filters, term: value })
   }, 500)
   const [selected] = useUrlSearchParams()
-  const [latestOnly, setLatestOnly] = useState(false)
+  const [latestOnly, setLatestOnly] = useState(true)
 
   if (loading) {
     return <div>Loading...</div>
@@ -59,14 +57,17 @@ export default function Home() {
   return (
     <>
       <div className="flex flex-col">
-        <DateSearch
-          setDate={(v: string) => saveFilters({ ...filters, term: v })}
-        ></DateSearch>
-        <Searchable
-          clear={() => saveFilters({ ...filters, term: '' })}
-          searchTerm={filters.term}
-          setSearchTerm={setSearchTermDeb}
-        ></Searchable>
+        <div className="flex flex-row flex-wrap">
+          <Searchable
+            clear={() => saveFilters({ ...filters, term: '' })}
+            searchTerm={filters.term}
+            setSearchTerm={setSearchTermDeb}
+          ></Searchable>
+          <DateSearch
+            setDate={(v: string) => saveFilters({ ...filters, term: v })}
+          />
+        </div>
+
         <div className="flex gap-1 items-center">
           <Searchable
             clear={() => saveFilters({ ...filters, tags: [] })}
@@ -90,6 +91,7 @@ export default function Home() {
           <input
             id="latest-only"
             type="checkbox"
+            checked={latestOnly}
             onChange={(e) => setLatestOnly(e.target.checked)}
           ></input>
           <label htmlFor="latest-only">latest</label>
