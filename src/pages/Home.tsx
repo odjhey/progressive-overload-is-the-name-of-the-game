@@ -77,7 +77,7 @@ export default function Home() {
               saveFilters({ ...filters, tags: [v] })
             }
           ></Searchable>
-          {['push', 'pull'].map((d) => (
+          {['push', 'pull', 'leg'].map((d) => (
             <button
               className="btn btn-xs"
               key={d}
