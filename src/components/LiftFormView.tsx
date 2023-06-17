@@ -53,6 +53,9 @@ export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
             })}`,
           })
         },
+        onDateClick: (_: string) => {
+          // noop
+        },
       }}
     ></LiftRow>
   )

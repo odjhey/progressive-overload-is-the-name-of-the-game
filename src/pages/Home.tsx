@@ -99,6 +99,11 @@ export default function Home() {
       </div>
       <div className="bg-secondary w-full h-1 my-2"></div>
       <LiftsForm
+        actions={{
+          onDateClick: (dateString: string) => {
+            saveFilters({ ...filters, term: dateString })
+          },
+        }}
         selectedKey={(selected as any).selected ?? ''}
         lifts={data}
         tags={tags}
