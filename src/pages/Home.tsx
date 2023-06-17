@@ -77,7 +77,7 @@ export default function Home() {
               saveFilters({ ...filters, tags: [v] })
             }
           ></Searchable>
-          {['push', 'pull'].map((d) => (
+          {['push', 'pull', 'leg'].map((d) => (
             <button
               className="btn btn-xs"
               key={d}
@@ -99,6 +99,11 @@ export default function Home() {
       </div>
       <div className="bg-secondary w-full h-1 my-2"></div>
       <LiftsForm
+        actions={{
+          onDateClick: (dateString: string) => {
+            saveFilters({ ...filters, term: dateString })
+          },
+        }}
         selectedKey={(selected as any).selected ?? ''}
         lifts={data}
         tags={tags}

@@ -14,11 +14,15 @@ export const LiftsForm = ({
   filterFn,
   selectedKey,
   tags,
+  actions,
 }: {
   lifts: unknown[]
   filterFn: (row: unknown) => boolean
   selectedKey?: string
   tags: Tag[]
+  actions: {
+    onDateClick: (date: string) => void
+  }
 }) => {
   const navigate = useNavigate()
   const { control } = useForm<FormValues>({
@@ -30,6 +34,8 @@ export const LiftsForm = ({
     name: 'lifts',
     control,
   })
+
+  const { onDateClick } = actions
 
   return (
     <div>
@@ -88,6 +94,7 @@ export const LiftsForm = ({
                         })}`,
                       })
                     },
+                    onDateClick: onDateClick,
                   }}
                 ></LiftRow>
               </section>

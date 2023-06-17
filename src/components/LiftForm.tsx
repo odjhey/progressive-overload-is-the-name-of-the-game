@@ -95,26 +95,27 @@ export const LiftForm = ({
                 tabIndex={3 + index * TAB_FIELD_COUNT}
                 placeholder="weight"
                 type="number"
+                step={0.25}
                 {...register(`lift.weight` as const, {
                   valueAsNumber: true,
                   required: true,
                 })}
-                className={errors?.lift?.weight ? 'error' : 'w-8'}
+                className={errors?.lift?.weight ? 'error' : 'w-12'}
               />
               <button
                 type="button"
-                className="btn btn-sm btn-ghost"
+                className="btn btn-xs btn-ghost"
                 onClick={() => {
                   setValue('lift.weight', 0)
                 }}
               >
                 <IconX size={14}></IconX>
               </button>
-              {['+10', '+1', '-1', '-10'].map((v) => (
+              {['+10', '+5', '+1'].map((v) => (
                 <button
                   type="button"
                   key={v}
-                  className="btn btn-sm"
+                  className="btn btn-xs"
                   onClick={() => {
                     const bias =
                       v.charAt(0) === '+'
@@ -126,6 +127,15 @@ export const LiftForm = ({
                   {v}
                 </button>
               ))}
+              <button
+                type="button"
+                className="btn btn-xs"
+                onClick={() => {
+                  setValue('lift.weight', 0)
+                }}
+              >
+                0
+              </button>
             </LabeledFieldLayout>
 
             <LabeledFieldLayout>
@@ -147,6 +157,18 @@ export const LiftForm = ({
                 })}
                 className={errors?.lift?.uom ? 'error' : 'w-16'}
               />
+              {['lbs', 'kg'].map((v) => (
+                <button
+                  type="button"
+                  key={v}
+                  className="btn btn-xs"
+                  onClick={() => {
+                    setValue('lift.uom', v)
+                  }}
+                >
+                  {v}
+                </button>
+              ))}
             </LabeledFieldLayout>
 
             <LabeledFieldLayout>
@@ -175,7 +197,7 @@ export const LiftForm = ({
                 <button
                   type="button"
                   key={v}
-                  className="btn btn-sm"
+                  className="btn btn-xs"
                   onClick={() => setValue('lift.rep', v)}
                 >
                   {v}
@@ -209,7 +231,7 @@ export const LiftForm = ({
                 <button
                   type="button"
                   key={v}
-                  className="btn btn-sm"
+                  className="btn btn-xs"
                   onClick={() => setValue('lift.set', v)}
                 >
                   {v}
@@ -235,9 +257,9 @@ export const LiftForm = ({
         </div>
 
         <div className="flex gap-1 pb-10">
-          <input className="btn btn-primary btn-sm" type="submit" />
+          <input className="btn btn-primary btn-xs" type="submit" />
           <button
-            className="btn btn-error btn-sm"
+            className="btn btn-error btn-xs"
             type="button"
             onClick={() => {
               if (confirm('Are you sure you want to delete?')) {

@@ -9,6 +9,7 @@ export const LiftRow = ({
   actions: {
     copy: () => void
     edit: () => void
+    onDateClick: (date: string) => void
   }
 }) => {
   return (
@@ -16,7 +17,17 @@ export const LiftRow = ({
       <div className="card-body">
         <span className="card-title text-sm flex justify-between">
           {lift.name}{' '}
-          <span className="text-xs text-slate-500">
+          <span
+            className="text-xs text-slate-500"
+            onClick={() => {
+              const offset = new Date().getTimezoneOffset()
+              actions.onDateClick(
+                new Date(new Date(lift.date).getTime() - offset * 60 * 1000)
+                  .toISOString()
+                  .split('T')[0]
+              )
+            }}
+          >
             {new Date(lift.date).toLocaleDateString()}
           </span>
         </span>
