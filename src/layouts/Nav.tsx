@@ -2,7 +2,6 @@ import { PropsWithChildren } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   IconHome,
-  IconSearch,
   IconNewSection,
   IconTags,
   IconInfoCircle,
@@ -13,18 +12,12 @@ export default function Nav({ children }: PropsWithChildren) {
     <>
       <nav className="navbar bg-primary"></nav>
       <div className="pb-14">{children}</div>
-      <nav className="btm-nav bg-primary pb-4">
+      <nav className="btm-nav bg-primary">
         <NavLink
           className={({ isActive }) => (isActive ? 'active' : '')}
           to="/"
         >
           <IconHome></IconHome>
-        </NavLink>
-        <NavLink
-          to="/latest"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
-          <IconSearch></IconSearch>
         </NavLink>
         <NavLink
           to="/new"

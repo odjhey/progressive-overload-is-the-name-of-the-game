@@ -2,7 +2,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Home from './pages/Home'
 import About from './pages/About'
 import Nav from './layouts/Nav'
-import Latest from './pages/Latest'
 import New from './pages/New'
 import Tags from './pages/Tags'
 
@@ -20,14 +19,6 @@ const router = createBrowserRouter([
     element: (
       <Nav>
         <About></About>
-      </Nav>
-    ),
-  },
-  {
-    path: '/latest',
-    element: (
-      <Nav>
-        <Latest></Latest>
       </Nav>
     ),
   },
