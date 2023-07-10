@@ -19,7 +19,7 @@ export const Searchable = ({
         <input
           placeholder={placeholder || 'Search'}
           defaultValue={searchTerm}
-          className="input input-sm input-bordered"
+          className="input input-sm input-bordered w-40"
           onChange={(e) => {
             setSearchTerm(e.target.value)
           }}

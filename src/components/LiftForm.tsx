@@ -56,14 +56,22 @@ export const LiftForm = ({
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div key={lift.name}>
           <section className="flex flex-col gap-1 p-1" key={lift.date}>
-            <input
-              tabIndex={1 + index * TAB_FIELD_COUNT}
-              {...register(`lift.date` as const, {
-                required: true,
-              })}
-              className={errors?.lift?.date ? 'error' : ''}
-              type="datetime-local"
-            />
+            <LabeledFieldLayout>
+              <label
+                className="label text-xs text-slate-400"
+                htmlFor={`lift.date`}
+              >
+                UTC
+              </label>
+              <input
+                tabIndex={1 + index * TAB_FIELD_COUNT}
+                {...register(`lift.date` as const, {
+                  required: true,
+                })}
+                className={errors?.lift?.date ? 'error' : ''}
+                type="datetime-local"
+              />
+            </LabeledFieldLayout>
 
             <input
               onKeyUp={(e) => {
