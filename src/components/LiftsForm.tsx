@@ -4,6 +4,7 @@ import { defaultStringifySearch } from '../libs/searchParams'
 import type { Lift } from '../hooks/useLifts'
 import { Tag } from '../hooks/useTags'
 import { LiftRow } from './LiftRow'
+import { isWithinToday, toLocalDate } from '../libs/date-tz-utils'
 
 type FormValues = {
   lifts: Lift[]
@@ -16,7 +17,7 @@ export const LiftsForm = ({
   tags,
   actions,
 }: {
-  lifts: unknown[]
+  lifts: Lift[]
   filterFn: (row: unknown) => boolean
   selectedKey?: string
   tags: Tag[]
@@ -47,10 +48,10 @@ export const LiftsForm = ({
               className={`${filterFn(field) ? '' : 'hidden'}`}
             >
               <section
-                className={`${
-                  selectedKey === field.date
-                    ? 'border-secondary border-solid border-2'
-                    : ''
+                className={`border-secondary ${
+                  selectedKey === field.date ? 'border-solid border-2' : ''
+                } ${
+                  isWithinToday(toLocalDate(field.date)) ? 'border-l-8' : ''
                 }`}
                 key={field.id}
               >

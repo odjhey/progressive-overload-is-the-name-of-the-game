@@ -68,7 +68,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex gap-1 items-center">
+        <div className="flex gap-1 items-center flex-wrap">
           <Searchable
             clear={() => saveFilters({ ...filters, tags: [] })}
             placeholder="tag search"
