@@ -11,7 +11,7 @@ export default {
       {
         bumblebee: {
           // eslint-disable-next-line @typescript-eslint/no-var-requires, no-undef
-          ...require('daisyui/src/colors/themes')['[data-theme=bumblebee]'],
+          ...require('daisyui/src/theming/themes')['[data-theme=bumblebee]'],
           'info-content': '#EEE',
         },
       },
