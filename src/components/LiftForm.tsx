@@ -1,7 +1,6 @@
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { Lift } from '../hooks/useLifts'
-import { IconX } from '@tabler/icons-react'
 
 type FormValues = {
   lift: {
@@ -15,10 +14,14 @@ type FormValues = {
   }
 }
 
-const LabeledFieldLayout = ({ children }: PropsWithChildren) => {
+const LabeledFieldLayout = ({
+  children,
+  controls,
+}: PropsWithChildren<{ controls: ReactNode }>) => {
   return (
-    <div className="flex gap-1 border border-solid border-red-100 flex-wrap">
-      {children}
+    <div className="flex gap-1 border border-solid flex-wrap justify-between">
+      <div className="flex gap-1">{children}</div>
+      <div className="flex gap-1">{controls}</div>
     </div>
   )
 }
@@ -55,12 +58,9 @@ export const LiftForm = ({
     <div>
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div key={lift.name}>
-          <section className="flex flex-col gap-1 p-1" key={lift.date}>
-            <LabeledFieldLayout>
-              <label
-                className="label text-xs text-slate-400"
-                htmlFor={`lift.date`}
-              >
+          <section className="flex flex-col gap-5 p-1" key={lift.date}>
+            <LabeledFieldLayout controls={<></>}>
+              <label className="label text-slate-400" htmlFor={`lift.date`}>
                 UTC
               </label>
               <input
@@ -84,73 +84,84 @@ export const LiftForm = ({
               {...register(`lift.name` as const, {
                 required: true,
               })}
-              className={`input w-full ${errors?.lift?.name ? 'error' : ''}`}
+              className={`input input-bordered ${
+                errors?.lift?.name ? 'error' : ''
+              }`}
             />
 
-            <LabeledFieldLayout>
-              <label
-                className="label text-xs text-slate-400"
-                htmlFor={`lift.weight`}
-              >
-                weight
-              </label>
-              <input
-                onKeyUp={(e) => {
-                  if (e.key === 'Enter') {
-                    setFocus(`lift.rep`)
-                  }
-                }}
-                tabIndex={3 + index * TAB_FIELD_COUNT}
-                placeholder="weight"
-                type="number"
-                step={0.25}
-                {...register(`lift.weight` as const, {
-                  valueAsNumber: true,
-                  required: true,
-                })}
-                className={errors?.lift?.weight ? 'error' : 'w-12'}
-              />
-              <button
-                type="button"
-                className="btn btn-xs btn-ghost"
-                onClick={() => {
-                  setValue('lift.weight', 0)
-                }}
-              >
-                <IconX size={14}></IconX>
-              </button>
-              {['+10', '+5', '+1'].map((v) => (
-                <button
-                  type="button"
-                  key={v}
-                  className="btn btn-xs"
-                  onClick={() => {
-                    const bias =
-                      v.charAt(0) === '+'
-                        ? Number(v.substring(1)) * 1
-                        : Number(v.substring(1)) * -1
-                    setValue('lift.weight', getValues('lift.weight') + bias)
+            <LabeledFieldLayout
+              controls={
+                <>
+                  {['+5', '+1'].map((v) => (
+                    <button
+                      type="button"
+                      key={v}
+                      className="btn"
+                      onClick={() => {
+                        const bias =
+                          v.charAt(0) === '+'
+                            ? Number(v.substring(1)) * 1
+                            : Number(v.substring(1)) * -1
+                        setValue('lift.weight', getValues('lift.weight') + bias)
+                      }}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className="btn "
+                    onClick={() => {
+                      setValue('lift.weight', 0)
+                    }}
+                  >
+                    0
+                  </button>
+                </>
+              }
+            >
+              <div className="flex gap-1">
+                <label className="label text-slate-400" htmlFor={`lift.weight`}>
+                  weight
+                </label>
+                <input
+                  onKeyUp={(e) => {
+                    if (e.key === 'Enter') {
+                      setFocus(`lift.rep`)
+                    }
                   }}
-                >
-                  {v}
-                </button>
-              ))}
-              <button
-                type="button"
-                className="btn btn-xs"
-                onClick={() => {
-                  setValue('lift.weight', 0)
-                }}
-              >
-                0
-              </button>
+                  tabIndex={3 + index * TAB_FIELD_COUNT}
+                  placeholder="weight"
+                  type="number"
+                  step={0.25}
+                  {...register(`lift.weight` as const, {
+                    valueAsNumber: true,
+                    required: true,
+                  })}
+                  className={errors?.lift?.weight ? 'error' : 'w-16'}
+                />
+              </div>
             </LabeledFieldLayout>
 
-            <LabeledFieldLayout>
-              <label
-                className="label text-xs text-slate-400"
-                htmlFor={`lift.uom`}
-              >
+            <LabeledFieldLayout
+              controls={
+                <>
+                  {['lbs', 'kg'].map((v) => (
+                    <button
+                      type="button"
+                      key={v}
+                      className="btn "
+                      onClick={() => {
+                        setValue('lift.uom', v)
+                      }}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </>
+              }
+            >
+              <label className="label text-slate-400" htmlFor={`lift.uom`}>
                 uom
               </label>
               <input
@@ -165,25 +176,25 @@ export const LiftForm = ({
                 })}
                 className={errors?.lift?.uom ? 'error' : 'w-16'}
               />
-              {['lbs', 'kg'].map((v) => (
-                <button
-                  type="button"
-                  key={v}
-                  className="btn btn-xs"
-                  onClick={() => {
-                    setValue('lift.uom', v)
-                  }}
-                >
-                  {v}
-                </button>
-              ))}
             </LabeledFieldLayout>
 
-            <LabeledFieldLayout>
-              <label
-                className="label text-xs text-slate-400"
-                htmlFor={`lift.rep`}
-              >
+            <LabeledFieldLayout
+              controls={
+                <>
+                  {[6, 8, 10, 12].map((v) => (
+                    <button
+                      type="button"
+                      key={v}
+                      className="btn "
+                      onClick={() => setValue('lift.rep', v)}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </>
+              }
+            >
+              <label className="label text-slate-400" htmlFor={`lift.rep`}>
                 rep
               </label>
               <input
@@ -201,23 +212,25 @@ export const LiftForm = ({
                 })}
                 className={errors?.lift?.rep ? 'error' : 'w-12'}
               />
-              {[6, 8, 10, 12, 14].map((v) => (
-                <button
-                  type="button"
-                  key={v}
-                  className="btn btn-xs"
-                  onClick={() => setValue('lift.rep', v)}
-                >
-                  {v}
-                </button>
-              ))}
             </LabeledFieldLayout>
 
-            <LabeledFieldLayout>
-              <label
-                className="label text-xs text-slate-400"
-                htmlFor={`lift.set`}
-              >
+            <LabeledFieldLayout
+              controls={
+                <>
+                  {[3, 4].map((v) => (
+                    <button
+                      type="button"
+                      key={v}
+                      className="btn "
+                      onClick={() => setValue('lift.set', v)}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </>
+              }
+            >
+              <label className="label text-slate-400" htmlFor={`lift.set`}>
                 set
               </label>
               <input
@@ -235,18 +248,8 @@ export const LiftForm = ({
                 })}
                 className={errors?.lift?.set ? 'error' : 'w-12'}
               />
-              {[3, 4].map((v) => (
-                <button
-                  type="button"
-                  key={v}
-                  className="btn btn-xs"
-                  onClick={() => setValue('lift.set', v)}
-                >
-                  {v}
-                </button>
-              ))}
             </LabeledFieldLayout>
-            <input
+            <textarea
               onKeyUp={(e) => {
                 if (e.key === 'Enter') {
                   // TODO set focus to submit
@@ -254,7 +257,6 @@ export const LiftForm = ({
               }}
               tabIndex={6 + index * TAB_FIELD_COUNT}
               placeholder="notes"
-              type="text"
               {...register(`lift.comment` as const, {
                 required: false,
               })}
@@ -264,10 +266,10 @@ export const LiftForm = ({
           <div className="bg-slate-100 p-2"></div>
         </div>
 
-        <div className="flex gap-1 pb-10">
-          <input className="btn btn-primary btn-xs" type="submit" />
+        <div className="flex gap-1 justify-center p-5 pb-10">
+          <input className="btn btn-primary " type="submit" />
           <button
-            className="btn btn-error btn-xs"
+            className="btn btn-error "
             type="button"
             onClick={() => {
               if (confirm('Are you sure you want to delete?')) {
