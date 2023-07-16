@@ -1,5 +1,6 @@
 import { IconEdit, IconCopy } from '@tabler/icons-react'
 import type { Lift } from '../hooks/useLifts'
+import dayjs from 'dayjs'
 
 export const LiftRow = ({
   lift,
@@ -28,6 +29,8 @@ export const LiftRow = ({
               )
             }}
           >
+            {dayjs(Date.now()).diff(dayjs(lift.date), 'day')}
+            {'d - '}
             {new Date(lift.date).toLocaleDateString()}
           </span>
         </span>
