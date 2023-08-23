@@ -62,6 +62,22 @@ export const useTags = () => {
       })
   }
 
+  const deleteTag = (tag: Tag) => {
+    setLoading(true)
+    const newData = data.filter(
+      (d) => d.liftName !== tag.liftName || d.name !== tag.name
+    )
+
+    return localforage
+      .setItem(lskey, { tags: newData })
+      .catch((e) => {
+        setError(e)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
   const appendTag = (
     tag: Tag,
     options?: {
@@ -95,5 +111,5 @@ export const useTags = () => {
       })
   }
 
-  return { loading, data, error, unique, saveTags, appendTag }
+  return { loading, data, error, unique, saveTags, appendTag, deleteTag }
 }
