@@ -50,6 +50,14 @@ export default function Tags() {
                   return (
                     <div className="badge" key={t.name}>
                       {t.name}
+                      <button
+                        className="btn btn-xs"
+                        onClick={() => {
+                          tags.deleteTag(t)
+                        }}
+                      >
+                        x
+                      </button>
                     </div>
                   )
                 })}
