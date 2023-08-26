@@ -2,6 +2,7 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { Lift, useLifts } from '../hooks/useLifts'
 import { useTags } from '../hooks/useTags'
 import { useMemo } from 'react'
+import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
 
 type NewTag = {
   name: string
@@ -9,8 +10,10 @@ type NewTag = {
 }
 
 export default function Tags() {
+  const [liftInSearch] = useUrlSearchParams()
   const lifts = useLifts()
   const tags = useTags()
+  console.log({ liftInSearch })
 
   const { register, handleSubmit, setValue, setFocus } = useForm<NewTag>()
   const onSubmit: SubmitHandler<NewTag> = (data) => {
@@ -86,6 +89,10 @@ export default function Tags() {
           <input
             className="input input-bordered"
             {...register('liftName', { required: true })}
+            defaultValue={
+              liftInSearch &&
+              (liftInSearch as any).liftName.replaceAll('+', ' ')
+            }
           />
           <button type="submit" className="btn btn-sm">
             tag
