@@ -5,6 +5,21 @@ export const useDbRaw = () => {
   const [loading, setLoading] = useState(false)
   const [keys, setKeys] = useState<string[]>([])
 
+  const uploadRaw = (key: string, value: unknown) => {
+    setLoading(true)
+    localforage
+      .setItem(key, value)
+      .then(() => {
+        console.log('success')
+      })
+      .catch((e) => {
+        console.error(e)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
   const getKeys = () => {
     localforage
       .keys()
@@ -23,5 +38,5 @@ export const useDbRaw = () => {
     })
   }
 
-  return { getKeys, keys, loading, getValues }
+  return { getKeys, keys, loading, getValues, uploadRaw }
 }
