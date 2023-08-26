@@ -62,7 +62,12 @@ export const useTags = () => {
       })
   }
 
-  const deleteTag = (tag: Tag) => {
+  const deleteTag = (
+    tag: Tag,
+    options?: {
+      onSuccess: (tag: Tag) => void
+    }
+  ) => {
     setLoading(true)
     const newData = data.filter(
       (d) => d.liftName !== tag.liftName || d.name !== tag.name
@@ -72,6 +77,13 @@ export const useTags = () => {
       .setItem(lskey, { tags: newData })
       .catch((e) => {
         setError(e)
+      })
+      .then(() => {
+        // reload
+        reloadItem()
+        if (options && typeof options.onSuccess === 'function') {
+          options.onSuccess(tag)
+        }
       })
       .finally(() => {
         setLoading(false)
