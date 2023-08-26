@@ -277,10 +277,8 @@ export const LiftForm = ({
             className="btn btn-info"
             type="button"
             onClick={() => {
-              if (confirm('Go to Tag?')) {
-                if (typeof goToTag === 'function') {
-                  goToTag({ name: lift.name })
-                }
+              if (typeof goToTag === 'function') {
+                goToTag({ name: lift.name })
               }
             }}
           >

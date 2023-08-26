@@ -15,7 +15,8 @@ export default function Tags() {
   const tags = useTags()
   console.log({ liftInSearch })
 
-  const { register, handleSubmit, setValue, setFocus } = useForm<NewTag>()
+  const { register, handleSubmit, setValue, setFocus, getValues } =
+    useForm<NewTag>()
   const onSubmit: SubmitHandler<NewTag> = (data) => {
     tags.appendTag(
       { liftName: data.liftName, name: data.name },
@@ -42,33 +43,6 @@ export default function Tags() {
   return (
     <>
       <div>Tags</div>
-      <div>
-        {uniqueLifts.map((d) => {
-          return (
-            <div className="flex flex-wrap space-x-1 items-center" key={d.name}>
-              <div>{d.name}</div>
-              {tags.data
-                .filter((v) => v.liftName === d.name)
-                .map((t) => {
-                  return (
-                    <div className="badge" key={t.name}>
-                      {t.name}
-                    </div>
-                  )
-                })}
-              <button
-                className="btn btn-xs"
-                onClick={() => {
-                  setValue('liftName', d.name)
-                  setFocus('name')
-                }}
-              >
-                +
-              </button>
-            </div>
-          )
-        })}
-      </div>
       <div className="p-2">
         <form
           className="flex gap-2 flex-wrap items-center p-2 border-solid border-primary border"
@@ -90,7 +64,60 @@ export default function Tags() {
           <button type="submit" className="btn btn-sm">
             tag
           </button>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() => {
+              if (confirm('Are you sure you want to delete?')) {
+                tags.deleteTag(
+                  { name: getValues('name'), liftName: getValues('liftName') },
+                  {
+                    onSuccess: (t) => {
+                      console.log('success delete', t.liftName, t.name)
+                    },
+                  }
+                )
+              }
+            }}
+          >
+            delete tag entry
+          </button>
         </form>
+      </div>
+      <div>
+        {uniqueLifts.map((d) => {
+          return (
+            <div className="flex flex-wrap space-x-1 items-center" key={d.name}>
+              <div>{d.name}</div>
+              {tags.data
+                .filter((v) => v.liftName === d.name)
+                .map((t) => {
+                  return (
+                    <div className="badge" key={t.name}>
+                      {t.name}
+                      <button
+                        className="btn btn-xs"
+                        onClick={() => {
+                          tags.deleteTag(t)
+                        }}
+                      >
+                        x
+                      </button>
+                    </div>
+                  )
+                })}
+              <button
+                className="btn btn-xs"
+                onClick={() => {
+                  setValue('liftName', d.name)
+                  setFocus('name')
+                }}
+              >
+                +
+              </button>
+            </div>
+          )
+        })}
       </div>
     </>
   )
