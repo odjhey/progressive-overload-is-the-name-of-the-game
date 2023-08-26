@@ -31,7 +31,9 @@ export const LiftForm = ({
   onSubmit,
   onDelete,
   goToTag,
+  title = 'New',
 }: {
+  title: string
   lift: FormValues['lift']
   onSubmit: (d: Lift) => Promise<unknown>
   onDelete: (keys: Pick<Lift, 'name' | 'date'>) => Promise<unknown>
@@ -58,6 +60,7 @@ export const LiftForm = ({
 
   return (
     <div>
+      <div className="text text-lg font-bold">{title}</div>
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div key={lift.name}>
           <section className="flex flex-col gap-5 p-1" key={lift.date}>
