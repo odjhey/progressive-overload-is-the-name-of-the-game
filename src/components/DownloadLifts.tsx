@@ -57,10 +57,15 @@ export const DownloadLifts = () => {
                   className="btn btn-sm btn-info"
                   onClick={() => {
                     dbRaw.getValues(key).then((values) => {
-                      const b = new File([values], `values-${key}.csv`, {
-                        type: 'text/plain;charset=utf-8',
+                      const b = new File([values], `values-${key}.txt`, {
+                        // lol text/plain no work in PWA
+                        type: 'text/csv;charset=utf-8',
                       })
-                      window.open(window.URL.createObjectURL(b))
+                      window.open(
+                        window.URL.createObjectURL(b),
+                        '_blank',
+                        'noopener,noreferrer'
+                      )
                     })
                   }}
                 >
