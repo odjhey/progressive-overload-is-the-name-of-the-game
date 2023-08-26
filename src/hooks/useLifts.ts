@@ -110,13 +110,36 @@ export const useLifts = () => {
       })
   }
 
+  const massUpsertLift = async (lifts: Lift[]) => {
+    setLoading(true)
+
+    const results: { isOk: boolean; lift: Lift }[] = []
+    const tasks = lifts.map((l) => {
+      return () =>
+        appendLift(l, {
+          onSuccess: (l) => results.push({ isOk: true, lift: l }),
+          onFailure: (l) => results.push({ isOk: false, lift: l }),
+        })
+    })
+
+    // serial exec
+    tasks.reduce((accu, p) => {
+      return accu.then((_) => p())
+    }, Promise.resolve())
+
+    console.log(results)
+    setLoading(false)
+  }
+
   const upsertLift = (
     lift: Lift,
     options?: {
       onSuccess: (lift: Lift) => void
+      onFailure?: (lift: Lift) => void
     }
   ) => {
     setLoading(true)
+    console.log('upserting', lift)
 
     const index = data.findIndex(
       (d) => d.date === lift.date && d.name === lift.name
@@ -142,6 +165,12 @@ export const useLifts = () => {
           options.onSuccess(lift)
         }
       })
+      .catch((e) => {
+        console.error(e)
+        if (options && typeof options.onFailure === 'function') {
+          options.onFailure(lift)
+        }
+      })
       .finally(() => {
         setLoading(false)
       })
@@ -151,6 +180,7 @@ export const useLifts = () => {
     lift: any,
     options?: {
       onSuccess: (lift: any) => void
+      onFailure?: (lift: any) => void
     }
   ) => {
     setLoading(true)
@@ -164,6 +194,12 @@ export const useLifts = () => {
         reloadItem()
         if (options && typeof options.onSuccess === 'function') {
           options.onSuccess(lift)
+        }
+      })
+      .catch((e) => {
+        console.error(e)
+        if (options && typeof options.onFailure === 'function') {
+          options.onFailure(lift)
         }
       })
       .finally(() => {
@@ -180,5 +216,6 @@ export const useLifts = () => {
     appendLift,
     upsertLift,
     deleteLift,
+    massUpsertLift,
   }
 }
