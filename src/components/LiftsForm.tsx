@@ -67,6 +67,7 @@ export const LiftsForm = ({
                       navigate({
                         pathname: '/new',
                         search: `${defaultStringifySearch({
+                          title: 'Edit',
                           lift: {
                             name: field.name,
                             date: field.date,
@@ -83,6 +84,7 @@ export const LiftsForm = ({
                       navigate({
                         pathname: '/new',
                         search: `${defaultStringifySearch({
+                          title: 'Copy',
                           lift: {
                             name: field.name,
                             date: new Date().toISOString().substring(0, 16),
