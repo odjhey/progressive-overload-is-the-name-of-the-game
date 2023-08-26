@@ -2,6 +2,22 @@ import { useEffect } from 'react'
 import { useDbRaw } from '../hooks/useDbRaw'
 import { useLifts } from '../hooks/useLifts'
 
+function download(filename: string, text: string) {
+  const element = document.createElement('a')
+  element.setAttribute(
+    'href',
+    'data:text/plain;charset=utf-8,' + encodeURIComponent(text)
+  )
+  element.setAttribute('download', filename)
+
+  element.style.display = 'none'
+  document.body.appendChild(element)
+
+  element.click()
+
+  document.body.removeChild(element)
+}
+
 export const DownloadLifts = () => {
   const { data, loading } = useLifts()
   const dbRaw = useDbRaw()
@@ -44,7 +60,7 @@ export const DownloadLifts = () => {
       </div>
 
       <div className="mx-auto border border-solid border-secondary p-1">
-        <div className="text-lg font-bold">Raw Data (v0.0.2)</div>
+        <div className="text-lg font-bold">Raw Data (v0.0.3)</div>
         {dbRaw.loading ? (
           <div>loading</div>
         ) : (
@@ -57,11 +73,12 @@ export const DownloadLifts = () => {
                   className="btn btn-sm btn-info"
                   onClick={() => {
                     dbRaw.getValues(key).then((values) => {
-                      const b = new File([values], `values-${key}.csv`, {
-                        // lol text/plain no work in PWA
-                        type: 'text/csv;charset=utf-8',
-                      })
-                      window.open(window.URL.createObjectURL(b))
+                      // const b = new File([values], `values-${key}.csv`, {
+                      //   // lol text/plain no work in PWA
+                      //   type: 'text/csv;charset=utf-8',
+                      // })
+                      // window.open(window.URL.createObjectURL(b))
+                      download(`values-${key}.csv`, values)
                     })
                   }}
                 >
