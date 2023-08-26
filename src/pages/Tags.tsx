@@ -83,6 +83,7 @@ export default function Tags() {
             {...register('liftName', { required: true })}
             defaultValue={
               liftInSearch &&
+              (liftInSearch as any).liftName &&
               (liftInSearch as any).liftName.replaceAll('+', ' ')
             }
           />
