@@ -43,8 +43,8 @@ export const UploadRaw = () => {
                   value={selectedKey}
                   onChange={(e) => setSelectedKey(e.target.value)}
                 >
-                  {keys.map((key) => (
-                    <option value={key}>{key}</option>
+                  {keys.map((key, index) => (
+                    <option key={index} value={key}>{key}</option>
                   ))}
                 </select>
                 <input
