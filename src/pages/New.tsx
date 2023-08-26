@@ -30,6 +30,7 @@ export default function New() {
   // we have the %20 issue about spaces and + sign
   return (
     <LiftForm
+      title={liftInSearch && (liftInSearch as any).title}
       lift={{
         ...defaults,
         name: String(defaults.name).replaceAll('+', ' '),
