@@ -44,7 +44,7 @@ export const DownloadLifts = () => {
       </div>
 
       <div className="mx-auto border border-solid border-secondary p-1">
-        <div className="text-lg font-bold">Raw Data</div>
+        <div className="text-lg font-bold">Raw Data (v0.0.2)</div>
         {dbRaw.loading ? (
           <div>loading</div>
         ) : (
@@ -57,15 +57,11 @@ export const DownloadLifts = () => {
                   className="btn btn-sm btn-info"
                   onClick={() => {
                     dbRaw.getValues(key).then((values) => {
-                      const b = new File([values], `values-${key}.txt`, {
+                      const b = new File([values], `values-${key}.csv`, {
                         // lol text/plain no work in PWA
                         type: 'text/csv;charset=utf-8',
                       })
-                      window.open(
-                        window.URL.createObjectURL(b),
-                        '_blank',
-                        'noopener,noreferrer'
-                      )
+                      window.open(window.URL.createObjectURL(b))
                     })
                   }}
                 >
