@@ -9,6 +9,7 @@ export type Lift = {
   set: number
   rep: number
   comment: string
+  difficulty?: number
 }
 
 // TODO: add version support
@@ -117,19 +118,19 @@ export const useLifts = () => {
     }
   ) => {
     setLoading(true)
-
+  
     const index = data.findIndex(
       (d) => d.date === lift.date && d.name === lift.name
     )
-
+  
     const updatedLifts =
       index > -1
         ? (() => {
-            data[index] = lift
+            data[index] = { ...data[index], ...lift }
             return [...data]
           })()
         : [...data, lift]
-
+  
     return localforage
       .setItem(lskey, { lifts: updatedLifts })
       .catch((e) => {
@@ -148,9 +149,9 @@ export const useLifts = () => {
   }
 
   const appendLift = (
-    lift: any,
+    lift: Lift,
     options?: {
-      onSuccess: (lift: any) => void
+      onSuccess: (lift: Lift) => void
     }
   ) => {
     setLoading(true)
