@@ -54,6 +54,14 @@ export default function New() {
             }),
         })
       }
+      goToTag={(pl) =>
+        navigate({
+          pathname: '/tags',
+          search: `${defaultStringifySearch({
+            liftName: pl.name,
+          })}`,
+        })
+      }
     ></LiftForm>
   )
 }
