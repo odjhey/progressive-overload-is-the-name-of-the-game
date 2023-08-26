@@ -1,4 +1,5 @@
 import { DownloadLifts } from '../components/DownloadLifts'
+import { UploadRaw } from '../components/UploadRaw'
 
 export default function About() {
   return (
@@ -11,7 +12,10 @@ export default function About() {
       </div>
       <div>
         <div className="text-lg font-bold">Settings</div>
-        <DownloadLifts></DownloadLifts>
+        <div className="flex flex-col gap-2">
+          <DownloadLifts></DownloadLifts>
+          <UploadRaw></UploadRaw>
+        </div>
       </div>
     </>
   )
