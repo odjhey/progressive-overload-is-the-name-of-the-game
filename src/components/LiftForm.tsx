@@ -30,10 +30,12 @@ export const LiftForm = ({
   lift,
   onSubmit,
   onDelete,
+  goToTag,
 }: {
   lift: FormValues['lift']
   onSubmit: (d: Lift) => Promise<unknown>
   onDelete: (keys: Pick<Lift, 'name' | 'date'>) => Promise<unknown>
+  goToTag?: (keys: Pick<Lift, 'name'>) => void
 }) => {
   const {
     register,
@@ -268,6 +270,19 @@ export const LiftForm = ({
 
         <div className="flex gap-1 justify-center p-5 pb-10">
           <input className="btn btn-primary " type="submit" />
+          <button
+            className="btn btn-info"
+            type="button"
+            onClick={() => {
+              if (confirm('Go to Tag?')) {
+                if (typeof goToTag === 'function') {
+                  goToTag({ name: lift.name })
+                }
+              }
+            }}
+          >
+            tag
+          </button>
           <button
             className="btn btn-error "
             type="button"
