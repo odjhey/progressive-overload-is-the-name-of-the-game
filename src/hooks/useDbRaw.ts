@@ -20,13 +20,13 @@ export const useDbRaw = () => {
       })
   }
 
-  const getKeys = () => {
-    localforage
+  const fetchKeys = () => {
+    return localforage
       .keys()
       .then((keys) => {
+        setKeys(keys)
         return keys
       })
-      .then((keys) => setKeys(keys))
       .finally(() => {
         setLoading(false)
       })
@@ -38,5 +38,17 @@ export const useDbRaw = () => {
     })
   }
 
-  return { getKeys, keys, loading, getValues, uploadRaw }
+  return { fetchKeys, keys, loading, getValues, uploadRaw }
+}
+          setLoading(false)
+        })
+    }
+
+  const getValues = (key: string) => {
+    return localforage.getItem(key).then((value) => {
+      return JSON.stringify(value)
+    })
+  }
+
+  return { fetchKeys, keys, loading, getValues, uploadRaw }
 }
