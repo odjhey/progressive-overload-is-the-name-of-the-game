@@ -6,7 +6,7 @@ function download(filename: string, text: string) {
   const element = document.createElement('a')
   element.setAttribute(
     'href',
-    'data:text/plain;charset=utf-8,' + encodeURIComponent(text)
+    'data:application/json;charset=utf-8,' + encodeURIComponent(text)
   )
   element.setAttribute('download', filename)
 
@@ -78,7 +78,10 @@ export const DownloadLifts = () => {
                       //   type: 'text/csv;charset=utf-8',
                       // })
                       // window.open(window.URL.createObjectURL(b))
-                      download(`values-${key}.csv`, values)
+                      download(
+                        `values-${new Date().toISOString()}-${key}.json`,
+                        values
+                      )
                     })
                   }}
                 >
