@@ -1,55 +1,5 @@
-import dayjs from 'dayjs'
 import { types } from 'mobx-state-tree'
-
-const TagModel = types.model({
-  tag: types.identifier,
-})
-
-const TaggingByLiftName = types.model({
-  id: types.identifier,
-  tag: types.reference(TagModel),
-  // TODO: do we create "lift groups model" or do we separate "lift vs liftEntry"?
-  name: types.string,
-})
-
-const LiftModel = types
-  .model({
-    id: types.identifier,
-    date: types.Date,
-    name: types.string,
-    weight: types.number,
-    uom: types.string,
-    set: types.number,
-    rep: types.number,
-    comment: types.string,
-  })
-  .actions((self) => ({
-    update: ({
-      date,
-      name,
-      weight,
-      uom,
-      set,
-      rep,
-      comment,
-    }: {
-      date: Date
-      name: string
-      weight: number
-      uom: string
-      set: number
-      rep: number
-      comment: string
-    }) => {
-      self.date = date
-      self.name = name
-      self.weight = weight
-      self.uom = uom
-      self.set = set
-      self.rep = rep
-      self.comment = comment
-    },
-  }))
+import { LiftModel, TagModel, TaggingByLiftName } from './core'
 
 export const RootStore = types
   .model({
@@ -73,76 +23,10 @@ export const RootStore = types
         return [...self['m/lifts'].values()].map((l) => {
           const tags = vTagsByLiftName(l.name)
           return {
-            id: l.id,
-            date: l.date.toLocaleString(),
-            name: l.name,
-            rep: l.rep,
-            set: l.set,
-            uom: l.uom,
-            weight: l.weight,
-            comment: l.comment,
+            lift: l,
             tags,
           }
         })
-      },
-      vLiftsByName: (nameSearchTerm: string) => {
-        return [...self['m/lifts'].values()]
-          .filter((l) => l.name.includes(nameSearchTerm))
-          .map((l) => {
-            const tags = vTagsByLiftName(l.name)
-            return {
-              id: l.id,
-              date: l.date.toLocaleString(),
-              name: l.name,
-              rep: l.rep,
-              set: l.set,
-              uom: l.uom,
-              weight: l.weight,
-              comment: l.comment,
-              tags,
-            }
-          })
-      },
-      // TODO update to support "range"
-      vLiftsByDate: (date: Date) => {
-        return [...self['m/lifts'].values()]
-          .filter((l) => dayjs(date).isSame(l.date))
-          .map((l) => {
-            const tags = vTagsByLiftName(l.name)
-            return {
-              id: l.id,
-              date: l.date.toLocaleString(),
-              name: l.name,
-              rep: l.rep,
-              set: l.set,
-              uom: l.uom,
-              weight: l.weight,
-              comment: l.comment,
-              tags,
-            }
-          })
-      },
-      vLiftsByTag: (tagSearchTerm: string) => {
-        const liftNames = self['m/taggingByLiftNameList']
-          .filter((tbn) => tbn.tag.tag === tagSearchTerm)
-          .map((t) => t.name)
-
-        return [...self['m/lifts'].values()]
-          .filter((l) => liftNames.includes(l.name))
-          .map((l) => {
-            const tags = vTagsByLiftName(l.name)
-            return {
-              id: l.id,
-              date: l.date.toLocaleString(),
-              name: l.name,
-              rep: l.rep,
-              set: l.set,
-              uom: l.uom,
-              weight: l.weight,
-              comment: l.comment,
-              tags,
-            }
-          })
       },
     }
   })
