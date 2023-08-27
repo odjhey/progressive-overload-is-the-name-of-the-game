@@ -107,8 +107,6 @@ export const RootStore = types
           .filter((tbn) => tbn.tag.tag === tagSearchTerm)
           .map((t) => t.name)
 
-        console.log('-----', liftNames)
-
         return [...self['m/lifts'].values()]
           .filter((l) => liftNames.includes(l.name))
           .map((l) => {
