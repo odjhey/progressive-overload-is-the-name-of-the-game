@@ -1,5 +1,4 @@
 import { types } from 'mobx-state-tree'
-import { memo } from 'react'
 
 const LiftModel = types
   .model({
