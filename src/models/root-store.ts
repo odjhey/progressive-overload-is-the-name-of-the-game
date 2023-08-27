@@ -96,24 +96,24 @@ export const RootStore = types
         rep,
         comment,
       }: {
-        date: Date
-        name: string
-        weight: number
-        uom: string
-        set: number
-        rep: number
-        comment: string
+        date?: Date
+        name?: string
+        weight?: number
+        uom?: string
+        set?: number
+        rep?: number
+        comment?: string
       }
     ) => {
       const match = self.lifts.get(id)
       match?.update({
-        date,
-        name,
-        weight,
-        uom,
-        set,
-        rep,
-        comment,
+        date: date === undefined ? match.date : date,
+        name: name === undefined ? match.name : name,
+        weight: weight === undefined ? match.weight : weight,
+        uom: uom === undefined ? match.uom : uom,
+        set: set === undefined ? match.set : set,
+        rep: rep === undefined ? match.rep : rep,
+        comment: comment === undefined ? match.comment : comment,
       })
     },
     removeLift: (id: string) => {
