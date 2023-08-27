@@ -311,7 +311,7 @@ test('users should be able to search lifts by name', () => {
       set: 4,
       rep: 8,
       comment: '',
-      tags: [],
+      tags: ['chest', 'compound'],
     },
     {
       id: 'lift/bench_2',
@@ -322,7 +322,37 @@ test('users should be able to search lifts by name', () => {
       set: 4,
       rep: 8,
       comment: '',
-      tags: [],
+      tags: ['chest'],
+    },
+  ])
+})
+
+test('users should be able to search lifts by tag', () => {
+  const store = getSearchStore()
+
+  expect.assertions(1)
+  expect(store.vLiftsByTag('chest')).toEqual([
+    {
+      id: 'lift/bench_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'bench',
+      weight: 120.5,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+      tags: ['chest', 'compound'],
+    },
+    {
+      id: 'lift/bench_2',
+      date: '2/4/2023, 8:00:00 AM',
+      name: 'bench incline',
+      weight: 130.5,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+      tags: ['chest'],
     },
   ])
 })

@@ -102,6 +102,30 @@ export const RootStore = types
             }
           })
       },
+      vLiftsByTag: (tagSearchTerm: string) => {
+        const liftNames = self['m/taggingByLiftNameList']
+          .filter((tbn) => tbn.tag.tag === tagSearchTerm)
+          .map((t) => t.name)
+
+        console.log('-----', liftNames)
+
+        return [...self['m/lifts'].values()]
+          .filter((l) => liftNames.includes(l.name))
+          .map((l) => {
+            const tags = vTagsByLiftName(l.name)
+            return {
+              id: l.id,
+              date: l.date.toLocaleString(),
+              name: l.name,
+              rep: l.rep,
+              set: l.set,
+              uom: l.uom,
+              weight: l.weight,
+              comment: l.comment,
+              tags,
+            }
+          })
+      },
     }
   })
   .actions((self) => {

@@ -43,6 +43,12 @@ export const getSearchStore = () => {
       chest: { tag: 'chest' },
       compound: { tag: 'compound' },
     },
+    'm/taggingByLiftNameList': [
+      { id: 'bench_chest', name: 'bench', tag: 'chest' },
+      { id: 'bench_compound', name: 'bench', tag: 'compound' },
+      { id: 'benchi_chest', name: 'bench incline', tag: 'chest' },
+      { id: 'squat_leg', name: 'squat', tag: 'leg' },
+    ],
     'm/lifts': {
       'lift/bench_1672617600000': {
         id: 'lift/bench_1672617600000',
