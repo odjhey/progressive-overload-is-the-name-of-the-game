@@ -16,7 +16,6 @@ test('users should be able to create lift entries', () => {
   })
 
   expect.assertions(2)
-
   // single
   expect(store.vLifts()).toEqual([
     {
@@ -28,6 +27,7 @@ test('users should be able to create lift entries', () => {
       set: 4,
       rep: 8,
       comment: '',
+      tags: [],
     },
   ])
 
@@ -51,6 +51,7 @@ test('users should be able to create lift entries', () => {
       set: 4,
       rep: 8,
       comment: '',
+      tags: [],
     },
     {
       id: 'lift/squat_1672617600000',
@@ -61,6 +62,7 @@ test('users should be able to create lift entries', () => {
       set: 4,
       rep: 8,
       comment: '',
+      tags: [],
     },
   ])
 })
@@ -97,6 +99,7 @@ test('users should be able to update lift entries', () => {
       set: 4,
       rep: 8,
       comment: '9-8-8',
+      tags: [],
     },
     {
       id: 'lift/squat_1672617600000',
@@ -107,6 +110,7 @@ test('users should be able to update lift entries', () => {
       set: 4,
       rep: 10,
       comment: 'tough',
+      tags: [],
     },
   ])
 })
@@ -127,6 +131,7 @@ test('users should be able to delete lift entries', () => {
       set: 4,
       rep: 8,
       comment: '',
+      tags: [],
     },
   ])
 })
@@ -154,6 +159,7 @@ test('users should be able to create lift entries from previous sessions', () =>
       set: 4,
       rep: 8,
       comment: '',
+      tags: [],
     },
     {
       id: 'lift/squat_1672617600000',
@@ -164,6 +170,7 @@ test('users should be able to create lift entries from previous sessions', () =>
       set: 4,
       rep: 8,
       comment: '',
+      tags: [],
     },
     {
       id: 'lift/bench_1672876800000',
@@ -174,6 +181,43 @@ test('users should be able to create lift entries from previous sessions', () =>
       set: 4,
       rep: 8,
       comment: '9-8-8',
+      tags: [],
+    },
+  ])
+})
+
+test('users should be able to tag lift entries', () => {
+  const store = getCrudStore()
+
+  // update individual fields, ala PATCH
+  const { ok } = store.tagLift('lift/bench_1672617600000', 'push')
+  const { ok: ok2 } = store.tagLift('lift/bench_1672617600000', 'chest')
+
+  expect.assertions(3)
+  expect(ok).toBe(true)
+  expect(ok2).toBe(true)
+  expect(store.vLifts()).toEqual([
+    {
+      id: 'lift/bench_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'bench',
+      weight: 120.5,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+      tags: ['push', 'chest'],
+    },
+    {
+      id: 'lift/squat_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'squat',
+      weight: 150,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+      tags: [],
     },
   ])
 })

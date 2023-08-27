@@ -1,5 +1,9 @@
 import { types } from 'mobx-state-tree'
 
+const TagModel = types.model({
+  tag: types.identifier,
+})
+
 const LiftModel = types
   .model({
     id: types.identifier,
@@ -10,8 +14,13 @@ const LiftModel = types
     set: types.number,
     rep: types.number,
     comment: types.string,
+    tags: types.array(types.reference(TagModel)),
   })
   .actions((self) => ({
+    tag: (tag: string) => {
+      // TODO: make this list unique, so not repeatable
+      self.tags.push(tag)
+    },
     update: ({
       date,
       name,
@@ -42,12 +51,20 @@ const LiftModel = types
 export const RootStore = types
   .model({
     lifts: types.map(LiftModel),
+    tags: types.map(TagModel),
   })
   .views((self) => ({
     vLifts: () => {
       return [...self.lifts.values()].map((l) => ({
-        ...l,
+        id: l.id,
         date: l.date.toLocaleString(),
+        name: l.name,
+        rep: l.rep,
+        set: l.set,
+        uom: l.uom,
+        weight: l.weight,
+        comment: l.comment,
+        tags: [...l.tags.values()].map((t) => t.tag),
       }))
     },
   }))
@@ -166,6 +183,15 @@ export const RootStore = types
           rep: rep === undefined ? match.rep : rep,
           comment: comment === undefined ? match.comment : comment,
         })
+        return { ok: true }
+      },
+      tagLift: (id: string, tag: string): { ok: false } | { ok: true } => {
+        const match = self.lifts.get(id)
+        if (!match) {
+          // TODO: still unsure if we should be throwing here, or use a "state" to store errors
+          return { ok: false }
+        }
+        match.tag(tag)
         return { ok: true }
       },
     }
