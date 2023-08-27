@@ -7,6 +7,7 @@ export const getCrudStore = () => {
       pull: { tag: 'pull' },
       leg: { tag: 'leg' },
       chest: { tag: 'chest' },
+      compound: { tag: 'compound' },
     },
     lifts: {
       'lift/bench_1672617600000': {

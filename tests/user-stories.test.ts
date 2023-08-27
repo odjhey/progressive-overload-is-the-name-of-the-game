@@ -140,7 +140,7 @@ test('users should be able to create lift entries from previous sessions', () =>
   const store = getCrudStore()
 
   // must be able to carry tags during copy
-  store.tagLift('lift/bench_1672617600000', 'push')
+  store.tagLift('bench', 'push')
 
   const { ok } = store.copyLift('lift/bench_1672617600000', {
     date: new Date('2023-01-05T00:00:00.000Z'),
@@ -191,12 +191,10 @@ test('users should be able to create lift entries from previous sessions', () =>
 test('users should be able to tag lift entries', () => {
   const store = getCrudStore()
 
-  const { ok } = store.tagLift('lift/bench_1672617600000', 'push')
-  const { ok: ok2 } = store.tagLift('lift/bench_1672617600000', 'chest')
+  store.tagLift('bench', 'push')
+  store.tagLift('bench', 'chest')
 
-  expect.assertions(3)
-  expect(ok).toBe(true)
-  expect(ok2).toBe(true)
+  expect.assertions(1)
   expect(store.vLifts()).toEqual([
     {
       id: 'lift/bench_1672617600000',
@@ -208,6 +206,67 @@ test('users should be able to tag lift entries', () => {
       rep: 8,
       comment: '',
       tags: ['push', 'chest'],
+    },
+    {
+      id: 'lift/squat_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'squat',
+      weight: 150,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+      tags: [],
+    },
+  ])
+})
+
+test('users should be able to untag', () => {
+  const store = getCrudStore()
+
+  store.tagLift('bench', 'push')
+  store.tagLift('bench', 'chest')
+  store.tagLift('bench', 'compound')
+
+  expect.assertions(2)
+  expect(store.vLifts()).toEqual([
+    {
+      id: 'lift/bench_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'bench',
+      weight: 120.5,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+      tags: ['push', 'chest', 'compound'],
+    },
+    {
+      id: 'lift/squat_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'squat',
+      weight: 150,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+      tags: [],
+    },
+  ])
+
+  store.untagLift('bench', 'chest')
+  store.untagLift('bench', 'compound')
+  expect(store.vLifts()).toEqual([
+    {
+      id: 'lift/bench_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'bench',
+      weight: 120.5,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+      tags: ['push'],
     },
     {
       id: 'lift/squat_1672617600000',

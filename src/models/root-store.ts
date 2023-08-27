@@ -205,17 +205,21 @@ export const RootStore = types
         })
         return { ok: true }
       },
-      tagLift: (id: string, tag: string): { ok: false } | { ok: true } => {
-        const match = self.lifts.get(id)
-        if (!match) {
-          // TODO: still unsure if we should be throwing here, or use a "state" to store errors
+      tagLift: (name: string, tag: string) => {
+        self.taggingByLiftNameList.push({
+          id: newTaggingByLiftNameId(name, tag),
+          tag: tag,
+          name: name,
+        })
+      },
+      untagLift: (name: string, tag: string): { ok: true } | { ok: false } => {
+        const matchIdx = self.taggingByLiftNameList.findIndex(
+          (tbn) => tbn.name === name && tbn.tag.tag === tag
+        )
+        if (matchIdx < 0) {
           return { ok: false }
         }
-        self.taggingByLiftNameList.push({
-          id: newTaggingByLiftNameId(match.name, tag),
-          tag: tag,
-          name: match.name,
-        })
+        self.taggingByLiftNameList.splice(matchIdx, 1)
         return { ok: true }
       },
     }
