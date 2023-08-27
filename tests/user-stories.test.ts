@@ -191,6 +191,9 @@ test('users should be able to create lift entries from previous sessions', () =>
 test('users should be able to tag lift entries', () => {
   const store = getCrudStore()
 
+  store.copyLift('lift/bench_1672617600000', {
+    date: new Date('2023-10-10')
+  })
   store.tagLift('bench', 'push')
   store.tagLift('bench', 'chest')
 
@@ -217,6 +220,17 @@ test('users should be able to tag lift entries', () => {
       rep: 8,
       comment: '',
       tags: [],
+    },
+    {
+      id: 'lift/bench_1696896000000',
+      date: '10/10/2023, 8:00:00 AM',
+      name: 'bench',
+      weight: 120.5,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+      tags: ['push', 'chest'],
     },
   ])
 })
