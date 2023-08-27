@@ -15,6 +15,8 @@ test('users should be able to create lift entries', () => {
     comment: '',
   })
 
+  expect.assertions(2)
+
   // single
   expect(store.vLifts()).toEqual([
     {
@@ -66,6 +68,7 @@ test('users should be able to create lift entries', () => {
 test('users should be able to update lift entries', () => {
   const store = getCrudStore()
 
+  expect.assertions(1)
   // update all, ala POST
   store.updateLift('lift/squat_1672617600000', {
     date: new Date('2023-01-02T00:00:00.000Z'),
@@ -113,6 +116,7 @@ test('users should be able to delete lift entries', () => {
 
   store.removeLift('lift/bench_1672617600000')
 
+  expect.assertions(1)
   expect(store.vLifts()).toEqual([
     {
       id: 'lift/squat_1672617600000',
@@ -123,6 +127,53 @@ test('users should be able to delete lift entries', () => {
       set: 4,
       rep: 8,
       comment: '',
+    },
+  ])
+})
+
+test('users should be able to create lift entries from previous sessions', () => {
+  const store = getCrudStore()
+
+  // update individual fields, ala PATCH
+  const { ok } = store.copyLift('lift/bench_1672617600000', {
+    date: new Date('2023-01-05T00:00:00.000Z'),
+    weight: 140,
+    rep: 8,
+    comment: '9-8-8',
+  })
+
+  expect.assertions(2)
+  expect(ok).toBe(true)
+  expect(store.vLifts()).toEqual([
+    {
+      id: 'lift/bench_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'bench',
+      weight: 120.5,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+    },
+    {
+      id: 'lift/squat_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'squat',
+      weight: 150,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+    },
+    {
+      id: 'lift/bench_1672876800000',
+      date: '1/5/2023, 8:00:00 AM',
+      name: 'bench',
+      weight: 140,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '9-8-8',
     },
   ])
 })

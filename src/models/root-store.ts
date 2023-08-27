@@ -51,43 +51,12 @@ export const RootStore = types
       }))
     },
   }))
-  .actions((self) => ({
-    newLift: ({
-      date,
-      name,
-      weight,
-      uom,
-      set,
-      rep,
-      comment,
-    }: {
-      date: Date
-      name: string
-      weight: number
-      uom: string
-      set: number
-      rep: number
-      comment: string
-    }) => {
-      // TODO: update to a human readable ID
-      const id = `lift/${encodeURIComponent(name)}_${encodeURIComponent(
-        date.valueOf()
-      )}`
-      // TODO: verify that date tz
-      self.lifts.set(id, {
-        id,
-        date,
-        name,
-        weight,
-        uom,
-        set,
-        rep,
-        comment,
-      })
-    },
-    updateLift: (
-      id: string,
-      {
+  .actions((self) => {
+    const newLiftId = (name: string, date: Date) =>
+      `lift/${encodeURIComponent(name)}_${encodeURIComponent(date.valueOf())}`
+
+    return {
+      newLift: ({
         date,
         name,
         weight,
@@ -96,27 +65,108 @@ export const RootStore = types
         rep,
         comment,
       }: {
-        date?: Date
-        name?: string
-        weight?: number
-        uom?: string
-        set?: number
-        rep?: number
-        comment?: string
-      }
-    ) => {
-      const match = self.lifts.get(id)
-      match?.update({
-        date: date === undefined ? match.date : date,
-        name: name === undefined ? match.name : name,
-        weight: weight === undefined ? match.weight : weight,
-        uom: uom === undefined ? match.uom : uom,
-        set: set === undefined ? match.set : set,
-        rep: rep === undefined ? match.rep : rep,
-        comment: comment === undefined ? match.comment : comment,
-      })
-    },
-    removeLift: (id: string) => {
-      self.lifts.delete(id)
-    },
-  }))
+        date: Date
+        name: string
+        weight: number
+        uom: string
+        set: number
+        rep: number
+        comment: string
+      }) => {
+        // TODO: update to a human readable ID
+        const id = newLiftId(name, date)
+        // TODO: verify that date tz
+        self.lifts.set(id, {
+          id,
+          date,
+          name,
+          weight,
+          uom,
+          set,
+          rep,
+          comment,
+        })
+      },
+      updateLift: (
+        id: string,
+        {
+          date,
+          name,
+          weight,
+          uom,
+          set,
+          rep,
+          comment,
+        }: {
+          date?: Date
+          name?: string
+          weight?: number
+          uom?: string
+          set?: number
+          rep?: number
+          comment?: string
+        }
+      ) => {
+        const match = self.lifts.get(id)
+        match?.update({
+          date: date === undefined ? match.date : date,
+          name: name === undefined ? match.name : name,
+          weight: weight === undefined ? match.weight : weight,
+          uom: uom === undefined ? match.uom : uom,
+          set: set === undefined ? match.set : set,
+          rep: rep === undefined ? match.rep : rep,
+          comment: comment === undefined ? match.comment : comment,
+        })
+      },
+      removeLift: (id: string) => {
+        self.lifts.delete(id)
+      },
+      copyLift: (
+        baseId: string,
+        {
+          date,
+          name,
+          weight,
+          uom,
+          set,
+          rep,
+          comment,
+        }: {
+          date?: Date
+          name?: string
+          weight?: number
+          uom?: string
+          set?: number
+          rep?: number
+          comment?: string
+        }
+      ): { ok: true } | { ok: false } => {
+        const match = self.lifts.get(baseId)
+        if (!match) {
+          // TODO: still unsure if we should be throwing here, or use a "state" to store errors
+          return { ok: false }
+        }
+        const id = newLiftId(
+          name === undefined ? match.name : name,
+          date === undefined ? match.date : date
+        )
+
+        // TODO: should we check for id "uniqueness" to avoid possible overwrites during copy?
+        if (id === baseId) {
+          return { ok: false }
+        }
+
+        self.lifts.set(id, {
+          id,
+          date: date === undefined ? match.date : date,
+          name: name === undefined ? match.name : name,
+          weight: weight === undefined ? match.weight : weight,
+          uom: uom === undefined ? match.uom : uom,
+          set: set === undefined ? match.set : set,
+          rep: rep === undefined ? match.rep : rep,
+          comment: comment === undefined ? match.comment : comment,
+        })
+        return { ok: true }
+      },
+    }
+  })
