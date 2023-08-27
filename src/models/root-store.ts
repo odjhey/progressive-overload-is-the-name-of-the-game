@@ -4,6 +4,13 @@ const TagModel = types.model({
   tag: types.identifier,
 })
 
+const TaggingByLiftName = types.model({
+  id: types.identifier,
+  tag: types.reference(TagModel),
+  // TODO: do we create "lift groups model" or do we separate "lift vs liftEntry"?
+  name: types.string,
+})
+
 const LiftModel = types
   .model({
     id: types.identifier,
@@ -14,13 +21,8 @@ const LiftModel = types
     set: types.number,
     rep: types.number,
     comment: types.string,
-    tags: types.array(types.reference(TagModel)),
   })
   .actions((self) => ({
-    tag: (tag: string) => {
-      // TODO: make this list unique, so not repeatable
-      self.tags.push(tag)
-    },
     update: ({
       date,
       name,
@@ -52,25 +54,43 @@ export const RootStore = types
   .model({
     lifts: types.map(LiftModel),
     tags: types.map(TagModel),
+    taggingByLiftNameList: types.array(TaggingByLiftName),
   })
-  .views((self) => ({
-    vLifts: () => {
-      return [...self.lifts.values()].map((l) => ({
-        id: l.id,
-        date: l.date.toLocaleString(),
-        name: l.name,
-        rep: l.rep,
-        set: l.set,
-        uom: l.uom,
-        weight: l.weight,
-        comment: l.comment,
-        tags: [...l.tags.values()].map((t) => t.tag),
-      }))
-    },
-  }))
+  .views((self) => {
+    const vTagsByLiftName = (liftName: string) => {
+      const tags = [
+        ...self.taggingByLiftNameList
+          .filter((tbn) => tbn.name === liftName)
+          .values(),
+      ].map((t) => t.tag.tag)
+      return tags
+    }
+
+    return {
+      vTagsByLiftName,
+      vLifts: () => {
+        return [...self.lifts.values()].map((l) => {
+          const tags = vTagsByLiftName(l.name)
+          return {
+            id: l.id,
+            date: l.date.toLocaleString(),
+            name: l.name,
+            rep: l.rep,
+            set: l.set,
+            uom: l.uom,
+            weight: l.weight,
+            comment: l.comment,
+            tags,
+          }
+        })
+      },
+    }
+  })
   .actions((self) => {
     const newLiftId = (name: string, date: Date) =>
       `lift/${encodeURIComponent(name)}_${encodeURIComponent(date.valueOf())}`
+    const newTaggingByLiftNameId = (name: string, tag: string) =>
+      `taggingByLiftName/${encodeURIComponent(name)}_${encodeURIComponent(tag)}`
 
     return {
       newLift: ({
@@ -182,7 +202,6 @@ export const RootStore = types
           set: set === undefined ? match.set : set,
           rep: rep === undefined ? match.rep : rep,
           comment: comment === undefined ? match.comment : comment,
-          tags: [...match.tags.values()].map((t) => t.tag),
         })
         return { ok: true }
       },
@@ -192,7 +211,11 @@ export const RootStore = types
           // TODO: still unsure if we should be throwing here, or use a "state" to store errors
           return { ok: false }
         }
-        match.tag(tag)
+        self.taggingByLiftNameList.push({
+          id: newTaggingByLiftNameId(match.name, tag),
+          tag: tag,
+          name: match.name,
+        })
         return { ok: true }
       },
     }
