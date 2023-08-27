@@ -99,3 +99,22 @@ test('users should be able to update lift entries', () => {
     },
   ])
 })
+
+test('users should be able to delete lift entries', () => {
+  const store = getCrudStore()
+
+  store.removeLift('lift/bench_1672617600000')
+
+  expect(store.vLifts()).toEqual([
+    {
+      id: 'lift/squat_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'squat',
+      weight: 150,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+    },
+  ])
+})

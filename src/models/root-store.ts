@@ -117,4 +117,7 @@ export const RootStore = types
         comment,
       })
     },
+    removeLift: (id: string) => {
+      self.lifts.delete(id)
+    },
   }))
