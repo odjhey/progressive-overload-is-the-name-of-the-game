@@ -52,14 +52,14 @@ const LiftModel = types
 
 export const RootStore = types
   .model({
-    lifts: types.map(LiftModel),
-    tags: types.map(TagModel),
-    taggingByLiftNameList: types.array(TaggingByLiftName),
+    'm/lifts': types.map(LiftModel),
+    'm/tags': types.map(TagModel),
+    'm/taggingByLiftNameList': types.array(TaggingByLiftName),
   })
   .views((self) => {
     const vTagsByLiftName = (liftName: string) => {
       const tags = [
-        ...self.taggingByLiftNameList
+        ...self['m/taggingByLiftNameList']
           .filter((tbn) => tbn.name === liftName)
           .values(),
       ].map((t) => t.tag.tag)
@@ -69,7 +69,7 @@ export const RootStore = types
     return {
       vTagsByLiftName,
       vLifts: () => {
-        return [...self.lifts.values()].map((l) => {
+        return [...self['m/lifts'].values()].map((l) => {
           const tags = vTagsByLiftName(l.name)
           return {
             id: l.id,
@@ -113,7 +113,7 @@ export const RootStore = types
         // TODO: update to a human readable ID
         const id = newLiftId(name, date)
         // TODO: verify that date tz
-        self.lifts.set(id, {
+        self['m/lifts'].set(id, {
           id,
           date,
           name,
@@ -144,7 +144,7 @@ export const RootStore = types
           comment?: string
         }
       ) => {
-        const match = self.lifts.get(id)
+        const match = self['m/lifts'].get(id)
         match?.update({
           date: date === undefined ? match.date : date,
           name: name === undefined ? match.name : name,
@@ -156,7 +156,7 @@ export const RootStore = types
         })
       },
       removeLift: (id: string) => {
-        self.lifts.delete(id)
+        self['m/lifts'].delete(id)
       },
       copyLift: (
         baseId: string,
@@ -178,7 +178,7 @@ export const RootStore = types
           comment?: string
         }
       ): { ok: true } | { ok: false } => {
-        const match = self.lifts.get(baseId)
+        const match = self['m/lifts'].get(baseId)
         if (!match) {
           // TODO: still unsure if we should be throwing here, or use a "state" to store errors
           return { ok: false }
@@ -193,7 +193,7 @@ export const RootStore = types
           return { ok: false }
         }
 
-        self.lifts.set(id, {
+        self['m/lifts'].set(id, {
           id,
           date: date === undefined ? match.date : date,
           name: name === undefined ? match.name : name,
@@ -206,20 +206,20 @@ export const RootStore = types
         return { ok: true }
       },
       tagLift: (name: string, tag: string) => {
-        self.taggingByLiftNameList.push({
+        self['m/taggingByLiftNameList'].push({
           id: newTaggingByLiftNameId(name, tag),
           tag: tag,
           name: name,
         })
       },
       untagLift: (name: string, tag: string): { ok: true } | { ok: false } => {
-        const matchIdx = self.taggingByLiftNameList.findIndex(
+        const matchIdx = self['m/taggingByLiftNameList'].findIndex(
           (tbn) => tbn.name === name && tbn.tag.tag === tag
         )
         if (matchIdx < 0) {
           return { ok: false }
         }
-        self.taggingByLiftNameList.splice(matchIdx, 1)
+        self['m/taggingByLiftNameList'].splice(matchIdx, 1)
         return { ok: true }
       },
     }

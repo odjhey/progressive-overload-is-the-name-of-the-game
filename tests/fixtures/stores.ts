@@ -2,14 +2,14 @@ import { RootStore } from '../../src/models/root-store'
 
 export const getCrudStore = () => {
   return RootStore.create({
-    tags: {
+    'm/tags': {
       push: { tag: 'push' },
       pull: { tag: 'pull' },
       leg: { tag: 'leg' },
       chest: { tag: 'chest' },
       compound: { tag: 'compound' },
     },
-    lifts: {
+    'm/lifts': {
       'lift/bench_1672617600000': {
         id: 'lift/bench_1672617600000',
         date: new Date('2023-01-02T00:00:00.000Z'),
