@@ -1,15 +1,44 @@
 import { types } from 'mobx-state-tree'
+import { memo } from 'react'
 
-const LiftModel = types.model({
-  id: types.identifier,
-  date: types.Date,
-  name: types.string,
-  weight: types.number,
-  uom: types.string,
-  set: types.number,
-  rep: types.number,
-  comment: types.string,
-})
+const LiftModel = types
+  .model({
+    id: types.identifier,
+    date: types.Date,
+    name: types.string,
+    weight: types.number,
+    uom: types.string,
+    set: types.number,
+    rep: types.number,
+    comment: types.string,
+  })
+  .actions((self) => ({
+    update: ({
+      date,
+      name,
+      weight,
+      uom,
+      set,
+      rep,
+      comment,
+    }: {
+      date: Date
+      name: string
+      weight: number
+      uom: string
+      set: number
+      rep: number
+      comment: string
+    }) => {
+      self.date = date
+      self.name = name
+      self.weight = weight
+      self.uom = uom
+      self.set = set
+      self.rep = rep
+      self.comment = comment
+    },
+  }))
 
 export const RootStore = types
   .model({
@@ -48,6 +77,37 @@ export const RootStore = types
       // TODO: verify that date tz
       self.lifts.set(id, {
         id,
+        date,
+        name,
+        weight,
+        uom,
+        set,
+        rep,
+        comment,
+      })
+    },
+    updateLift: (
+      id: string,
+      {
+        date,
+        name,
+        weight,
+        uom,
+        set,
+        rep,
+        comment,
+      }: {
+        date: Date
+        name: string
+        weight: number
+        uom: string
+        set: number
+        rep: number
+        comment: string
+      }
+    ) => {
+      const match = self.lifts.get(id)
+      match?.update({
         date,
         name,
         weight,
