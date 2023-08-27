@@ -356,3 +356,33 @@ test('users should be able to search lifts by tag', () => {
     },
   ])
 })
+
+test('users should be able to search lifts by date', () => {
+  const store = getSearchStore()
+
+  expect.assertions(1)
+  expect(store.vLiftsByDate(new Date('2023-01-02'))).toEqual([
+    {
+      id: 'lift/bench_1672617600000',
+      date: '1/2/2023, 8:00:00 AM',
+      name: 'bench',
+      weight: 120.5,
+      uom: 'lbs',
+      set: 4,
+      rep: 8,
+      comment: '',
+      tags: ['chest', 'compound'],
+    },
+    {
+      date: '1/2/2023, 8:00:00 AM',
+      id: 'lift/squat_1672617600000',
+      name: 'squat',
+      rep: 8,
+      set: 4,
+      tags: ['leg'],
+      uom: 'lbs',
+      comment: '',
+      weight: 150,
+    },
+  ])
+})
