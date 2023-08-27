@@ -182,6 +182,7 @@ export const RootStore = types
           set: set === undefined ? match.set : set,
           rep: rep === undefined ? match.rep : rep,
           comment: comment === undefined ? match.comment : comment,
+          tags: [...match.tags.values()].map((t) => t.tag),
         })
         return { ok: true }
       },

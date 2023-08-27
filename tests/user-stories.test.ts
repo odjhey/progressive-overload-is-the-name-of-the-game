@@ -139,7 +139,9 @@ test('users should be able to delete lift entries', () => {
 test('users should be able to create lift entries from previous sessions', () => {
   const store = getCrudStore()
 
-  // update individual fields, ala PATCH
+  // must be able to carry tags during copy
+  store.tagLift('lift/bench_1672617600000', 'push')
+
   const { ok } = store.copyLift('lift/bench_1672617600000', {
     date: new Date('2023-01-05T00:00:00.000Z'),
     weight: 140,
@@ -159,7 +161,7 @@ test('users should be able to create lift entries from previous sessions', () =>
       set: 4,
       rep: 8,
       comment: '',
-      tags: [],
+      tags: ['push'],
     },
     {
       id: 'lift/squat_1672617600000',
@@ -181,7 +183,7 @@ test('users should be able to create lift entries from previous sessions', () =>
       set: 4,
       rep: 8,
       comment: '9-8-8',
-      tags: [],
+      tags: ['push'],
     },
   ])
 })
@@ -189,7 +191,6 @@ test('users should be able to create lift entries from previous sessions', () =>
 test('users should be able to tag lift entries', () => {
   const store = getCrudStore()
 
-  // update individual fields, ala PATCH
   const { ok } = store.tagLift('lift/bench_1672617600000', 'push')
   const { ok: ok2 } = store.tagLift('lift/bench_1672617600000', 'chest')
 
