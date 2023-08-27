@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import { types } from 'mobx-state-tree'
 import { LiftModel, TagModel, TaggingByLiftName } from './core'
 
@@ -24,76 +23,10 @@ export const RootStore = types
         return [...self['m/lifts'].values()].map((l) => {
           const tags = vTagsByLiftName(l.name)
           return {
-            id: l.id,
-            date: l.date.toLocaleString(),
-            name: l.name,
-            rep: l.rep,
-            set: l.set,
-            uom: l.uom,
-            weight: l.weight,
-            comment: l.comment,
+            lift: l,
             tags,
           }
         })
-      },
-      vLiftsByName: (nameSearchTerm: string) => {
-        return [...self['m/lifts'].values()]
-          .filter((l) => l.name.includes(nameSearchTerm))
-          .map((l) => {
-            const tags = vTagsByLiftName(l.name)
-            return {
-              id: l.id,
-              date: l.date.toLocaleString(),
-              name: l.name,
-              rep: l.rep,
-              set: l.set,
-              uom: l.uom,
-              weight: l.weight,
-              comment: l.comment,
-              tags,
-            }
-          })
-      },
-      // TODO update to support "range"
-      vLiftsByDate: (date: Date) => {
-        return [...self['m/lifts'].values()]
-          .filter((l) => dayjs(date).isSame(l.date))
-          .map((l) => {
-            const tags = vTagsByLiftName(l.name)
-            return {
-              id: l.id,
-              date: l.date.toLocaleString(),
-              name: l.name,
-              rep: l.rep,
-              set: l.set,
-              uom: l.uom,
-              weight: l.weight,
-              comment: l.comment,
-              tags,
-            }
-          })
-      },
-      vLiftsByTag: (tagSearchTerm: string) => {
-        const liftNames = self['m/taggingByLiftNameList']
-          .filter((tbn) => tbn.tag.tag === tagSearchTerm)
-          .map((t) => t.name)
-
-        return [...self['m/lifts'].values()]
-          .filter((l) => liftNames.includes(l.name))
-          .map((l) => {
-            const tags = vTagsByLiftName(l.name)
-            return {
-              id: l.id,
-              date: l.date.toLocaleString(),
-              name: l.name,
-              rep: l.rep,
-              set: l.set,
-              uom: l.uom,
-              weight: l.weight,
-              comment: l.comment,
-              tags,
-            }
-          })
       },
     }
   })
