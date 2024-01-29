@@ -11,7 +11,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@tabler/icons-react": "^2.19.0",
+    "@tabler/icons-react": "^2.45.0",
     "daisyui": "^3.2.1",
     "dayjs": "^1.11.9",
     "localforage": "^1.10.0",

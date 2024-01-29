@@ -1288,18 +1288,18 @@
     "@swc/core-win32-ia32-msvc" "1.3.56"
     "@swc/core-win32-x64-msvc" "1.3.56"
 
-"@tabler/icons-react@^2.19.0":
-  version "2.19.0"
-  resolved "https://registry.yarnpkg.com/@tabler/icons-react/-/icons-react-2.19.0.tgz#f94128479c5ab5ebaeaeeb971bf60b0bc9637a4c"
-  integrity sha512-CitxGhjGcvxSmvK5JJ7JUAal5ifygUQzfMrVt/pOg+XELIt+3jtRDTyhZHHz84XoIddxRTQMZTl/11GOjtZ9SA==
+"@tabler/icons-react@^2.45.0":
+  version "2.46.0"
+  resolved "https://registry.yarnpkg.com/@tabler/icons-react/-/icons-react-2.46.0.tgz#a24cf737687a18cdf1b0e1189ef69462e82dbd89"
+  integrity sha512-X8MRxuslIOFqMjAo+GvUZDpjlOwNYNJTuOsHXf/NBvVI6ygqUf0FUNsDLLA5fQ6k6KtRwxMlgGB+eR8ZG1UP0g==
   dependencies:
-    "@tabler/icons" "2.19.0"
+    "@tabler/icons" "2.46.0"
     prop-types "^15.7.2"
 
-"@tabler/icons@2.19.0":
-  version "2.19.0"
-  resolved "https://registry.yarnpkg.com/@tabler/icons/-/icons-2.19.0.tgz#685a794adab6c4f4ce3ceec41132d405ca31f353"
-  integrity sha512-3bqWTxFOFkrld+hx0nDSgwGWPrP2NeB9ySCAqWjXMN0hwewXYnNPpDKkOYtDfUDRtB+iiR/0FyW+kki6tu6qkQ==
+"@tabler/icons@2.46.0":
+  version "2.46.0"
+  resolved "https://registry.yarnpkg.com/@tabler/icons/-/icons-2.46.0.tgz#e629df8901b799372914c694000cc2ea3d45bb6b"
+  integrity sha512-Q5G8Pj5IO+Uhc6pszpu5/hGYY018JwEzzvmuqr+gKJtfIvAHA3umpwUilMRLEy89p+WCP+YsDhicMhfBCCv1qA==
 
 "@types/estree@0.0.39":
   version "0.0.39"
