@@ -1,51 +1,5 @@
-import {
-  appCore,
-  DataProvider,
-  AppModel,
-} from '@odjhey/progressive-overload-app-core'
 import { observer } from 'mobx-react-lite'
-import { types } from 'mobx-state-tree'
-import React from 'react'
-
-const App = types.model({
-  app: AppModel,
-})
-
-const dataProvider = DataProvider({
-  config: {
-    httpClient: {
-      get: () => Promise.resolve(undefined) as any,
-      post: () => Promise.resolve(undefined) as any,
-    },
-    url: '',
-  },
-})
-
-const __core = appCore({
-  deps: {
-    dataProvider: dataProvider,
-    notifications: {
-      info: (...args) => {
-        console.info(args)
-      },
-    },
-    plugins: {
-      autoKick: {
-        register: () => () => undefined,
-      },
-      timer: {
-        register: () => () => undefined,
-      },
-    },
-  },
-})
-
-const __ui = __core.appUi
-const __rootStore = App.create({
-  app: { connection: { url: '' }, todo: { todo: [] } },
-})
-__core.configure(__rootStore.app)
-const AppContext = React.createContext(__core)
+import { AppContext, __core } from '../context/app-core-context'
 
 const Main = () => {
   return (
@@ -56,13 +10,14 @@ const Main = () => {
 }
 
 const V2 = observer(function V2() {
-  const { views } = __ui().screens['screens/todo/list']({
+  const ui = __core.appUi()
+  const { views } = ui.screens['screens/todo/list']({
     navigate: (target) => {
       console.log(target)
     },
   })
 
-  const addScreen = __ui().screens['screens/todo/add']({
+  const addScreen = ui.screens['screens/todo/add']({
     navigate: (target) => {
       console.log(target)
     },
