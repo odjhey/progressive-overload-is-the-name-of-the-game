@@ -1,0 +1,21 @@
+import type { AppState } from '../../../index'
+import { ScreenConfigs } from './{{kebabCase name}}.types'
+
+// Main function to generate screen configurations
+export const {{camelCase name}}Screens = (
+  app: AppState
+): {
+  [K in keyof ScreenConfigs]: ScreenConfigs[K]
+} => ({
+  // @todo replace me
+  'screens/{{kebabCase name}}/yourscreenname': () => ({
+    actions: {
+      // @todo replace me
+      action1: () => {
+        app.something.something()
+      },
+    },
+    // @todo replace me
+    views: { something: 'something' },
+  }),
+})

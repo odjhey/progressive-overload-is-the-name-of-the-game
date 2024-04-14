@@ -1,0 +1,36 @@
+{
+  "name": "@odjhey/progressive-overload-app-core",
+  "license": "MIT",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "version": "0.0.0",
+  "scripts": {
+    "watch": "tsc -w --declaration",
+    "build": "tsc --declaration",
+    "format": "yarn eslint src tests --fix",
+    "test": "tap",
+    "gen:screen": "plop screen"
+  },
+  "devDependencies": {
+    "@types/eslint": "^8",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "plop": "^4.0.1",
+    "prettier": "^3.2.5",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "mobx": "6.12.3",
+    "mobx-state-tree": "5.4.1"
+  },
+  "peerDependencies": {
+    "mobx": "6.12.3",
+    "mobx-state-tree": "5.4.1"
+  }
+}
