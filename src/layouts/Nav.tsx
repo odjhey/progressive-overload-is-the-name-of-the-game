@@ -5,6 +5,7 @@ import {
   IconNewSection,
   IconTags,
   IconInfoCircle,
+  IconCpu2,
 } from '@tabler/icons-react'
 
 export default function Nav({ children }: PropsWithChildren) {
@@ -36,6 +37,12 @@ export default function Nav({ children }: PropsWithChildren) {
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
           <IconInfoCircle></IconInfoCircle>
+        </NavLink>
+        <NavLink
+          to="/aaa"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          <IconCpu2></IconCpu2>
         </NavLink>
       </nav>
     </>

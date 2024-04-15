@@ -4,6 +4,7 @@ import About from './pages/About'
 import Nav from './layouts/Nav'
 import New from './pages/New'
 import Tags from './pages/Tags'
+import V2 from './pages/V2'
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,14 @@ const router = createBrowserRouter([
     element: (
       <Nav>
         <Tags></Tags>
+      </Nav>
+    ),
+  },
+  {
+    path: '/aaa',
+    element: (
+      <Nav>
+        <V2></V2>
       </Nav>
     ),
   },
