@@ -1,12 +1,19 @@
 import { useDbRaw } from '../hooks/useDbRaw'
 import { useForm } from 'react-hook-form'
+import { useState, useEffect } from 'react'
 
 export const UploadRaw = () => {
-  const { loading, uploadRaw } = useDbRaw()
+  const { loading, uploadRaw, fetchKeys } = useDbRaw()
   const { register, handleSubmit } = useForm<{
     fileList: FileList
     key: string
   }>()
+  const [keys, setKeys] = useState([])
+  const [selectedKey, setSelectedKey] = useState('')
+
+  useEffect(() => {
+    fetchKeys().then(setKeys)
+  }, [])
 
   if (loading) {
     return <div>loading</div>
@@ -23,11 +30,23 @@ export const UploadRaw = () => {
             onSubmit={handleSubmit(async (v) => {
               const json = JSON.parse(await v.fileList[0].text())
               console.log(json)
-              uploadRaw(v.key, json)
+              if (selectedKey) {
+                uploadRaw(selectedKey, json)
+              } else {
+                uploadRaw(v.key, json)
+              }
             })}
           >
             {
               <div className="flex flex-col gap-2">
+                <select
+                  value={selectedKey}
+                  onChange={(e) => setSelectedKey(e.target.value)}
+                >
+                  {keys.map((key, index) => (
+                    <option key={index} value={key}>{key}</option>
+                  ))}
+                </select>
                 <input
                   className="input input-bordered input-sm"
                   placeholder="key"
