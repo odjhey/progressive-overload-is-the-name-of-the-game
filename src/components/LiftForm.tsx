@@ -11,6 +11,7 @@ type FormValues = {
     set: number
     rep: number
     comment: string
+    difficulty: number
   }
 }
 
@@ -52,7 +53,10 @@ export const LiftForm = ({
   })
 
   const onSubmitForm = (data: FormValues) => {
-    onSubmit(data.lift)
+    onSubmit({
+      ...data.lift,
+      difficulty: data.lift.difficulty || 1,
+    })
   }
 
   const TAB_FIELD_COUNT = 6
@@ -257,7 +261,7 @@ export const LiftForm = ({
             <textarea
               onKeyUp={(e) => {
                 if (e.key === 'Enter') {
-                  // TODO set focus to submit
+                  setFocus(`lift.difficulty`)
                 }
               }}
               tabIndex={6 + index * TAB_FIELD_COUNT}
@@ -266,6 +270,24 @@ export const LiftForm = ({
                 required: false,
               })}
               className={`input w-full ${errors?.lift?.comment ? 'error' : ''}`}
+            />
+            
+            <input
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  // TODO set focus to submit
+                }
+              }}
+              tabIndex={7 + index * TAB_FIELD_COUNT}
+              placeholder="difficulty"
+              type="number"
+              min="1"
+              max="5"
+              {...register(`lift.difficulty` as const, {
+                valueAsNumber: true,
+                required: true,
+              })}
+              className={errors?.lift?.difficulty ? 'error' : 'w-12'}
             />
           </section>
           <div className="bg-slate-100 p-2"></div>
