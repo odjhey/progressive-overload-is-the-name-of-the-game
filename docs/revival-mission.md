@@ -163,7 +163,7 @@ The **core** initiative is locally ready when its agreed daily journeys and reco
 
 At each wave, continue, reshape, or stop from evidence. If a required capability or authority is missing, name the exact missing prerequisite and continue independent authorized work; do not relabel a partial build as complete.
 
-**Next:** refine and deliver the approved section 18 end-to-end design in local increments, beginning with stable exercise/performance identity, explicit training-date semantics, migration/recovery, and a small-phone quick-log/calendar backfill journey. The timer is an independent silent local capability; running is not part of that implementation. Show composed private-preview evidence before a separately authorized release.
+**Next:** review the local section 19 calendar/timer slice on the selected phones, then make a separate publication decision. Progress/rating rules, routine machinery and running remain deferred rather than being inferred from this delivery.
 
 ## 12. Core wave receipt — local readiness, not deployment
 
@@ -241,7 +241,7 @@ The private tailnet preview is the review surface. Production remains `e52919a`;
 
 The operator clarified that redesign includes the data model and user flows where needed, and said “agree, with your design proposals.” The goal is to remember previous training, record actual work without unnecessary re-entry, inspect meaningful history, organize exercises/workouts, and own/recover the data. Preserve the compact bumblebee yellow/white/black, boxy internal-tool-for-friends character on small iPhone/Android screens. Do not turn this into coaching, a social network, a dashboard product or a mandatory set-by-set workflow.
 
-Current local runtime is still the compact correction from section 17. This section is accepted product direction and acceptance criteria, not a claim that the new model, timer or calendar already exists.
+This accepted direction preceded implementation. Section 19 records the first local delivery through calendar and timer; it does not claim the entire optional backlog or a new production release.
 
 ### Model and recording flows
 
@@ -288,3 +288,104 @@ Retain the intent to log/review running appropriately later, rather than forcing
 Prove legacy history remains recoverable under the selected model; then a user can find/repeat a prior effort, save actual work with originals intact, see its correct calendar day, notice an empty past day, backfill actual work/attendance without fabricated numbers, and revisit both history and calendar after offline reload. A silent timer must survive navigation/reload/background return, display signed overtime, and never trigger alerts or create training records. Backup/restore preserves the relationships and selected dates without restoring transient timer state.
 
 Begin with the smallest populated quick-log → calendar → backfill → revisit path and its model/import contract; progress comparisons/routines follow only their defined user need. Implement the independent timer against its explicit state contract without turning it into a required recording step. Running stays deferred. Preserve meaningful failure/retry and draft recovery, inspect 320px/short-phone input/focus behavior, and separate agent/browser evidence from real-device and human acceptance. No new push/deployment follows from approving this brief.
+
+## 19. Calendar and silent timer — local delivery receipt
+
+The operator selected “go, work until the timer and calendar.” Runtime candidate
+`bf41e61` implements that slice from `f4bff14`, retaining the original bumblebee
+yellow/white/dark, flat boxy friends' tool. Final application fingerprints are
+`index-DpSRXfDz.js` and `index-D4M7iLkE.css`. This is local-only work; the prior
+publication grant is not reused.
+
+### Delivered behavior
+
+- Stable exercise/entry/group/workout identities, civil training dates separate
+  from recording times, multiple aggregate set groups, ID-based Repeat/Edit,
+  explicit global exercise rename and identity-linked tags. New entry URLs
+  carry IDs and bounded view/date context, not complete private records.
+- A reviewed version 2 cutover under new storage keys. Every original legacy
+  key stays untouched; written/local date interpretation is explicit. Duplicate
+  old name/date rows, exact names, notes, units, tag associations and unknown source
+  metadata remain recoverable; old creation times remain unknown. A legacy aggregate
+  is not expanded into invented individual sets or sessions.
+- One complete training/preferences JSON backup and reviewed replacement restore,
+  plus staged import of the three original per-key exports. Invalid/canceled
+  previews do not write. Unverified and partially verified outcomes stay visible;
+  malformed destinations are not silently treated as empty. Raw export remains
+  available, including for unreadable current history.
+- A binary month calendar from actual saved entries or explicit attendance.
+  Choosing a day exposes its details/backfill actions. “Trained — details later”
+  does not invent exercise data; later details count the day once. Removing that
+  confirmation preserves actual entries, and deleting the final actual entry
+  clears the day when no confirmation remains.
+- An optional manually operated, locally persisted deadline timer with presets
+  and custom seconds, extension/restart/stop, and signed negative overtime.
+  No sound, vibration, notification permission, push, flashing expiry or popup.
+  It never starts on save, records training, fills a calendar day or enters a
+  history backup.
+
+### Exercised evidence
+
+Node 22.13 / Yarn 1.22 lint and TypeScript/Vite/PWA production build passed on
+`bf41e61`. Independent model/recovery review found no material defect; source
+flow review's saved-entry return finding was corrected and delta-reviewed.
+Source reviews and fresh code-blind observation are separate from author proof.
+Original reports and before/after screenshots remain in local session evidence,
+not product assets or an unauthorized remote PR.
+
+The composed browser proof used synthetic data only:
+
+- Actual default-store migration preserved all seven original rows and their
+  associations/extras. Downloaded original JSON matched source values; preview
+  and Cancel wrote nothing; committed IDs matched the reviewed preview.
+- Actual three-file manual migration into an empty origin, then generated
+  complete-backup restoration into a second empty origin, preserved stable IDs,
+  relationships, source metadata and preferences. The source's running timer was
+  excluded; the destination acquired no timer.
+- Repeat/reload, variable groups, durable Save and tag, retained-filter saved-entry
+  visibility, explicit rename/tags, entry-only exercise moves and creation-time
+  preservation worked. Quota failure retained form/storage; an accepted write
+  with failed read-back stayed unverified, and retry reconciled the same entry
+  with exactly one write rather than duplicating it.
+- Attendance/backfill kept the chosen old training day while recording the real
+  new creation time. Confirmation removal retained detail; deleting its final
+  entry returned the day to blank. Selected dates stayed fixed in Adak and
+  Kiritimati timezones. Cached offline reload, new-entry save and another reload
+  retained the result.
+- Timer duration choice did not restart it; cross-tab extension moved the saved
+  deadline by 30 seconds. Navigation/reload, closing the owned app tabs and
+  reopening, and native Chromium freeze/resume recovered negative overtime.
+  Intrusive API counters remained zero and training/preferences stayed unchanged.
+  Failed timer writes and corrupt timer JSON reported failure; explicit timer-only
+  recovery did not change history.
+
+A fresh code-blind phone pass completed logging/repeat, attendance/backfill,
+confirmation removal, overtime and backup/restore. It found narrow recovery-result
+overflow; a separate guided retest confirmed the corrected action fits, recording
+time is distinguished from training time, scrolled-record entry opens at the top,
+and selected-day returns are understandable. It did not establish human preference
+or physical-device acceptance.
+
+Final responsive proof covered 320 × 568, a 320 × 480 short viewport, 390 × 844,
+a wider desktop, and enlarged root text. Original computed palette/header/footer
+colors matched exactly. In the ordinary tagged fixture, Repeat/Edit fit above
+fixed navigation; the six-row month fit with 44px-high days. Notes → Tab focused
+Save above navigation on the short viewport. A cold calendar reload restored its
+saved scroll position after history hydration. Larger text, long content,
+expanded filters/timer controls or shorter screens still require normal scrolling;
+these measurements are not a universal no-scroll promise.
+
+### Retained boundaries
+
+No running fields/screens, routine system, effort scale, invented progress metric,
+account/sync service or remote observation of friends was added. No issue/PR was
+closed or rewritten, and no push/deployment or real-user data operation occurred.
+Physical iPhone/Safari/Android, real software-keyboard, screen-reader and human
+acceptance remain separate.
+
+Snapshot/revision checks are not cross-tab CAS; history and preference restore
+are not cross-key atomic. Invalid current version 2 data is raw-exportable but
+deliberately not overwrite-repaired by this API. Browser eviction and device-clock
+changes remain real risks. The old production build cannot read new-format
+records after a code rollback; keep complete backups and use a forward-capable
+build for recovery. Publication still needs separate operator authorization.

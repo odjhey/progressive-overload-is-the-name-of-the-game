@@ -1,90 +1,77 @@
-import { IconEdit, IconRepeat } from '@tabler/icons-react'
-import type { Lift } from '../hooks/useLifts'
+import { Link } from 'react-router-dom'
+import type { Exercise, TrainingEntry } from '../libs/trainingTypes'
 
 export const LiftRow = ({
-  lift,
-  actions,
+  entry,
+  exercise,
+  view = 'history',
+  calendar = false,
+  reference = false,
 }: {
-  lift: Lift & { tags?: string[] }
-  actions: {
-    copy: () => void
-    edit: () => void
-    onDateClick?: (date: string) => void
-  }
+  entry: TrainingEntry
+  exercise: Exercise
+  view?: 'latest' | 'history'
+  calendar?: boolean
+  reference?: boolean
 }) => {
-  const dateLabel = new Date(lift.date).toLocaleDateString(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
+  const context: Record<string, string> = calendar
+    ? { date: entry.trainingDate }
+    : { view }
   return (
     <article className="lift-card">
       <header className="lift-card-heading">
-        <h2>{lift.name}</h2>
-        {actions.onDateClick ? (
-          <button
-            type="button"
-            className="date-action"
-            aria-label={`Filter by date of ${lift.name}: ${dateLabel}`}
-            onClick={() => {
-              const offset = new Date().getTimezoneOffset()
-              actions.onDateClick?.(
-                new Date(new Date(lift.date).getTime() - offset * 60 * 1000)
-                  .toISOString()
-                  .split('T')[0]
-              )
-            }}
-          >
-            <time dateTime={lift.date}>{dateLabel}</time>
-          </button>
-        ) : (
-          <time className="lift-date" dateTime={lift.date}>
-            {dateLabel}
-          </time>
-        )}
+        <h2>{exercise.name}</h2>
+        <Link
+          className="date-action"
+          to={`/calendar?${new URLSearchParams({ date: entry.trainingDate, month: entry.trainingDate.slice(0, 7) })}`}
+        >
+          <time dateTime={entry.trainingDate}>{entry.trainingDate}</time>
+        </Link>
       </header>
-      <dl className="effort-numbers">
-        <div className="effort-weight">
-          <dt className="sr-only">Weight</dt>
-          <dd>
-            {lift.weight} <span>{lift.uom}</span>
-          </dd>
-        </div>
-        <div className="effort-reps">
-          <dt>Sets × reps</dt>
-          <dd>
-            {lift.set} × {lift.rep}
-          </dd>
-        </div>
-      </dl>
-      {lift.comment && <p className="lift-notes">{lift.comment}</p>}
-      {lift.tags && lift.tags.length > 0 && (
-        <ul className="lift-tags" aria-label="Tags">
-          {lift.tags.map((tag) => (
+      <ul className="training-groups" aria-label="Recorded set groups">
+        {entry.groups.map((group) => (
+          <li key={group.id}>
+            <strong>
+              {group.weight} {group.unit}
+            </strong>
+            <span>
+              {group.sets} × {group.reps}{' '}
+              <span className="muted">sets × reps</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      {entry.notes && (
+        <details className="previous-notes">
+          <summary>{reference ? 'Source notes' : 'Notes'}</summary>
+          <p className="lift-notes">{entry.notes}</p>
+        </details>
+      )}
+      {exercise.tags.length > 0 && (
+        <ul className="lift-tags" aria-label="Exercise tags">
+          {exercise.tags.map((tag) => (
             <li key={tag}>{tag}</li>
           ))}
         </ul>
       )}
-      <footer className="lift-card-actions">
-        <button
-          type="button"
-          className="btn btn-primary repeat-action"
-          aria-label={`Repeat ${lift.name} from ${lift.date}`}
-          onClick={actions.copy}
-        >
-          <IconRepeat size={20} aria-hidden="true" />
-          Repeat
-        </button>
-        <button
-          type="button"
-          className="btn btn-outline"
-          aria-label={`Edit ${lift.name} from ${lift.date}`}
-          onClick={actions.edit}
-        >
-          <IconEdit size={18} aria-hidden="true" />
-          Edit
-        </button>
-      </footer>
+      {!reference && (
+        <footer className="lift-card-actions">
+          <Link
+            className="btn btn-primary"
+            aria-label={`Repeat ${exercise.name} from ${entry.trainingDate}`}
+            to={`/new?${new URLSearchParams({ repeat: entry.id, ...context })}`}
+          >
+            Repeat
+          </Link>
+          <Link
+            className="btn btn-outline"
+            aria-label={`Edit ${exercise.name} from ${entry.trainingDate}`}
+            to={`/new?${new URLSearchParams({ edit: entry.id, ...context })}`}
+          >
+            Edit
+          </Link>
+        </footer>
+      )}
     </article>
   )
 }
