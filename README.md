@@ -115,11 +115,18 @@ Do not clear site storage or uninstall the PWA to get the update.
 
 ## Daily logging and recovery
 
-- Search/date/tag inputs reflect their active filters; Clear updates both the
-  visible controls and results. Latest only explains how to reveal history.
-- Copy creates a distinct session; Edit targets its original name/date identity.
-  A colliding identity is rejected instead of overwriting another record. Only
-  Edit offers deletion. Renaming does not rename other workouts or tag groups.
+- Home leads with search and your most recent effort per lift. Date/tag controls
+  live under Date & tags; active filters and their reset remain visible.
+- Latest and History are explicit views, ordered newest first without rewriting
+  stored history. The chosen view survives a Home reload and returning from a
+  repeated/edited record; saved search/date/tag filters remain in place.
+- Repeat (previously Copy) opens a separate session with a read-only Previous
+  effort reference. It reflects the record you chose, including an older effort,
+  and survives an entry-page reload. Adjust the numbers before saving; no
+  automatic progression is applied. Entry URLs contain workout values.
+- Edit targets the original name/date identity. A colliding identity is rejected
+  instead of overwriting another record. Only Edit offers deletion. Renaming
+  does not rename other workouts or tag groups.
 - Save and tag persists the entered workout before navigating. Unsaved navigation
   offers Keep editing or Discard changes; failed writes keep the attempted form.
 - Weight entry accepts two decimal places. Literal plus signs, spaces, and Unicode
