@@ -1,222 +1,132 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Lift, useLifts } from '../hooks/useLifts'
+import { Link, useBeforeUnload, useBlocker, useLocation, useNavigate } from 'react-router-dom'
 import { LiftForm } from '../components/LiftForm'
-import {
-  Link,
-  To,
-  useBeforeUnload,
-  useBlocker,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom'
-import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
-import { defaultStringifySearch } from '../libs/searchParams'
+import { LiftRow } from '../components/LiftRow'
+import { useTraining } from '../hooks/useTraining'
+import { isTrainingDate, localDate, newId } from '../libs/trainingModel'
+import type { EntryInput, TrainingDocument, TrainingEntry } from '../libs/trainingTypes'
 
 export default function New() {
-  const [liftInSearch] = useUrlSearchParams()
-  const view = liftInSearch.view === 'history' ? 'history' : 'latest'
-  const { data, error, loadError, loading, saving, upsertLift, deleteLift } =
-    useLifts()
-  const navigate = useNavigate()
+  const training = useTraining()
   const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const edit = params.get('edit')
+  const repeat = params.get('repeat')
+  const source = training.document?.entries.find((entry) => entry.id === (edit ?? repeat))
+  if (training.loading) return <p role="status">Loading training…</p>
+  if (training.loadError) return <p role="alert">Training could not be read: {training.loadError.message}</p>
+  if (!training.document) return <p role="alert">Import or recover your training in Settings before logging.</p>
+  if ((edit !== null || repeat !== null) && (!source || (edit !== null && repeat !== null))) {
+    return <section className="form-page"><h1>Entry unavailable</h1><p role="alert">The requested saved entry was not found, or the link selects both Edit and Repeat. Nothing has been created or overwritten.</p><Link className="back-link" to="/?view=history">← Back to history</Link></section>
+  }
+  const requestedDate = params.get('date')
+  if (requestedDate !== null && !isTrainingDate(requestedDate)) return <section><h1>Invalid training date</h1><p role="alert">This link does not contain a real calendar date. Nothing has been saved.</p><Link className="back-link" to="/calendar">Back to calendar</Link></section>
+  return <EntryEditor key={location.key} document={training.document} source={source} editing={edit !== null} params={params} />
+}
+
+function EntryEditor({ document, source, editing, params }: {
+  document: TrainingDocument
+  source?: TrainingEntry
+  editing: boolean
+  params: URLSearchParams
+}) {
+  const { saveEntry, deleteEntry, saving } = useTraining()
+  const navigate = useNavigate()
+  const view = params.get('view') === 'history' ? 'history' : 'latest'
+  const calendarDate = params.get('date')
+  const back = calendarDate ? `/calendar?${new URLSearchParams({ date: calendarDate, month: calendarDate.slice(0, 7) })}` : `/?${new URLSearchParams({ view })}`
+  const [initial] = useState<EntryInput>(() => {
+    const trainingDate = editing && source ? source.trainingDate : calendarDate ?? localDate()
+    const workout = document.workouts.find((item) => item.id === params.get('workout') && item.trainingDate === trainingDate)
+    return {
+      id: editing && source ? source.id : newId(),
+      exerciseId: source?.exerciseId,
+      exerciseName: document.exercises.find((exercise) => exercise.id === source?.exerciseId)?.name ?? '',
+      trainingDate,
+      ...(editing && source?.performedAt !== undefined ? { performedAt: source.performedAt } : {}),
+      groups: source ? source.groups.map((group) => ({ ...group, id: editing ? group.id : newId() })) : [{ id: newId(), sets: 3, reps: 8, weight: 0, unit: 'lbs' }],
+      notes: source?.notes ?? '',
+      workoutId: editing ? source?.workoutId : workout?.id,
+    }
+  })
   const [dirty, setDirty] = useState(false)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState('')
   const navigationAllowed = useRef(false)
+  const inFlight = useRef(false)
   const keepEditing = useRef<HTMLButtonElement>(null)
-  const blocker = useBlocker(() => dirty && !navigationAllowed.current)
+  const blocker = useBlocker(() => !navigationAllowed.current && (dirty || inFlight.current))
   useEffect(() => {
     if (blocker.state === 'blocked') keepEditing.current?.focus()
   }, [blocker.state])
-  useBeforeUnload(
-    useCallback(
-      (event) => {
-        if (dirty && !navigationAllowed.current) {
-          event.preventDefault()
-          event.returnValue = ''
-        }
-      },
-      [dirty]
-    )
-  )
-  const navigateAfterSave = (to: To) => {
+  useBeforeUnload(useCallback((event) => {
+    if (!navigationAllowed.current && (dirty || inFlight.current)) {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+  }, [dirty]))
+  const leave = (to: string) => {
     navigationAllowed.current = true
     navigate(to)
   }
-
-  if (loading) {
-    return <div role="status">Loading workouts...</div>
+  const save = async (input: EntryInput, tag: boolean) => {
+    if (inFlight.current) return
+    inFlight.current = true
+    setPending(true)
+    setError('')
+    try {
+      const exercise = document.exercises.find((item) => item.name === input.exerciseName)
+      const workout = document.workouts.find((item) => item.id === input.workoutId && item.trainingDate === input.trainingDate)
+      const saved = await saveEntry({ ...input, exerciseId: exercise?.id, workoutId: workout?.id }, editing ? initial.id : undefined)
+      if (tag) {
+        leave(`/tags?${new URLSearchParams({ exercise: saved.exerciseId, selected: saved.id, view, ...(calendarDate ? { date: saved.trainingDate } : {}) })}`)
+      } else if (calendarDate) {
+        leave(`/calendar?${new URLSearchParams({ date: saved.trainingDate, month: saved.trainingDate.slice(0, 7) })}`)
+      } else {
+        leave(`/?${new URLSearchParams({ view, selected: saved.id })}`)
+      }
+    } catch (cause) {
+      setError(`Could not confirm a durable save: ${cause instanceof Error ? cause.message : String(cause)} Your entered values are still here. Retry or check Settings; nothing is treated as saved until storage confirms it.`)
+    } finally {
+      inFlight.current = false
+      setPending(false)
+    }
   }
-  if (loadError) {
-    return (
-      <div role="alert">
-        Workouts could not be loaded: {loadError.message} Saving is unavailable
-        until history can be read. Your stored history has not been replaced.
-      </div>
-    )
+  const remove = async () => {
+    if (!editing || inFlight.current) return
+    inFlight.current = true
+    setPending(true)
+    setError('')
+    try {
+      await deleteEntry(initial.id)
+      leave(back)
+    } catch (cause) {
+      setError(`Deletion could not be confirmed: ${cause instanceof Error ? cause.message : String(cause)} Your form is still here.`)
+    } finally {
+      inFlight.current = false
+      setPending(false)
+    }
   }
-
-  const supplied = liftInSearch.lift as Lift | undefined
-  const title =
-    supplied && liftInSearch.title === 'Edit'
-      ? 'Edit'
-      : supplied && liftInSearch.title === 'Copy'
-        ? 'Copy'
-        : 'New'
-  const original =
-    title === 'Edit' && supplied
-      ? { name: supplied.name, date: supplied.date }
-      : undefined
-  const existing = original
-    ? data.find(
-        (lift) => lift.name === original.name && lift.date === original.date
-      )
-    : undefined
-  const defaults = supplied ?? {
-    date: new Date().toISOString().substring(0, 16),
-    name: '',
-    rep: 0,
-    set: 0,
-    uom: 'lbs',
-    weight: 0,
-    comment: '',
-  }
-  const missingOriginal = title === 'Edit' && !existing
-  const previous =
-    title === 'Copy'
-      ? (liftInSearch.previousLift as Lift | undefined)
-      : undefined
-
+  const sourceExercise = document.exercises.find((exercise) => exercise.id === source?.exerciseId)
   return (
-    <div className="form-page">
-      {blocker.state === 'blocked' && (
-        <section
-          role="alert"
-          aria-label="Unsaved workout"
-          className="navigation-guard"
-        >
-          <p>This workout has unsaved changes. Leave without saving?</p>
-          <div className="guard-actions">
-            <button
-              ref={keepEditing}
-              className="btn btn-primary"
-              onClick={() => blocker.reset()}
-            >
-              Keep editing
-            </button>
-            <button
-              className="btn btn-outline"
-              onClick={() => blocker.proceed()}
-            >
-              Discard changes
-            </button>
-          </div>
-        </section>
-      )}
-      <Link
-        to={{ pathname: '/', search: defaultStringifySearch({ view }) }}
-        className="back-link"
-      >
-        ← Back to workouts
-      </Link>
-      <header className="page-heading form-heading">
-        <h1>{title === 'Copy' ? 'Repeat' : title} workout</h1>
-        {title === 'Copy' && (
-          <p className="muted">New session; original unchanged.</p>
-        )}
-        {title === 'Edit' && (
-          <p className="muted">
-            Editing only this session. Changing its name does not rename other
-            workouts or move name-based tags.
-          </p>
-        )}
+    <div className="form-page training-page">
+      {blocker.state === 'blocked' && <section role="alert" aria-label="Unsaved entry" className="navigation-guard">
+        <p>{pending ? 'A save is still in progress. Stay here until its result is known.' : 'This entry has unsaved changes. Leave without saving?'}</p>
+        <div className="guard-actions">
+          <button ref={keepEditing} className="btn btn-primary" onClick={() => blocker.reset()}>Keep editing</button>
+          <button className="btn btn-outline" disabled={pending} onClick={() => blocker.proceed()}>Discard changes</button>
+        </div>
+      </section>}
+      <Link className="back-link" to={back}>← Back to {calendarDate ? 'calendar' : 'workouts'}</Link>
+      <header className="page-heading"><h1>{editing ? 'Edit entry' : source ? 'Repeat entry' : 'New entry'}</h1>
+        {source && !editing && <p className="muted">A new draft. The source below is unchanged; only Save records training.</p>}
       </header>
-      {previous && (
-        <section className="previous-effort" aria-labelledby="previous-heading">
-          <div className="previous-heading">
-            <h2 id="previous-heading">Previous effort</h2>
-            <time className="muted" dateTime={previous.date}>
-              {new Date(previous.date).toLocaleString()}
-            </time>
-            <span className="sr-only">Reference only</span>
-          </div>
-          <p className="previous-name">{previous.name}</p>
-          <dl className="effort-numbers">
-            <div className="effort-weight">
-              <dt className="sr-only">Previous weight</dt>
-              <dd>
-                {previous.weight} <span>{previous.uom}</span>
-              </dd>
-            </div>
-            <div className="effort-reps">
-              <dt>Sets × reps</dt>
-              <dd>
-                {previous.set} × {previous.rep}
-              </dd>
-            </div>
-          </dl>
-          {previous.comment && (
-            <details className="previous-notes">
-              <summary>Previous notes</summary>
-              <p className="lift-notes">{previous.comment}</p>
-            </details>
-          )}
-        </section>
-      )}
-      {error && (
-        <p role="alert">
-          Could not save this change: {error.message} Your form values are still
-          here. Correct the problem and try again.
-        </p>
-      )}
-      {missingOriginal && (
-        <p role="alert">
-          This workout is no longer in saved history. Return Home and choose an
-          existing workout to edit.
-        </p>
-      )}
-      <LiftForm
-        key={location.key}
-        title={title}
-        lift={{ ...defaults, comment: defaults.comment ?? '' }}
-        saving={saving}
-        disabled={missingOriginal}
-        onDirtyChange={setDirty}
-        onDelete={
-          existing && original
-            ? () =>
-                deleteLift(original, {
-                  onSuccess: () =>
-                    navigateAfterSave({
-                      pathname: '/',
-                      search: defaultStringifySearch({ view }),
-                    }),
-                })
-            : undefined
-        }
-        onSubmit={(lift) =>
-          upsertLift(lift, {
-            original,
-            onSuccess: (saved) =>
-              navigateAfterSave({
-                pathname: '/',
-                search: defaultStringifySearch({
-                  selected: saved.date,
-                  selectedName: saved.name,
-                  view,
-                }),
-              }),
-          })
-        }
-        onSaveAndTag={(lift) =>
-          upsertLift(lift, {
-            original,
-            onSuccess: (saved) =>
-              navigateAfterSave({
-                pathname: '/tags',
-                search: defaultStringifySearch({ liftName: saved.name, view }),
-              }),
-          })
-        }
-      />
+      {source && !editing && sourceExercise && <section className="previous-effort" aria-label="Repeat source, read only">
+        <p className="muted">Source · reference only</p>
+        <LiftRow entry={source} exercise={sourceExercise} reference />
+      </section>}
+      {error && <p role="alert">{error}</p>}
+      <LiftForm initial={initial} exercises={document.exercises} editing={editing} saving={saving || pending} onSubmit={save} onDelete={editing ? remove : undefined} onDirtyChange={setDirty} />
     </div>
   )
 }

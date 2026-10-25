@@ -1,269 +1,86 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useLifts } from '../hooks/useLifts'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Searchable } from '../components/Searchable'
-import { LiftsForm } from '../components/LiftsForm'
-import { LiftFormView } from '../components/LiftFormView'
-import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
-import { useTags } from '../hooks/useTags'
+import { LiftRow } from '../components/LiftRow'
+import { useTraining } from '../hooks/useTraining'
 import { usePersistentFilters } from '../hooks/usePersistentFilters'
-import { defaultStringifySearch } from '../libs/searchParams'
+import { localDate } from '../libs/trainingModel'
+
+function knownTime(value: string | null | undefined): number {
+  const time = Date.parse(value ?? '')
+  return Number.isFinite(time) ? time : -Infinity
+}
 
 export default function Home() {
-  const { data, loadError, loading, unique } = useLifts()
-  const tags = useTags()
+  const { document, loading, loadError } = useTraining()
   const filters = usePersistentFilters()
-  const [selected] = useUrlSearchParams()
-  const navigate = useNavigate()
-  const latestOnly = selected.view !== 'history'
-  const setLatestOnly = (latest: boolean) =>
-    navigate(
-      {
-        search: defaultStringifySearch({
-          ...selected,
-          view: latest ? 'latest' : 'history',
-        }),
-      },
-      { replace: true }
-    )
-
-  if (loading || tags.loading || filters.loading) {
-    return <div role="status">Loading workouts and filters...</div>
+  const [params, setParams] = useSearchParams()
+  const view = params.get('view') === 'history' ? 'history' : 'latest'
+  const setView = (next: 'latest' | 'history') => {
+    const search = new URLSearchParams({ view: next })
+    const selected = params.get('selected')
+    if (selected) search.set('selected', selected)
+    setParams(search, { replace: true })
   }
-  if (loadError) {
-    return (
-      <div role="alert">Workouts could not be loaded: {loadError.message}</div>
-    )
-  }
-
-  const visible = data
-    .filter((row) => {
-      if (
-        latestOnly &&
-        !unique.some((lift) => lift.name === row.name && lift.date === row.date)
-      ) {
-        return false
-      }
-      const tagTerm = filters.data.tags[0] ?? ''
-      if (
-        tagTerm !== '' &&
-        !tags.data.some(
-          (tag) =>
-            tag.liftName === row.name &&
-            tag.name.toLowerCase().includes(tagTerm.toLowerCase())
-        )
-      ) {
-        return false
-      }
-      return (
-        filters.data.term === '' ||
-        JSON.stringify(Object.values(row))
-          .toLowerCase()
-          .includes(filters.data.term.toLowerCase())
-      )
-    })
-    .sort(
-      (a, b) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime() ||
-        a.name.localeCompare(b.name)
-    )
-  const saved = data.find(
-    (lift) =>
-      lift.date === selected.selected && lift.name === selected.selectedName
+  if (loading || filters.loading) return <p role="status">Loading workouts and filters…</p>
+  if (loadError) return <p role="alert">Training could not be read: {loadError.message}</p>
+  if (!document) return <p role="alert">Import or recover your training in Settings to view workouts.</p>
+  const exercises = new Map(document.exercises.map((exercise) => [exercise.id, exercise]))
+  const ordered = [...document.entries].sort((a, b) =>
+    b.trainingDate.localeCompare(a.trainingDate) ||
+    (knownTime(b.recordedAt ?? b.performedAt) - knownTime(a.recordedAt ?? a.performedAt)) ||
+    a.id.localeCompare(b.id)
   )
-  const savedHidden = saved && !visible.includes(saved)
-  const setTerm = (term: string) => filters.saveFilters({ term })
-
-  const hasFilters = filters.data.term !== '' || filters.data.tags.length > 0
-  const clearFilters = () => filters.saveFilters({ term: '', tags: [] })
-
+  const latest = new Set<string>()
+  const term = filters.data.term.toLocaleLowerCase()
+  const visible = ordered.filter((entry) => {
+    const exercise = exercises.get(entry.exerciseId)
+    if (!exercise) return false
+    const isLatest = !latest.has(entry.exerciseId)
+    latest.add(entry.exerciseId)
+    if (view === 'latest' && !isLatest) return false
+    if (!filters.data.tags.every((tag) => exercise.tags.some((value) => value.toLocaleLowerCase().includes(tag.toLocaleLowerCase())))) return false
+    const searchable = [exercise.name, entry.trainingDate, entry.notes, ...exercise.tags, ...entry.groups.flatMap((group) => [group.unit, String(group.weight), String(group.sets), String(group.reps)])].join(' ').toLocaleLowerCase()
+    return searchable.includes(term)
+  })
+  const selected = document.entries.find((entry) => entry.id === params.get('selected'))
+  const selectedExercise = selected ? exercises.get(selected.exerciseId) : undefined
+  const hasFilters = !!filters.data.term || filters.data.tags.length > 0
+  const clear = () => { void filters.saveFilters({ term: '', tags: [] }) }
+  const setTerm = (value: string) => { void filters.saveFilters({ term: value }) }
+  const tags = [...new Set(document.exercises.flatMap((exercise) => exercise.tags))].sort((a, b) => a.localeCompare(b))
   return (
-    <div className="workout-collection">
-      <header className="page-heading">
-        <h1>Workouts</h1>
+    <div className="workout-collection training-page">
+      <header className="page-heading"><h1>Workouts</h1>
+        <div className="training-actions"><Link className="btn btn-primary" to={`/new?${new URLSearchParams({ view })}`}>+ New entry</Link><Link className="back-link" to="/calendar">Calendar</Link><Link className="back-link" to="/tags">Exercises &amp; tags</Link></div>
       </header>
-      {tags.loadError && (
-        <p role="alert">Tags could not be loaded: {tags.loadError.message}</p>
-      )}
-      {filters.loadError && (
-        <p role="alert">
-          Saved filters could not be loaded: {filters.loadError.message} Restore
-          them in Settings before changing saved filters.
-        </p>
-      )}
-      {filters.error && (
-        <p role="alert">
-          Filters could not be saved: {filters.error.message} Your current
-          filters are still shown; change or clear them to retry.
-        </p>
-      )}
-      <fieldset disabled={!!filters.loadError} className="collection-tools">
-        <legend className="sr-only">Filter workouts</legend>
-        <Searchable
-          clear={() => setTerm('')}
-          searchTerm={filters.data.term}
-          setSearchTerm={setTerm}
-        />
-        <div className="collection-options">
-          <div className="view-switch" role="group" aria-label="Workout view">
-            <button
-              type="button"
-              aria-pressed={latestOnly}
-              onClick={() => setLatestOnly(true)}
-            >
-              Latest
-            </button>
-            <button
-              type="button"
-              aria-pressed={!latestOnly}
-              onClick={() => setLatestOnly(false)}
-            >
-              History
-            </button>
-          </div>
-          <details className="advanced-filters">
-            <summary>Date &amp; tags</summary>
-            <div className="filter-fields">
-              <div className="date-filter">
-                <label className="field-label" htmlFor="workout-date">
-                  <span>Search date</span>
-                  <input
-                    id="workout-date"
-                    className="input input-bordered"
-                    type="date"
-                    value={
-                      /^\d{4}-\d{2}-\d{2}$/.test(filters.data.term)
-                        ? filters.data.term
-                        : ''
-                    }
-                    onChange={(e) => setTerm(e.target.value)}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() => setTerm(new Date().toISOString().slice(0, 10))}
-                >
-                  Today
-                </button>
-              </div>
-              <p className="field-hint">
-                Choosing a date replaces the search text.
-              </p>
-              <Searchable
-                clear={() => filters.saveFilters({ tags: [] })}
-                placeholder="Tag filter"
-                searchTerm={filters.data.tags[0] ?? ''}
-                setSearchTerm={(value) =>
-                  filters.saveFilters({ tags: value ? [value] : [] })
-                }
-              />
-              <div className="tag-shortcuts" aria-label="Common tag filters">
-                {['push', 'pull', 'leg'].map((tag) => (
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    key={tag}
-                    aria-label={`Filter by ${tag} tag`}
-                    onClick={() => filters.saveFilters({ tags: [tag] })}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </details>
-        </div>
-      </fieldset>
-      <div className="collection-summary">
-        <p className="muted" role="status">
-          <strong>{visible.length}</strong> of {data.length} workouts
-          {latestOnly ? ' · Most recent per lift' : ' · All sessions'}
-        </p>
-        {hasFilters && (
-          <button
-            type="button"
-            className="text-action"
-            disabled={!!filters.loadError}
-            onClick={clearFilters}
-          >
-            Clear all filters
-          </button>
-        )}
+      {filters.loadError && <p role="alert">Saved filters could not be read: {filters.loadError.message} Recover them in Settings before changing them.</p>}
+      {filters.error && <p role="alert">Filters could not be saved: {filters.error.message} Your current filters are shown; change or clear them to retry.</p>}
+      <div className="view-switch" role="group" aria-label="Workout view">
+        <button type="button" aria-pressed={view === 'latest'} onClick={() => setView('latest')}>Latest</button>
+        <button type="button" aria-pressed={view === 'history'} onClick={() => setView('history')}>History</button>
       </div>
-      {hasFilters && (
-        <div className="active-filters" aria-label="Active filters">
-          {filters.data.term && (
-            <span className="filter-chip">Search: {filters.data.term}</span>
-          )}
-          {filters.data.tags.map((tag) => (
-            <span className="filter-chip" key={tag}>
-              Tag: {tag}
-            </span>
-          ))}
-        </div>
-      )}
-      {saved && (
-        <section className="saved-notice" aria-label="Saved workout">
-          <p role="status">
-            <strong>Saved {saved.name}.</strong>
-          </p>
-          {savedHidden && (
-            <>
-              <p>
-                This saved workout is outside the current filters or latest
-                view.
-              </p>
-              <LiftFormView lift={saved} />
-              <button
-                type="button"
-                className="btn btn-outline"
-                disabled={!!filters.loadError}
-                onClick={() => {
-                  clearFilters()
-                  setLatestOnly(false)
-                }}
-              >
-                Show saved workout in history
-              </button>
-            </>
-          )}
-        </section>
-      )}
-      {visible.length === 0 && (
-        <section className="empty-state">
-          <h2>
-            {data.length === 0 ? 'No workouts yet' : 'No matching workouts'}
-          </h2>
-          <p className="muted">
-            {data.length === 0
-              ? 'Record a workout to get started.'
-              : 'Try another search, clear your filters, or switch to History to find an older effort.'}
-          </p>
-          {data.length === 0 ? (
-            <Link className="btn btn-primary" to="/new">
-              Record a workout
-            </Link>
-          ) : (
-            <button
-              type="button"
-              className="btn btn-outline"
-              disabled={!!filters.loadError}
-              onClick={() => {
-                clearFilters()
-                setLatestOnly(false)
-              }}
-            >
-              Show all history
-            </button>
-          )}
-        </section>
-      )}
-      <LiftsForm
-        actions={{ onDateClick: setTerm }}
-        selectedKey={saved ? `${saved.name}\0${saved.date}` : ''}
-        lifts={visible}
-        tags={tags.data}
-      />
+      <fieldset disabled={!!filters.loadError} className="collection-tools">
+        <legend className="sr-only">Filter entries</legend>
+        <Searchable searchTerm={filters.data.term} setSearchTerm={setTerm} clear={() => setTerm('')} />
+        <details className="advanced-filters">
+          <summary>Date &amp; tags</summary>
+          <div className="filter-fields">
+            <div className="date-filter"><label className="field-label" htmlFor="search-date"><span>Search date</span><input id="search-date" className="input input-bordered" type="date" value={/^\d{4}-\d{2}-\d{2}$/.test(filters.data.term) ? filters.data.term : ''} onChange={(event) => setTerm(event.target.value)} /></label><button type="button" className="btn btn-outline" onClick={() => setTerm(localDate())}>Today</button></div>
+            <p className="field-hint">Choosing a date replaces the search text.</p>
+            <Searchable placeholder="Tag filter" searchTerm={filters.data.tags[0] ?? ''} setSearchTerm={(value) => { void filters.saveFilters({ tags: value ? [value] : [] }) }} clear={() => { void filters.saveFilters({ tags: [] }) }} />
+            <div className="tag-shortcuts">{tags.map((tag) => <button className="btn btn-outline" type="button" key={tag} onClick={() => { void filters.saveFilters({ tags: [tag] }) }}>{tag}</button>)}</div>
+          </div>
+        </details>
+      </fieldset>
+      <div className="collection-summary"><p role="status">{visible.length} of {document.entries.length} entries · {view === 'latest' ? 'Most recent per exercise' : 'All saved training'}</p>{hasFilters && <button className="text-action" type="button" disabled={!!filters.loadError} onClick={clear}>Clear all filters</button>}</div>
+      {hasFilters && <div className="active-filters" aria-label="Active filters">{filters.data.term && <span className="filter-chip">Search: {filters.data.term}</span>}{filters.data.tags.map((tag) => <span className="filter-chip" key={tag}>Tag: {tag}</span>)}</div>}
+      {selected && selectedExercise && <section className="saved-notice" aria-label="Selected saved entry"><p role="status"><strong>Saved entry: {selectedExercise.name} · {selected.trainingDate}</strong></p>{!visible.includes(selected) && <><p>This entry is outside the current filters or Latest view.</p><LiftRow entry={selected} exercise={selectedExercise} view={view} /><button type="button" className="btn btn-outline" disabled={!!filters.loadError} onClick={() => { clear(); setView('history') }}>Show in history</button></>}</section>}
+      {params.has('selected') && !selected && <p role="alert">The selected entry is no longer in saved history.</p>}
+      {visible.length === 0 && <section className="empty-state"><h2>{document.entries.length === 0 ? 'No saved entries yet' : 'No matching entries'}</h2><p>{document.entries.length === 0 ? 'Record actual training, or use Calendar to backfill a day.' : 'Clear filters or switch to History to find an older effort.'}</p>{document.entries.length > 0 && <button type="button" className="btn btn-outline" disabled={!!filters.loadError} onClick={() => { clear(); setView('history') }}>Show all history</button>}</section>}
+      <div className="lift-list">{visible.map((entry) => {
+        const exercise = exercises.get(entry.exerciseId)!
+        return <section className={`lift-entry${entry.id === selected?.id ? ' is-saved' : ''}`} key={entry.id}><LiftRow entry={entry} exercise={exercise} view={view} /></section>
+      })}</div>
     </div>
   )
 }
