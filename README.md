@@ -34,6 +34,23 @@ request, restate the observable outcome and acceptance criteria, and distinguish
 implementation gaps from product decisions. Review comments do not close PRs or
 authorize their proposed implementation.
 
+### Production publication
+
+Vercel deploys `next` to https://gains.odjhey.com. Publication requires separate
+operator authorization. GitHub requires a pull request for trunk changes; use
+the PR route rather than relying on an administrator's direct-push bypass.
+
+The SPA fallback in `vercel.json` follows
+[Vercel's Vite guidance](https://vercel.com/docs/frameworks/frontend/vite#using-vite-to-make-spas).
+After publishing, check direct `/new`, `/tags`, and `/about` requests with the
+service worker bypassed, not just in-app navigation or cached reloads. Verify
+scripts, styles, `sw.js`, the Workbox runtime, and the manifest still return
+their actual content rather than the HTML fallback.
+
+For rollback, promote the previous successful production deployment in Vercel
+without changing the origin. A code rollback does not roll back browser data;
+keep backups and verify stored data independently.
+
 ## Existing users' data is the compatibility contract
 
 Existing history must remain recoverable. The operator permits either in-place
@@ -92,6 +109,9 @@ activates the worker. Update now requires explicit reload confirmation.
 Already-installed legacy clients retain their old auto-update code. For the first
 rollout, ask users to finish/save work and keep complete backups before cutover;
 do not assume the new prompt can retroactively protect every old open tab.
+The first production transition can leave the new worker waiting for old clients.
+After saving work, fully close all app tabs and the installed PWA, then reopen.
+Do not clear site storage or uninstall the PWA to get the update.
 
 ## Daily logging and recovery
 
