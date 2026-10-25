@@ -36,10 +36,14 @@ authorize their proposed implementation.
 
 ## Existing users' data is the compatibility contract
 
-Never merge a change that invalidates existing local data. Schema changes need
-a migration approach that preserves existing records.
+Existing history must remain recoverable. The operator permits either in-place
+compatibility or a necessary manual migration: export from the old app's Settings,
+then import into the refreshed app. A schema/storage change must demonstrate
+preservation through the chosen path; silent data loss is not permitted.
 
-The app uses localforage's default database and these keys:
+The current app uses localforage's default database: IndexedDB is preferred,
+with WebSQL/localStorage fallbacks where supported. Browser-local does not mean
+the records are necessarily in `window.localStorage`. Current keys:
 
 | Key                   | Stored value                   |
 | --------------------- | ------------------------------ |
@@ -47,15 +51,29 @@ The app uses localforage's default database and these keys:
 | `TAGSlksajdf`         | `{ tags: [...] }`              |
 | `PersistendFilterakj` | `{ tags: [...], term: "..." }` |
 
-Lift identity is the exact name/date pair. Tags reference the lift name.
-Do not change keys, envelopes, date conventions, or identity as incidental cleanup.
-Keep the production origin unchanged: browser storage does not follow a new
-hostname, scheme, or port.
+Lift identity is currently the exact name/date pair; tags reference the lift name.
+These are compatibility facts, not permanent schema requirements. Change them
+only deliberately, with a tested importer/mapping preserving the intended history.
+Keep the production origin unless a separate change is authorized: browser
+storage does not automatically follow a new hostname, scheme, port, or profile.
 
 Before an upgrade, use About → Raw Data to download each key's JSON. CSV is
 not a full backup: it omits units, notes, tags, and filters. Raw upload overwrites
 the supplied key; it does not merge or validate the contents. Restore only a
 trusted backup to its matching key.
+
+When a manual migration is needed, users must be able to obtain the old app's
+complete raw JSON before cutover. Preserve lifts, units, dates, notes, tags, and
+saved filters; the current exporter downloads each key separately. The refreshed
+importer must read these legacy exports, explain any intentional mapping, and
+report success only after the resulting data is verified. Keep the old data and
+downloaded backups until that verification; do not require clearing browser
+storage or uninstalling the old PWA to begin. This is the migration contract,
+not a claim that the current raw uploader validates or migrates schemas.
+
+The procedure below covers in-place upgrades. For a manual migration, instead
+export from the previous app and import those files into a fresh refreshed-app
+store, then verify preserved values and associations before relying on it.
 
 For upgrade smoke checks, use a disposable browser profile: load the previous
 production build, create a workout and tag, then serve the new build at the same
