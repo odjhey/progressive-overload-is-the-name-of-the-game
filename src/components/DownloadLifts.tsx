@@ -1,97 +1,118 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDbRaw } from '../hooks/useDbRaw'
-import { useLifts } from '../hooks/useLifts'
+import { recoveryTargets, RecoveryTarget, validateBackup } from '../libs/backupValidation'
 
-function download(filename: string, text: string) {
+export function downloadFile(filename: string, text: string, type = 'application/json') {
+  const url = URL.createObjectURL(new Blob([text], { type: `${type};charset=utf-8` }))
   const element = document.createElement('a')
-  element.setAttribute(
-    'href',
-    'data:application/json;charset=utf-8,' + encodeURIComponent(text)
-  )
-  element.setAttribute('download', filename)
-
-  element.style.display = 'none'
+  element.href = url
+  element.download = filename
   document.body.appendChild(element)
-
   element.click()
-
-  document.body.removeChild(element)
+  element.remove()
+  // Allow the browser to start consuming the object URL before releasing it.
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
-export const DownloadLifts = () => {
-  const { data, loading } = useLifts()
-  const { getKeys, ...dbRaw } = useDbRaw()
+export const DownloadLifts = ({ revision = 0 }: { revision?: number }) => {
+  const { getKeys, keys, loading, error, getValues } = useDbRaw()
+  const [busy, setBusy] = useState(false)
+  const [feedback, setFeedback] = useState('')
+  const [downloadError, setDownloadError] = useState('')
 
   useEffect(() => {
-    getKeys()
-  }, [getKeys])
+    void getKeys()
+  }, [getKeys, revision])
 
-  if (loading) {
-    return <div>loading</div>
+  const exportKey = async (key: string, label: string) => {
+    setBusy(true)
+    setFeedback('')
+    setDownloadError('')
+    try {
+      const text = await getValues(key)
+      downloadFile(`values-${new Date().toISOString()}-${key}.json`, text)
+      setFeedback(`${label} download requested. Keep the downloaded file; this app cannot confirm where your browser saved it.`)
+    } catch {
+      setDownloadError(`Could not download ${label.toLowerCase()}. Stored data was not changed. Refresh and retry.`)
+    } finally {
+      setBusy(false)
+    }
   }
 
+  const extraKeys = keys.filter((key) =>
+    !Object.values(recoveryTargets).some((target) => target.key === key)
+  )
+
   return (
-    <div className="flex flex-col gap-4">
-      <div>
+    <section className="flex flex-col gap-3 border border-secondary p-3" aria-labelledby="backup-heading">
+      <h2 id="backup-heading" className="text-lg font-bold">Back up your data</h2>
+      <p>
+        A complete backup is three separate JSON files: Workouts (including units,
+        dates and notes), Tags (workout-name associations), and Saved filters
+        (search text and selected tags). Download every stored item below before
+        migrating. An item marked not stored has no saved data to export.
+      </p>
+      <p>Keep the old app and these files until you have restored and checked all three items. Do not clear browser storage or uninstall the old app first.</p>
+      <button className="btn btn-sm self-start" type="button" disabled={loading || busy} onClick={() => void getKeys()}>
+        Refresh stored items
+      </button>
+      {loading && <p role="status">Reading stored items…</p>}
+      {error && <p role="alert">{error.message}</p>}
+      {(Object.keys(recoveryTargets) as RecoveryTarget[]).map((target) => {
+        const { key, label } = recoveryTargets[target]
+        const exists = keys.includes(key)
+        return (
+          <div key={key} className="flex flex-wrap items-center justify-between gap-2">
+            <span>{label}{!loading && !error && !exists ? ' — not stored' : ''}</span>
+            <button className="btn btn-sm btn-info" type="button" disabled={loading || busy || !!error || !exists} onClick={() => void exportKey(key, label)}>
+              Download {label.toLowerCase()} JSON
+            </button>
+          </div>
+        )
+      })}
+      {extraKeys.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h3 className="font-bold">Other stored data (raw JSON)</h3>
+          <p>Keep these files too if you need them. This restore tool only handles workouts, tags and saved filters; other keys are never overwritten.</p>
+          {extraKeys.map((key) => (
+            <div key={key} className="flex flex-wrap items-center justify-between gap-2">
+              <span className="break-all">{key}</span>
+              <button className="btn btn-sm" type="button" disabled={loading || busy || !!error} onClick={() => void exportKey(key, key)}>
+                Download raw JSON: {key}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="border-t pt-3">
+        <h3 className="font-bold">Partial CSV export</h3>
+        <p>For spreadsheets only: names, weights, reps, sets and dates. It omits units, notes, tags, filters and other fields. Not a backup; CSV cannot be restored here.</p>
         <button
-          className="btn btn-sm btn-info"
+          className="btn btn-sm mt-2"
           type="button"
-          onClick={() => {
-            const delimited = data
-              .map((lift) => {
-                return `${lift.name},${lift.weight},${lift.rep},${lift.set},${lift.date}`
-              })
-              .join('\n')
-
-            const header = 'name,weight,rep,set,date'
-
-            const b = new File(
-              [[header, delimited].join('\n')],
-              'export-lifts.csv',
-              {
-                type: 'text/csv;charset=utf-8',
-              }
-            )
-            window.open(window.URL.createObjectURL(b))
+          disabled={loading || busy || !!error || !keys.includes(recoveryTargets.workouts.key)}
+          onClick={async () => {
+            setBusy(true)
+            setFeedback('')
+            setDownloadError('')
+            try {
+              const value: unknown = JSON.parse(await getValues(recoveryTargets.workouts.key))
+              validateBackup('workouts', value)
+              const { lifts } = value as { lifts: Record<string, unknown>[] }
+              const rows = lifts.map((lift) => ['name', 'weight', 'rep', 'set', 'date']
+                .map((field) => `"${String(lift[field]).replaceAll('"', '""')}"`).join(','))
+              downloadFile('export-lifts-partial.csv', ['name,weight,rep,set,date', ...rows].join('\n'), 'text/csv')
+              setFeedback('Partial CSV download requested. Use JSON files for recovery.')
+            } catch {
+              setDownloadError('Could not export workout CSV. Try the unmodified workouts JSON backup instead.')
+            } finally {
+              setBusy(false)
+            }
           }}
-        >
-          download
-        </button>
+        >Download partial workout CSV</button>
       </div>
-
-      <div className="mx-auto border border-solid border-secondary p-1">
-        <div className="text-lg font-bold">Raw Data (v0.0.3)</div>
-        {dbRaw.loading ? (
-          <div>loading</div>
-        ) : (
-          dbRaw.keys.map((key) => {
-            return (
-              <div key={key} className="flex justify-between w-80 pt-1">
-                <div>{key}</div>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-info"
-                  onClick={() => {
-                    dbRaw.getValues(key).then((values) => {
-                      // const b = new File([values], `values-${key}.csv`, {
-                      //   // lol text/plain no work in PWA
-                      //   type: 'text/csv;charset=utf-8',
-                      // })
-                      // window.open(window.URL.createObjectURL(b))
-                      download(
-                        `values-${new Date().toISOString()}-${key}.json`,
-                        values
-                      )
-                    })
-                  }}
-                >
-                  download
-                </button>
-              </div>
-            )
-          })
-        )}
-      </div>
-    </div>
+      {downloadError && <p role="alert">{downloadError}</p>}
+      <p role="status">{feedback}</p>
+    </section>
   )
 }
