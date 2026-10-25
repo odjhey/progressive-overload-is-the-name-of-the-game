@@ -34,12 +34,13 @@ export const Searchable = ({
         </label>
         <button
           type="button"
-          className="btn btn-outline search-clear"
+          className="btn btn-outline icon-action search-clear"
           aria-label={`Clear ${placeholder.toLowerCase()}`}
+          title={`Clear ${placeholder.toLowerCase()}`}
           onClick={clear}
           disabled={!searchTerm}
         >
-          <IconX size={16} aria-hidden="true" />
+          <IconX size={20} aria-hidden="true" />
         </button>
       </div>
       {children}

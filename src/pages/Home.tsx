@@ -1,3 +1,4 @@
+import { IconFilter, IconPlus } from '@tabler/icons-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Searchable } from '../components/Searchable'
 import { LiftRow } from '../components/LiftRow'
@@ -94,10 +95,12 @@ export default function Home() {
       <header className="page-heading training-heading">
         <h1>Workouts</h1>
         <Link
-          className="btn btn-primary"
+          className="btn btn-primary icon-action"
+          aria-label="New entry"
+          title="New entry"
           to={`/new?${new URLSearchParams({ view })}`}
         >
-          + New entry
+          <IconPlus size={20} aria-hidden="true" />
         </Link>
       </header>
       {filters.loadError && (
@@ -139,7 +142,13 @@ export default function Home() {
             </button>
           </div>
           <details className="advanced-filters">
-            <summary>Date &amp; tags</summary>
+            <summary
+              className="icon-action"
+              aria-label="Date and tag filters"
+              title="Date and tag filters"
+            >
+              <IconFilter size={20} aria-hidden="true" />
+            </summary>
             <fieldset disabled={!!filters.loadError} className="filter-fields">
               <div className="date-filter">
                 <label className="field-label" htmlFor="search-date">
