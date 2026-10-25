@@ -13,7 +13,7 @@ export default defineConfig({
       workbox: { clientsClaim: true },
       manifest: {
         description: 'Progressive Overload is the name of the game',
-        theme_color: '#f6f4ed',
+        theme_color: '#ffffff',
         icons: [
           {
             src: 'vite.svg',
