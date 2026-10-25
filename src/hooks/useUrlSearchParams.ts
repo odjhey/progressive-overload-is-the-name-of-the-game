@@ -1,9 +1,7 @@
-import { useSearchParams } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { defaultParseSearch } from '../libs/searchParams'
 
 export const useUrlSearchParams = () => {
-  const [search] = useSearchParams()
-  const searchObj = defaultParseSearch(search.toString())
-
-  return [searchObj]
+  const { search } = useLocation()
+  return [defaultParseSearch(search)]
 }

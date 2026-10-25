@@ -10,32 +10,37 @@ import {
 export default function Nav({ children }: PropsWithChildren) {
   return (
     <>
-      <nav className="navbar bg-primary"></nav>
-      <div className="pb-14">{children}</div>
-      <nav className="btm-nav bg-primary">
+      <header className="navbar bg-primary">Progressive Overload</header>
+      <main className="pb-24">{children}</main>
+      <nav className="btm-nav bg-primary" aria-label="Main navigation">
         <NavLink
           className={({ isActive }) => (isActive ? 'active' : '')}
           to="/"
+          end
         >
-          <IconHome></IconHome>
+          <IconHome aria-hidden="true" />
+          <span className="btm-nav-label">Home</span>
         </NavLink>
         <NavLink
           to="/new"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
-          <IconNewSection></IconNewSection>
+          <IconNewSection aria-hidden="true" />
+          <span className="btm-nav-label">New</span>
         </NavLink>
         <NavLink
           to="/tags"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
-          <IconTags></IconTags>
+          <IconTags aria-hidden="true" />
+          <span className="btm-nav-label">Tags</span>
         </NavLink>
         <NavLink
           to="/about"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
-          <IconInfoCircle></IconInfoCircle>
+          <IconInfoCircle aria-hidden="true" />
+          <span className="btm-nav-label">Settings</span>
         </NavLink>
       </nav>
     </>

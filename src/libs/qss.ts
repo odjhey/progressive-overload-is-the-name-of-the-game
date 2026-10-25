@@ -30,7 +30,7 @@ export function encode(obj, pfx?: string) {
 
 function toValue(mix) {
   if (!mix) return ''
-  var str = decodeURIComponent(mix)
+  var str = decodeURIComponent(mix.replace(/\+/g, ' '))
   if (str === 'false') return false
   if (str === 'true') return true
   if (str.charAt(0) === '0') return str
@@ -45,7 +45,7 @@ export function decode(str) {
 
   while ((tmp = arr.shift())) {
     tmp = tmp.split('=')
-    k = tmp.shift()
+    k = decodeURIComponent(tmp.shift().replace(/\+/g, ' '))
     if (out[k] !== void 0) {
       out[k] = [].concat(out[k], toValue(tmp.shift()))
     } else {

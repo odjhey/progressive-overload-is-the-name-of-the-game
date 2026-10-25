@@ -10,31 +10,42 @@ export const LiftRow = ({
   actions: {
     copy: () => void
     edit: () => void
-    onDateClick: (date: string) => void
+    onDateClick?: (date: string) => void
   }
 }) => {
+  const dateLabel = (
+    <>
+      {dayjs(Date.now()).diff(dayjs(lift.date), 'day')}
+      {'d - '}
+      {new Date(lift.date).toLocaleDateString()}
+    </>
+  )
   return (
     <div className="card card-compact">
       <div className="card-body">
-        <span className="card-title text-sm flex justify-between">
+        <span className="card-title text-sm flex flex-wrap gap-1 justify-between break-words">
           {lift.name}{' '}
-          <span
-            className="text-xs text-slate-500"
-            onClick={() => {
-              const offset = new Date().getTimezoneOffset()
-              actions.onDateClick(
-                new Date(new Date(lift.date).getTime() - offset * 60 * 1000)
-                  .toISOString()
-                  .split('T')[0]
-              )
-            }}
-          >
-            {dayjs(Date.now()).diff(dayjs(lift.date), 'day')}
-            {'d - '}
-            {new Date(lift.date).toLocaleDateString()}
-          </span>
+          {actions.onDateClick ? (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm text-xs"
+              aria-label={`Filter by date of ${lift.name}: ${new Date(lift.date).toLocaleDateString()}`}
+              onClick={() => {
+                const offset = new Date().getTimezoneOffset()
+                actions.onDateClick?.(
+                  new Date(new Date(lift.date).getTime() - offset * 60 * 1000)
+                    .toISOString()
+                    .split('T')[0]
+                )
+              }}
+            >
+              {dateLabel}
+            </button>
+          ) : (
+            <span className="text-xs text-slate-500">{dateLabel}</span>
+          )}
         </span>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <div>
             <span className="font-bold">{lift.weight}</span>{' '}
             <span>{lift.uom}</span>
@@ -46,13 +57,21 @@ export const LiftRow = ({
             <span className="text-slate-500">reps</span>
           </div>
           {lift.comment && (
-            <div>
+            <div className="min-w-0 break-words">
               <span>{lift.comment}</span>
             </div>
           )}
         </div>
         <div className="card-actions justify-between">
-          <IconEdit size={14} type="button" onClick={actions.edit}></IconEdit>
+          <button
+            type="button"
+            className="btn btn-sm"
+            aria-label={`Edit ${lift.name} from ${lift.date}`}
+            onClick={actions.edit}
+          >
+            <IconEdit size={16} aria-hidden="true" />
+            Edit
+          </button>
           {lift.tags && lift.tags.length > 0 && (
             <div className="flex gap-1">
               {lift.tags.map((n) => {
@@ -64,9 +83,15 @@ export const LiftRow = ({
               })}
             </div>
           )}
-          <IconCopy size={20} type="button" onClick={actions.copy}>
-            copy
-          </IconCopy>
+          <button
+            type="button"
+            className="btn btn-sm"
+            aria-label={`Copy ${lift.name} from ${lift.date}`}
+            onClick={actions.copy}
+          >
+            <IconCopy size={20} aria-hidden="true" />
+            Copy
+          </button>
         </div>
       </div>
     </div>
