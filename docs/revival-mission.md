@@ -1,8 +1,8 @@
 # Progressive Overload — revival mission brief
 
-**CORE PUBLISHED · PHONE-FIRST REPEAT-LIFT UX APPROVED · 25 October 2026**
+**CORE PUBLISHED · COMPACT BOXY UX CORRECTION APPROVED · 25 October 2026**
 
-The operator accepted the core mission, permitted necessary manual Settings export/import, and separately authorized its publication. The core is live at the existing origin at `e52919a`; the operator reported “worked. i backed up my stuff.” The next approved wave is a UX rework for iPhone and Android, led by finding and repeating a previous lift. This wave remains local-trunk/private-preview work; prior publication does not authorize another rollout, every historical feature, PR closure, or discarding user data.
+The core is live at the existing origin at `e52919a`; the operator confirmed the upgrade worked and backed up their data. The approved UX goal remains finding and repeating a previous lift on iPhone/Android. The operator rejected the first local candidate's commercial-looking visual direction and explicitly requires the old feel/color, minimal compact layouts for smaller phones, and a boxy presentation. Current work remains local-trunk/private-preview only; no further publication, unrelated feature, closure, or data-deletion authority is implied.
 
 ## 1. Purpose and audience
 
@@ -197,13 +197,13 @@ The operator then reported “worked. i backed up my stuff. i think safe to do a
 
 **Observable outcome:** a returning lifter sees useful previous efforts before advanced filters, finds the intended lift, chooses **Repeat**, sees the chosen source effort while adjusting the new one, saves a distinct record, and can verify both new and original history. Edit remains explicitly different from Repeat. Search, tags, dates, latest/history, custom units, notes, and recovery remain available.
 
-**Design direction:** a quiet phone-first workout notebook with legible numbers, restrained neutral surfaces, one accessible accent, visible touch controls, and compact safe-area-aware navigation. Search and lift records lead; less frequent date/tag filtering may move behind a labeled disclosure, with active filters still apparent. Reuse the existing React/Tailwind/DaisyUI stack, not another UI framework.
+**Design direction — amended by the operator:** keep the original bumblebee yellow/white/black feel of an internal tool for friends. Minimal, compact layouts for smaller phones, flat rectangular controls/sections, ordinary-sized type and numbers, little rounding, no shadows or decorative branding. Search and lift records lead; less frequent filtering can remain disclosed with active filters visible. Preserve usable labels/touch targets/keyboard focus, and reuse the existing stack. The earlier green/warm-paper notebook direction is superseded, not a requirement.
 
 **Boundaries:** existing storage hooks, schemas, name/date identity, tag meaning, date policy, backup validation, and restore lifecycle are retained. A read-only previous-effort reference may travel in navigation state/query separately from the saved record. No new progress formulas, templates/session entities, account/sync feature, automatic load recommendation, or publication is implied.
 
 **Local acceptance:** exercise a populated find → Repeat → inspect previous values → adjust → save → revisit/history flow; original records and legacy extras survive. Preserve truthful failure/retry, dirty navigation, save-and-tag, recovery, and offline use. Capture matched before/after views and check 320px reflow, phone-sized keyboard/focus clearance and a wider layout. Independent agent evidence is distinct from physical iPhone/Safari/Android and human acceptance.
 
-## 15. UX wave receipt — local candidate, not published
+## 15. First UX candidate — functional proof, visual direction rejected
 
 Code candidate `15ebeb8` composes the UI author commits `af73b5c` / `2451515`, formatted scope commit `9921f3e`, and the independently observed History-return correction. Node 22.13 lint and TypeScript/Vite/PWA build passed; final runtime fingerprints are `index-5F2HiI8L.js` and `index-BUEScfn3.css`. There are no new dependencies, storage hooks, persistence formats, or recovery implementations.
 
@@ -214,3 +214,11 @@ Source-informed composed browser proof exercised failed-save retention and succe
 Matched before/after Home, Repeat, Settings, narrow and wide views were captured against the same synthetic fixture. Chromium reflow checks covered 320 px, 200% root text, and a 390 × 450 short viewport. Keyboard Notes → Tab focused Save above the fixed navigation in both normal and short viewports; final browser error log was empty. Evidence is retained outside product commits and has not been uploaded to a remote PR in this local-only wave.
 
 This is responsive Chromium and agent/source evidence, not physical iPhone/Safari/Android, software-keyboard, screen-reader or human design acceptance. Existing date policy and concurrent-editor/restore limitations remain. Review the private tailnet candidate; production stays at `e52919a` until a separate release is authorized.
+
+## 16. Authorized visual correction — compact friends' tool
+
+Operator feedback: “we want the old feel and color. like an internal tool for friends. not a saas looking commercial one”; “keep it minimal but improve the layouts, keep it compact, assume it will be used by smaller phones”; “keep the boxy feeling”.
+
+The coordinator's previous neutral/green notebook styling was an assumption, not an operator preference. Restore the exact original bumblebee palette and plain yellow navigation/header, remove the monogram/tagline/hero treatment, use compact rows/forms and minimally rounded or square boxes, and delete obsolete bespoke style scaffolding rather than layering another theme over it. Judge the layout on 320px-wide, short phones as well as larger views.
+
+Retain the independently verified find/repeat, selected-source reference, newest-first/history-context, dirty/error, recovery and offline behavior. This is a presentation correction, not a data-model rewrite or permission to weaken interaction safety. Work in task worktrees, integrate verified commits locally and refresh the private tailnet preview; no push/deployment or remote issue/PR mutation is authorized. Physical-device and human visual acceptance remain separate from agent checks.

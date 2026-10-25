@@ -358,8 +358,12 @@ summary,
 .navigation-guard,
 [aria-label='App update'] {
   @apply overflow-auto bg-base-100 text-base-content shadow-none;
-  max-height: calc(100vh - 10rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  max-height: calc(100dvh - 10rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  max-height: calc(
+    100vh - 10rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  );
+  max-height: calc(
+    100dvh - 10rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  );
 }
 
 .navigation-guard {

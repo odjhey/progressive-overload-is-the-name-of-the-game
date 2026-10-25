@@ -57,52 +57,52 @@ export default function Tags() {
         </p>
       )}
       <p role="status">{status}</p>
-        <form
-          aria-busy={busy}
-          onSubmit={handleSubmit((values) => {
-            setStatus('')
-            return tags.appendTag(values, {
-              onSuccess: (saved) => {
-                setStatus(`Added ${saved.name} to ${saved.liftName}.`)
-                setValue('name', '')
-                window.scrollTo({ top: 0 })
-              },
-            })
-          })}
-        >
-          <fieldset disabled={!!loadError || busy} className="tag-create">
-            <legend className="sr-only">Add a tag</legend>
-            <label className="field-label" htmlFor="tag-name">
-              <span>Tag name</span>
-              <input
-                id="tag-name"
-                className="input input-bordered w-full"
-                {...register('name', { required: true })}
-                required
-                aria-invalid={!!errors.name}
-              />
-            </label>
-            <label className="field-label" htmlFor="tag-lift-name">
-              <span>Lift name</span>
-              <input
-                id="tag-lift-name"
-                className="input input-bordered w-full"
-                {...register('liftName', { required: true })}
-                required
-                aria-invalid={!!errors.liftName}
-                list="tag-lift-options"
-              />
-            </label>
-            <datalist id="tag-lift-options">
-              {lifts.unique.map((lift) => (
-                <option key={lift.name} value={lift.name} />
-              ))}
-            </datalist>
-            <button type="submit" className="btn btn-primary">
-              {busy ? 'Saving...' : 'Add tag'}
-            </button>
-          </fieldset>
-        </form>
+      <form
+        aria-busy={busy}
+        onSubmit={handleSubmit((values) => {
+          setStatus('')
+          return tags.appendTag(values, {
+            onSuccess: (saved) => {
+              setStatus(`Added ${saved.name} to ${saved.liftName}.`)
+              setValue('name', '')
+              window.scrollTo({ top: 0 })
+            },
+          })
+        })}
+      >
+        <fieldset disabled={!!loadError || busy} className="tag-create">
+          <legend className="sr-only">Add a tag</legend>
+          <label className="field-label" htmlFor="tag-name">
+            <span>Tag name</span>
+            <input
+              id="tag-name"
+              className="input input-bordered w-full"
+              {...register('name', { required: true })}
+              required
+              aria-invalid={!!errors.name}
+            />
+          </label>
+          <label className="field-label" htmlFor="tag-lift-name">
+            <span>Lift name</span>
+            <input
+              id="tag-lift-name"
+              className="input input-bordered w-full"
+              {...register('liftName', { required: true })}
+              required
+              aria-invalid={!!errors.liftName}
+              list="tag-lift-options"
+            />
+          </label>
+          <datalist id="tag-lift-options">
+            {lifts.unique.map((lift) => (
+              <option key={lift.name} value={lift.name} />
+            ))}
+          </datalist>
+          <button type="submit" className="btn btn-primary">
+            {busy ? 'Saving...' : 'Add tag'}
+          </button>
+        </fieldset>
+      </form>
       <div className="tag-groups">
         {names.length === 0 && !loadError && (
           <p>

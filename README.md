@@ -115,6 +115,10 @@ Do not clear site storage or uninstall the PWA to get the update.
 
 ## Daily logging and recovery
 
+Keep the original bumblebee yellow/white/black feel: a compact, boxy internal
+tool for friends, not a rebrand. Improve small-phone layouts without giant
+cards, decorative chrome, or shrinking useful text and touch controls.
+
 - Home leads with search and your most recent effort per lift. Date/tag controls
   live under Date & tags; active filters and their reset remain visible.
 - Latest and History are explicit views, ordered newest first without rewriting
