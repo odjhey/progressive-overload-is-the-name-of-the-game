@@ -135,12 +135,12 @@ export default function New() {
         <section className="previous-effort" aria-labelledby="previous-heading">
           <div className="previous-heading">
             <h2 id="previous-heading">Previous effort</h2>
-            <span className="context-label">Reference only</span>
+            <time className="muted" dateTime={previous.date}>
+              {new Date(previous.date).toLocaleString()}
+            </time>
+            <span className="sr-only">Reference only</span>
           </div>
           <p className="previous-name">{previous.name}</p>
-          <time className="muted" dateTime={previous.date}>
-            {new Date(previous.date).toLocaleString()}
-          </time>
           <dl className="effort-numbers">
             <div className="effort-weight">
               <dt className="sr-only">Previous weight</dt>
@@ -155,7 +155,12 @@ export default function New() {
               </dd>
             </div>
           </dl>
-          {previous.comment && <p className="lift-notes">{previous.comment}</p>}
+          {previous.comment && (
+            <details className="previous-notes">
+              <summary>Previous notes</summary>
+              <p className="lift-notes">{previous.comment}</p>
+            </details>
+          )}
         </section>
       )}
       {error && (

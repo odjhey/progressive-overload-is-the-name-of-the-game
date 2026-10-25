@@ -93,7 +93,6 @@ h1 {
 
 .muted,
 .field-hint,
-.context-label,
 .collection-summary,
 .lift-date,
 .date-action,
@@ -313,9 +312,21 @@ summary,
 }
 
 .saved-notice > * + *,
-.empty-state > * + *,
-.previous-effort > * + * {
+.empty-state > * + * {
   @apply mt-2;
+}
+
+.previous-effort > * + * {
+  @apply mt-1;
+}
+
+.previous-heading time {
+  @apply text-xs;
+}
+
+.previous-notes > summary {
+  @apply py-0 text-sm;
+  min-height: 1.5rem;
 }
 
 .form-page,
