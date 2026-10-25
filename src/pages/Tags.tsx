@@ -29,6 +29,12 @@ export default function Tags() {
   }
   const loadError = lifts.loadError ?? tags.loadError
   const busy = tags.saving || isSubmitting
+  const names = [
+    ...new Set([
+      ...lifts.unique.map((lift) => lift.name),
+      ...tags.data.map((tag) => tag.liftName),
+    ]),
+  ]
 
   return (
     <>
@@ -99,28 +105,33 @@ export default function Tags() {
         </form>
       </div>
       <div className="space-y-2">
-        {lifts.unique.length === 0 && !loadError && (
-          <p>No saved workouts yet. Save a workout before assigning its tags.</p>
+        {names.length === 0 && !loadError && (
+          <p>
+            No saved workouts yet. Save a workout before assigning its tags.
+          </p>
         )}
-        {lifts.unique.map((lift) => (
-          <div className="flex flex-wrap gap-1 items-center" key={lift.name}>
-            <span>{lift.name}</span>
+        {names.map((name) => (
+          <div className="flex flex-wrap gap-1 items-center" key={name}>
+            <span>{name}</span>
+            {!lifts.unique.some((lift) => lift.name === name) && (
+              <span className="text-sm">(no saved workouts)</span>
+            )}
             {tags.data
-              .filter((tag) => tag.liftName === lift.name)
+              .filter((tag) => tag.liftName === name)
               .map((tag) => (
                 <span className="badge" key={tag.name}>
                   {tag.name}
                   <button
                     type="button"
                     className="btn btn-xs"
-                    aria-label={`Remove ${tag.name} tag from ${lift.name}`}
+                    aria-label={`Remove ${tag.name} tag from ${name}`}
                     disabled={!!loadError || busy}
                     onClick={() => {
-                      if (confirm(`Remove "${tag.name}" from "${lift.name}"?`)) {
+                      if (confirm(`Remove "${tag.name}" from "${name}"?`)) {
                         setStatus('')
                         void tags.deleteTag(tag, {
                           onSuccess: () =>
-                            setStatus(`Removed ${tag.name} from ${lift.name}.`),
+                            setStatus(`Removed ${tag.name} from ${name}.`),
                         })
                       }
                     }}
@@ -133,9 +144,9 @@ export default function Tags() {
               type="button"
               className="btn btn-sm"
               disabled={!!loadError || busy}
-              aria-label={`Add tag to ${lift.name}`}
+              aria-label={`Add tag to ${name}`}
               onClick={() => {
-                setValue('liftName', lift.name, { shouldDirty: true })
+                setValue('liftName', name, { shouldDirty: true })
                 setFocus('name')
               }}
             >

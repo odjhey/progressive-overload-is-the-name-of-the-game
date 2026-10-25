@@ -18,7 +18,9 @@ export default function Home() {
     return <div role="status">Loading workouts and filters...</div>
   }
   if (loadError) {
-    return <div role="alert">Workouts could not be loaded: {loadError.message}</div>
+    return (
+      <div role="alert">Workouts could not be loaded: {loadError.message}</div>
+    )
   }
 
   const visible = data.filter((row) => {
@@ -67,8 +69,8 @@ export default function Home() {
       )}
       {filters.error && (
         <p role="alert">
-          Filters could not be saved: {filters.error.message} Your current filters
-          are still shown; change or clear them to retry.
+          Filters could not be saved: {filters.error.message} Your current
+          filters are still shown; change or clear them to retry.
         </p>
       )}
       <fieldset disabled={!!filters.loadError} className="flex flex-col gap-2">
@@ -141,7 +143,9 @@ export default function Home() {
       </label>
       <p className="text-sm" role="status">
         {visible.length} of {data.length} workouts shown.{' '}
-        {latestOnly ? 'Uncheck Latest only to see history.' : 'Showing history.'}
+        {latestOnly
+          ? 'Uncheck Latest only to see history.'
+          : 'Showing history.'}
       </p>
       {saved && (
         <div className="my-2">
@@ -149,7 +153,8 @@ export default function Home() {
           {savedHidden && (
             <>
               <p>
-                This saved workout is outside the current filters or latest view.
+                This saved workout is outside the current filters or latest
+                view.
               </p>
               <LiftFormView lift={saved} />
               <button

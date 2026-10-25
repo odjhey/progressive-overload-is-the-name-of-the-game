@@ -39,7 +39,10 @@ export function stringifySearchWith(stringify: (search: unknown) => string) {
         const val = search[key]
         if (typeof val === 'undefined' || val === undefined) {
           delete search[key]
-        } else if (typeof val === 'string' || (val && typeof val === 'object')) {
+        } else if (
+          typeof val === 'string' ||
+          (val && typeof val === 'object')
+        ) {
           try {
             search[key] = stringify(val)
           } catch {

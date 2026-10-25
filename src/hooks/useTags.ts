@@ -29,14 +29,17 @@ export const useTags = () => {
         if (!active) return
         const next = value ?? { tags: [] }
         if (!Array.isArray(next.tags)) {
-          throw new Error('Tags could not be read. Restore a valid tags backup in Settings before saving.')
+          throw new Error(
+            'Tags could not be read. Restore a valid tags backup in Settings before saving.'
+          )
         }
         stored.current = next
         setData(next.tags)
       })
       .catch((cause: unknown) => {
         if (!active) return
-        const failure = cause instanceof Error ? cause : new Error(String(cause))
+        const failure =
+          cause instanceof Error ? cause : new Error(String(cause))
         setLoadError(failure)
         setError(failure)
       })
@@ -56,7 +59,12 @@ export const useTags = () => {
     setError(undefined)
     const current = stored.current
     if (!current) {
-      setError(loadError ?? new Error('Wait for tags to load before saving. If loading failed, reopen the app or restore a backup in Settings.'))
+      setError(
+        loadError ??
+          new Error(
+            'Wait for tags to load before saving. If loading failed, reopen the app or restore a backup in Settings.'
+          )
+      )
       return
     }
     pending.current = true
@@ -87,7 +95,9 @@ export const useTags = () => {
         (item) => item.liftName === tag.liftName && item.name === tag.name
       )
       if (index === -1) {
-        throw new Error('This tag is no longer assigned to this lift. Return to the tag list and select it again.')
+        throw new Error(
+          'This tag is no longer assigned to this lift. Return to the tag list and select it again.'
+        )
       }
       return {
         tags: tags.filter(
@@ -109,11 +119,22 @@ export const useTags = () => {
           (item) => item.liftName === tag.liftName && item.name === tag.name
         )
       ) {
-        throw new Error('This tag is already assigned to this lift. Choose a different tag name.')
+        throw new Error(
+          'This tag is already assigned to this lift. Choose a different tag name.'
+        )
       }
       const savedTag = { ...tag }
       return { tags: [...tags, savedTag], tag: savedTag }
     }, options?.onSuccess)
 
-  return { loading, saving, loadError, data, error, unique, appendTag, deleteTag }
+  return {
+    loading,
+    saving,
+    loadError,
+    data,
+    error,
+    unique,
+    appendTag,
+    deleteTag,
+  }
 }

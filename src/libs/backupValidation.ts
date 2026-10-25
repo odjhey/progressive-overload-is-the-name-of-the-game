@@ -14,7 +14,9 @@ const isObject = (value: unknown): value is JsonObject =>
 // adding absent notes, or removing fields unknown to this version.
 export function validateBackup(target: RecoveryTarget, value: unknown): string {
   if (!isObject(value)) {
-    throw new Error('Expected a JSON object exported by Settings, not a list or empty value.')
+    throw new Error(
+      'Expected a JSON object exported by Settings, not a list or empty value.'
+    )
   }
 
   if (target === 'workouts') {
@@ -34,7 +36,11 @@ export function validateBackup(target: RecoveryTarget, value: unknown): string {
           throw new Error(`${prefix}: "${field}" must be a finite number.`)
         }
       }
-      if (lift.comment !== undefined && lift.comment !== null && typeof lift.comment !== 'string') {
+      if (
+        lift.comment !== undefined &&
+        lift.comment !== null &&
+        typeof lift.comment !== 'string'
+      ) {
         throw new Error(`${prefix}: optional "comment" must be text or null.`)
       }
     })
@@ -42,37 +48,59 @@ export function validateBackup(target: RecoveryTarget, value: unknown): string {
   }
 
   if (!Array.isArray(value.tags)) {
-    throw new Error(`${recoveryTargets[target].label} must contain a "tags" list.`)
+    throw new Error(
+      `${recoveryTargets[target].label} must contain a "tags" list.`
+    )
   }
   if (target === 'filters') {
-    if (typeof value.term !== 'string' || !value.tags.every((tag: unknown) => typeof tag === 'string')) {
-      throw new Error('Saved filters need a text "term" and a list of tag names (text).')
+    if (
+      typeof value.term !== 'string' ||
+      !value.tags.every((tag: unknown) => typeof tag === 'string')
+    ) {
+      throw new Error(
+        'Saved filters need a text "term" and a list of tag names (text).'
+      )
     }
     return `Search: ${JSON.stringify(value.term)}; ${value.tags.length} selected tags`
   }
 
-  if ('term' in value) {
-    throw new Error('This looks like saved filters, not tags. Choose Saved filters.')
-  }
   value.tags.forEach((tag: unknown, index: number) => {
-    if (!isObject(tag) || typeof tag.name !== 'string' || typeof tag.liftName !== 'string') {
-      throw new Error(`Tag ${index + 1} needs text "name" and "liftName" fields.`)
+    if (
+      !isObject(tag) ||
+      typeof tag.name !== 'string' ||
+      typeof tag.liftName !== 'string'
+    ) {
+      throw new Error(
+        `Tag ${index + 1} needs text "name" and "liftName" fields.`
+      )
     }
   })
   return `${value.tags.length} tag associations`
 }
 
 export function identifyBackup(value: unknown): RecoveryTarget {
-  const matches = (Object.keys(recoveryTargets) as RecoveryTarget[]).filter((target) => {
-    try {
-      validateBackup(target, value)
-      return true
-    } catch {
-      return false
+  if (
+    isObject(value) &&
+    typeof value.term === 'string' &&
+    Array.isArray(value.tags) &&
+    value.tags.every((tag: unknown) => typeof tag === 'string')
+  ) {
+    return 'filters'
+  }
+  const matches = (Object.keys(recoveryTargets) as RecoveryTarget[]).filter(
+    (target) => {
+      try {
+        validateBackup(target, value)
+        return true
+      } catch {
+        return false
+      }
     }
-  })
+  )
   if (matches.length !== 1) {
-    throw new Error('Cannot identify this backup safely. Choose Workouts, Tags, or Saved filters, then preview again to see validation details.')
+    throw new Error(
+      'Cannot identify this backup safely. Choose Workouts, Tags, or Saved filters, then preview again to see validation details.'
+    )
   }
   return matches[0]
 }

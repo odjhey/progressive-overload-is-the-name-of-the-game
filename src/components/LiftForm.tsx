@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactNode } from 'react'
+import { PropsWithChildren, ReactNode, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Lift } from '../hooks/useLifts'
 
@@ -19,6 +19,7 @@ export const LiftForm = ({
   onSubmit,
   onDelete,
   onSaveAndTag,
+  onDirtyChange,
   title = 'New',
   saving = false,
   disabled = false,
@@ -28,6 +29,7 @@ export const LiftForm = ({
   onSubmit: (lift: Lift) => Promise<void>
   onDelete?: () => Promise<void>
   onSaveAndTag: (lift: Lift) => Promise<void>
+  onDirtyChange: (dirty: boolean) => void
   saving?: boolean
   disabled?: boolean
 }) => {
@@ -35,19 +37,25 @@ export const LiftForm = ({
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
     getValues,
   } = useForm<FormValues>({
     mode: 'onBlur',
     defaultValues: { lift },
   })
   const busy = saving || isSubmitting
+  useEffect(() => {
+    onDirtyChange(isDirty)
+  }, [isDirty, onDirtyChange])
 
   return (
     <div>
       <h1 className="text text-lg font-bold">{title} workout</h1>
       {title === 'Copy' && (
-        <p>Save a separate session. Choose a distinct date and time for this lift.</p>
+        <p>
+          Save a separate session. Choose a distinct date and time for this
+          lift.
+        </p>
       )}
       {title === 'Edit' && (
         <p>
@@ -155,7 +163,9 @@ export const LiftForm = ({
                   key={unit}
                   className="btn"
                   aria-label={`Set unit to ${unit}`}
-                  onClick={() => setValue('lift.uom', unit, { shouldDirty: true })}
+                  onClick={() =>
+                    setValue('lift.uom', unit, { shouldDirty: true })
+                  }
                 >
                   {unit}
                 </button>
@@ -180,7 +190,9 @@ export const LiftForm = ({
                   key={reps}
                   className="btn"
                   aria-label={`Set reps to ${reps}`}
-                  onClick={() => setValue('lift.rep', reps, { shouldDirty: true })}
+                  onClick={() =>
+                    setValue('lift.rep', reps, { shouldDirty: true })
+                  }
                 >
                   {reps}
                 </button>
@@ -192,7 +204,10 @@ export const LiftForm = ({
               <input
                 id="lift-rep"
                 type="number"
-                {...register('lift.rep', { valueAsNumber: true, required: true })}
+                {...register('lift.rep', {
+                  valueAsNumber: true,
+                  required: true,
+                })}
                 required
                 aria-invalid={!!errors.lift?.rep}
                 className="w-16"
@@ -206,7 +221,9 @@ export const LiftForm = ({
                   key={sets}
                   className="btn"
                   aria-label={`Set sets to ${sets}`}
-                  onClick={() => setValue('lift.set', sets, { shouldDirty: true })}
+                  onClick={() =>
+                    setValue('lift.set', sets, { shouldDirty: true })
+                  }
                 >
                   {sets}
                 </button>
@@ -218,7 +235,10 @@ export const LiftForm = ({
               <input
                 id="lift-set"
                 type="number"
-                {...register('lift.set', { valueAsNumber: true, required: true })}
+                {...register('lift.set', {
+                  valueAsNumber: true,
+                  required: true,
+                })}
                 required
                 aria-invalid={!!errors.lift?.set}
                 className="w-16"
@@ -235,7 +255,9 @@ export const LiftForm = ({
             </label>
           </section>
           {Object.keys(errors).length > 0 && (
-            <p role="alert">Complete all required workout fields before saving.</p>
+            <p role="alert">
+              Complete all required workout fields before saving.
+            </p>
           )}
           <div className="bg-slate-100 p-2"></div>
           <div className="flex flex-wrap gap-2 justify-center p-5 pb-10">
@@ -259,7 +281,9 @@ export const LiftForm = ({
                 className="btn btn-error"
                 type="button"
                 onClick={() => {
-                  if (confirm('Delete this saved workout? This cannot be undone.')) {
+                  if (
+                    confirm('Delete this saved workout? This cannot be undone.')
+                  ) {
                     void onDelete()
                   }
                 }}

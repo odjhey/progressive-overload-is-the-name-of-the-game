@@ -1,6 +1,13 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Lift, useLifts } from '../hooks/useLifts'
 import { LiftForm } from '../components/LiftForm'
-import { useLocation, useNavigate } from 'react-router-dom'
+import {
+  To,
+  useBeforeUnload,
+  useBlocker,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
 import { defaultStringifySearch } from '../libs/searchParams'
 
@@ -10,6 +17,28 @@ export default function New() {
     useLifts()
   const navigate = useNavigate()
   const location = useLocation()
+  const [dirty, setDirty] = useState(false)
+  const navigationAllowed = useRef(false)
+  const keepEditing = useRef<HTMLButtonElement>(null)
+  const blocker = useBlocker(() => dirty && !navigationAllowed.current)
+  useEffect(() => {
+    if (blocker.state === 'blocked') keepEditing.current?.focus()
+  }, [blocker.state])
+  useBeforeUnload(
+    useCallback(
+      (event) => {
+        if (dirty && !navigationAllowed.current) {
+          event.preventDefault()
+          event.returnValue = ''
+        }
+      },
+      [dirty]
+    )
+  )
+  const navigateAfterSave = (to: To) => {
+    navigationAllowed.current = true
+    navigate(to)
+  }
 
   if (loading) {
     return <div role="status">Loading workouts...</div>
@@ -52,6 +81,27 @@ export default function New() {
 
   return (
     <>
+      {blocker.state === 'blocked' && (
+        <section
+          role="alert"
+          aria-label="Unsaved workout"
+          className="fixed top-20 left-2 right-2 z-50 mx-auto max-w-lg rounded border border-warning bg-base-100 p-3 shadow-lg"
+        >
+          <p>This workout has unsaved changes. Leave without saving?</p>
+          <div className="mt-2 flex gap-2">
+            <button
+              ref={keepEditing}
+              className="btn btn-sm btn-primary"
+              onClick={() => blocker.reset()}
+            >
+              Keep editing
+            </button>
+            <button className="btn btn-sm" onClick={() => blocker.proceed()}>
+              Discard changes
+            </button>
+          </div>
+        </section>
+      )}
       {error && (
         <p role="alert">
           Could not save this change: {error.message} Your form values are still
@@ -70,16 +120,20 @@ export default function New() {
         lift={{ ...defaults, comment: defaults.comment ?? '' }}
         saving={saving}
         disabled={missingOriginal}
+        onDirtyChange={setDirty}
         onDelete={
           existing && original
-            ? () => deleteLift(original, { onSuccess: () => navigate('/') })
+            ? () =>
+                deleteLift(original, {
+                  onSuccess: () => navigateAfterSave('/'),
+                })
             : undefined
         }
         onSubmit={(lift) =>
           upsertLift(lift, {
             original,
             onSuccess: (saved) =>
-              navigate({
+              navigateAfterSave({
                 pathname: '/',
                 search: defaultStringifySearch({
                   selected: saved.date,
@@ -92,7 +146,7 @@ export default function New() {
           upsertLift(lift, {
             original,
             onSuccess: (saved) =>
-              navigate({
+              navigateAfterSave({
                 pathname: '/tags',
                 search: defaultStringifySearch({ liftName: saved.name }),
               }),

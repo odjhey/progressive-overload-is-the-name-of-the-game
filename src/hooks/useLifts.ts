@@ -40,14 +40,17 @@ export const useLifts = () => {
         if (!active) return
         const next = value ?? { lifts: [] }
         if (!Array.isArray(next.lifts)) {
-          throw new Error('Workout history could not be read. Restore a valid workout backup in Settings before saving.')
+          throw new Error(
+            'Workout history could not be read. Restore a valid workout backup in Settings before saving.'
+          )
         }
         stored.current = next
         setData(next.lifts)
       })
       .catch((cause: unknown) => {
         if (!active) return
-        const failure = cause instanceof Error ? cause : new Error(String(cause))
+        const failure =
+          cause instanceof Error ? cause : new Error(String(cause))
         setLoadError(failure)
         setError(failure)
       })
@@ -67,7 +70,12 @@ export const useLifts = () => {
     setError(undefined)
     const current = stored.current
     if (!current) {
-      setError(loadError ?? new Error('Wait for workout history to load before saving. If loading failed, reopen the app or restore a backup in Settings.'))
+      setError(
+        loadError ??
+          new Error(
+            'Wait for workout history to load before saving. If loading failed, reopen the app or restore a backup in Settings.'
+          )
+      )
       return
     }
     pending.current = true
@@ -98,10 +106,14 @@ export const useLifts = () => {
         lift.date === keys.date && lift.name === keys.name
       const index = lifts.findIndex(matches)
       if (index === -1) {
-        throw new Error('This workout no longer exists. Return to history and select the workout again.')
+        throw new Error(
+          'This workout no longer exists. Return to history and select the workout again.'
+        )
       }
       if (lifts.findIndex((lift, i) => i !== index && matches(lift)) !== -1) {
-        throw new Error('More than one workout has this name and date. Back up and resolve the duplicate records before deleting.')
+        throw new Error(
+          'More than one workout has this name and date. Back up and resolve the duplicate records before deleting.'
+        )
       }
       return {
         lifts: lifts.filter((_, i) => i !== index),
@@ -124,7 +136,9 @@ export const useLifts = () => {
           )
         : -1
       if (original && index === -1) {
-        throw new Error('The original workout no longer exists. Return to history and select it again before editing.')
+        throw new Error(
+          'The original workout no longer exists. Return to history and select it again before editing.'
+        )
       }
       if (
         original &&
@@ -135,7 +149,9 @@ export const useLifts = () => {
             item.date === original.date
         ) !== -1
       ) {
-        throw new Error('More than one workout matches the original name and date. Back up and resolve the duplicate records before editing.')
+        throw new Error(
+          'More than one workout matches the original name and date. Back up and resolve the duplicate records before editing.'
+        )
       }
       if (
         lifts.some(
@@ -143,9 +159,12 @@ export const useLifts = () => {
             i !== index && item.name === lift.name && item.date === lift.date
         )
       ) {
-        throw new Error('A workout with this name and date already exists. Choose a different date or name, or edit that existing workout.')
+        throw new Error(
+          'A workout with this name and date already exists. Choose a different date or name, or edit that existing workout.'
+        )
       }
-      const savedLift = index === -1 ? { ...lift } : { ...lifts[index], ...lift }
+      const savedLift =
+        index === -1 ? { ...lift } : { ...lifts[index], ...lift }
       return {
         lifts:
           index === -1

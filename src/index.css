@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  scroll-padding-bottom: 6rem;
+}
+
+main :is(input, textarea, button, select, a) {
+  scroll-margin-bottom: 6rem;
+}

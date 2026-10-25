@@ -7,6 +7,7 @@ export type PersistentFilter = {
 }
 
 const lskey = 'PersistendFilterakj'
+let pendingFilterWrites = Promise.resolve()
 export const usePersistentFilters = () => {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<Error>()
@@ -14,13 +15,12 @@ export const usePersistentFilters = () => {
   const [data, setData] = useState<PersistentFilter>({ tags: [], term: '' })
   const current = useRef(data)
   const ready = useRef(false)
-  const writes = useRef(Promise.resolve())
   const version = useRef(0)
 
   useEffect(() => {
     let active = true
-    localforage
-      .getItem<PersistentFilter>(lskey)
+    pendingFilterWrites
+      .then(() => localforage.getItem<PersistentFilter>(lskey))
       .then((stored) => {
         if (!active) return
         if (
@@ -40,7 +40,9 @@ export const usePersistentFilters = () => {
       })
       .catch((cause: unknown) => {
         if (active) {
-          setLoadError(cause instanceof Error ? cause : new Error(String(cause)))
+          setLoadError(
+            cause instanceof Error ? cause : new Error(String(cause))
+          )
         }
       })
       .finally(() => {
@@ -59,7 +61,7 @@ export const usePersistentFilters = () => {
     setData(next)
     setError(undefined)
     // Keep typing responsive, but commit snapshots in order so Clear stays cleared.
-    writes.current = writes.current
+    pendingFilterWrites = pendingFilterWrites
       .then(() => localforage.setItem(lskey, next))
       .then(() => undefined)
       .catch((cause: unknown) => {
@@ -67,7 +69,7 @@ export const usePersistentFilters = () => {
           setError(cause instanceof Error ? cause : new Error(String(cause)))
         }
       })
-    return writes.current
+    return pendingFilterWrites
   }
 
   return { loading, loadError, data, error, saveFilters }
