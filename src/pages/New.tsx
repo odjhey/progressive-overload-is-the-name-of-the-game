@@ -14,6 +14,7 @@ import { defaultStringifySearch } from '../libs/searchParams'
 
 export default function New() {
   const [liftInSearch] = useUrlSearchParams()
+  const view = liftInSearch.view === 'history' ? 'history' : 'latest'
   const { data, error, loadError, loading, saving, upsertLift, deleteLift } =
     useLifts()
   const navigate = useNavigate()
@@ -110,7 +111,10 @@ export default function New() {
           </div>
         </section>
       )}
-      <Link to="/" className="back-link">
+      <Link
+        to={{ pathname: '/', search: defaultStringifySearch({ view }) }}
+        className="back-link"
+      >
         ← Back to lifts
       </Link>
       <header className="page-heading form-heading">
@@ -179,7 +183,11 @@ export default function New() {
           existing && original
             ? () =>
                 deleteLift(original, {
-                  onSuccess: () => navigateAfterSave('/'),
+                  onSuccess: () =>
+                    navigateAfterSave({
+                      pathname: '/',
+                      search: defaultStringifySearch({ view }),
+                    }),
                 })
             : undefined
         }
@@ -192,6 +200,7 @@ export default function New() {
                 search: defaultStringifySearch({
                   selected: saved.date,
                   selectedName: saved.name,
+                  view,
                 }),
               }),
           })
@@ -202,7 +211,7 @@ export default function New() {
             onSuccess: (saved) =>
               navigateAfterSave({
                 pathname: '/tags',
-                search: defaultStringifySearch({ liftName: saved.name }),
+                search: defaultStringifySearch({ liftName: saved.name, view }),
               }),
           })
         }

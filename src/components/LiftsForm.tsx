@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { defaultStringifySearch } from '../libs/searchParams'
+import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
 import type { Lift } from '../hooks/useLifts'
 import { Tag } from '../hooks/useTags'
 import { LiftRow } from './LiftRow'
@@ -19,6 +20,8 @@ export const LiftsForm = ({
   }
 }) => {
   const navigate = useNavigate()
+  const [search] = useUrlSearchParams()
+  const view = search.view === 'history' ? 'history' : 'latest'
 
   return (
     <div className="lift-list">
@@ -40,13 +43,14 @@ export const LiftsForm = ({
               edit: () =>
                 navigate({
                   pathname: '/new',
-                  search: defaultStringifySearch({ title: 'Edit', lift }),
+                  search: defaultStringifySearch({ title: 'Edit', lift, view }),
                 }),
               copy: () =>
                 navigate({
                   pathname: '/new',
                   search: defaultStringifySearch({
                     title: 'Copy',
+                    view,
                     previousLift: lift,
                     lift: {
                       ...lift,

@@ -6,8 +6,11 @@ import {
   IconTags,
   IconInfoCircle,
 } from '@tabler/icons-react'
+import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
+import { defaultStringifySearch } from '../libs/searchParams'
 
 export default function Nav({ children }: PropsWithChildren) {
+  const [search] = useUrlSearchParams()
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -26,7 +29,13 @@ export default function Nav({ children }: PropsWithChildren) {
       <nav className="app-navigation" aria-label="Main navigation">
         <NavLink
           className={({ isActive }) => (isActive ? 'active' : '')}
-          to="/"
+          to={{
+            pathname: '/',
+            search:
+              search.view === 'history'
+                ? defaultStringifySearch({ view: 'history' })
+                : '',
+          }}
           end
         >
           <IconHome size={22} aria-hidden="true" />
