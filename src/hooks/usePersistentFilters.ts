@@ -25,7 +25,10 @@ export const usePersistentFilters = () => {
         ready.current = true
       })
       .catch((cause: unknown) => {
-        if (active) setLoadError(cause instanceof Error ? cause : new Error(String(cause)))
+        if (active)
+          setLoadError(
+            cause instanceof Error ? cause : new Error(String(cause))
+          )
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -37,9 +40,15 @@ export const usePersistentFilters = () => {
     }
   }, [])
 
-  const saveFilters = async (patch: Partial<PersistentFilter>): Promise<void> => {
+  const saveFilters = async (
+    patch: Partial<PersistentFilter>
+  ): Promise<void> => {
     if (!ready.current) {
-      setError(new Error('Saved filters have not loaded successfully. Restore them in Settings before saving filters.'))
+      setError(
+        new Error(
+          'Saved filters have not loaded successfully. Restore them in Settings before saving filters.'
+        )
+      )
       return
     }
     const attempt = ++version.current

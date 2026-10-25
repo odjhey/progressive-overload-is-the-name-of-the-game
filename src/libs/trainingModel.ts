@@ -34,7 +34,8 @@ function finite(value: unknown, label: string): asserts value is number {
 function timestamp(value: unknown, label: string) {
   if (value !== null) {
     text(value, label)
-    if (!Number.isFinite(Date.parse(value))) throw new Error(`${label} is invalid.`)
+    if (!Number.isFinite(Date.parse(value)))
+      throw new Error(`${label} is invalid.`)
   }
 }
 function metadata(value: unknown, label: string) {
@@ -56,11 +57,14 @@ export function localDate(date = new Date()): string {
 }
 
 export function isTrainingDate(value: unknown): value is string {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value))
+    return false
   const [year, month, day] = value.split('-').map(Number)
   const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)
   const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-  return year >= 1 && month >= 1 && month <= 12 && day >= 1 && day <= days[month - 1]
+  return (
+    year >= 1 && month >= 1 && month <= 12 && day >= 1 && day <= days[month - 1]
+  )
 }
 
 export function emptyTrainingDocument(): TrainingDocument {
@@ -69,7 +73,8 @@ export function emptyTrainingDocument(): TrainingDocument {
 
 export function validateTrainingDocument(value: unknown): TrainingDocument {
   const doc = object(value, 'Training document')
-  if (doc.version !== 2) throw new Error('Expected training document version 2.')
+  if (doc.version !== 2)
+    throw new Error('Expected training document version 2.')
   if (!Number.isSafeInteger(doc.revision) || (doc.revision as number) < 0) {
     throw new Error('Training revision must be a nonnegative safe integer.')
   }
@@ -80,12 +85,14 @@ export function validateTrainingDocument(value: unknown): TrainingDocument {
   const identities = new Set<string>()
   function identity(value: unknown, label: string): string {
     text(value, label)
-    if (!value || identities.has(value)) throw new Error(`${label} is empty or duplicated.`)
+    if (!value || identities.has(value))
+      throw new Error(`${label} is empty or duplicated.`)
     identities.add(value)
     return value
   }
   function date(value: unknown, label: string) {
-    if (!isTrainingDate(value)) throw new Error(`${label} must be a real YYYY-MM-DD date.`)
+    if (!isTrainingDate(value))
+      throw new Error(`${label} must be a real YYYY-MM-DD date.`)
   }
   const exercises = new Set<string>()
   const names = new Set<string>()
@@ -93,11 +100,13 @@ export function validateTrainingDocument(value: unknown): TrainingDocument {
     const exercise = object(raw, 'Exercise')
     exercises.add(identity(exercise.id, 'Exercise ID'))
     text(exercise.name, 'Exercise name')
-    if (names.has(exercise.name)) throw new Error('Exercise names must be exact and unique.')
+    if (names.has(exercise.name))
+      throw new Error('Exercise names must be exact and unique.')
     names.add(exercise.name)
     list(exercise.tags, 'Exercise tags')
     exercise.tags.forEach((tag) => text(tag, 'Exercise tag'))
-    if (new Set(exercise.tags).size !== exercise.tags.length) throw new Error('Exercise tags are duplicated.')
+    if (new Set(exercise.tags).size !== exercise.tags.length)
+      throw new Error('Exercise tags are duplicated.')
     metadata(exercise.metadata, 'Exercise metadata')
   }
   const workouts = new Map<string, string>()
@@ -108,14 +117,16 @@ export function validateTrainingDocument(value: unknown): TrainingDocument {
     workouts.set(id, workout.trainingDate as string)
     timestamp(workout.recordedAt, 'Workout recordedAt')
     text(workout.notes, 'Workout notes')
-    if (typeof workout.attendanceConfirmed !== 'boolean') throw new Error('Workout attendance must be boolean.')
+    if (typeof workout.attendanceConfirmed !== 'boolean')
+      throw new Error('Workout attendance must be boolean.')
     metadata(workout.metadata, 'Workout metadata')
   }
   for (const raw of doc.entries) {
     const entry = object(raw, 'Entry')
     identity(entry.id, 'Entry ID')
     text(entry.exerciseId, 'Entry exercise ID')
-    if (!exercises.has(entry.exerciseId)) throw new Error('Entry references a missing exercise.')
+    if (!exercises.has(entry.exerciseId))
+      throw new Error('Entry references a missing exercise.')
     date(entry.trainingDate, 'Entry training date')
     timestamp(entry.recordedAt, 'Entry recordedAt')
     if (entry.performedAt !== undefined) {
@@ -126,15 +137,19 @@ export function validateTrainingDocument(value: unknown): TrainingDocument {
     if (entry.workoutId !== undefined) {
       text(entry.workoutId, 'Entry workout ID')
       if (workouts.get(entry.workoutId) !== entry.trainingDate) {
-        throw new Error('Entry workout must exist and have the same training date.')
+        throw new Error(
+          'Entry workout must exist and have the same training date.'
+        )
       }
     }
     list(entry.groups, 'Entry groups')
-    if (!entry.groups.length) throw new Error('An actual entry needs at least one set group.')
+    if (!entry.groups.length)
+      throw new Error('An actual entry needs at least one set group.')
     for (const rawGroup of entry.groups) {
       const group = object(rawGroup, 'Set group')
       identity(group.id, 'Set group ID')
-      for (const field of ['sets', 'reps', 'weight']) finite(group[field], `Group ${field}`)
+      for (const field of ['sets', 'reps', 'weight'])
+        finite(group[field], `Group ${field}`)
       text(group.unit, 'Group unit')
       metadata(group.metadata, 'Group metadata')
     }
@@ -148,12 +163,19 @@ export async function readLegacySnapshot(): Promise<LegacySnapshot> {
   const present = await localforage.keys()
   const keys = legacyKeys.filter((key) => present.includes(key))
   const [workouts, tags, filters] = await Promise.all(
-    legacyKeys.map((key) => keys.includes(key) ? localforage.getItem(key) : Promise.resolve(null))
+    legacyKeys.map((key) =>
+      keys.includes(key) ? localforage.getItem(key) : Promise.resolve(null)
+    )
   )
   return { keys, workouts, tags, filters }
 }
 
-function legacyEnvelope(snapshot: LegacySnapshot, key: string, value: unknown, field: string): unknown[] {
+function legacyEnvelope(
+  snapshot: LegacySnapshot,
+  key: string,
+  value: unknown,
+  field: string
+): unknown[] {
   if (!snapshot.keys.includes(key)) return []
   const envelope = object(value, `Legacy ${field}`)
   list(envelope[field], `Legacy ${field}`)
@@ -174,13 +196,26 @@ export function legacySavedFilters(snapshot: LegacySnapshot): SavedFilters {
     : { term: '', tags: [] }
 }
 
-export function convertLegacy(snapshot: LegacySnapshot, policy: LegacyDatePolicy): TrainingDocument {
-  if (policy !== 'written' && policy !== 'local') throw new Error('Choose written or local legacy dates.')
-  if (!Array.isArray(snapshot.keys) || snapshot.keys.some((key) => !legacyKeys.includes(key)) || new Set(snapshot.keys).size !== snapshot.keys.length) {
+export function convertLegacy(
+  snapshot: LegacySnapshot,
+  policy: LegacyDatePolicy
+): TrainingDocument {
+  if (policy !== 'written' && policy !== 'local')
+    throw new Error('Choose written or local legacy dates.')
+  if (
+    !Array.isArray(snapshot.keys) ||
+    snapshot.keys.some((key) => !legacyKeys.includes(key)) ||
+    new Set(snapshot.keys).size !== snapshot.keys.length
+  ) {
     throw new Error('Legacy snapshot has invalid source keys.')
   }
   legacySavedFilters(snapshot)
-  const lifts = legacyEnvelope(snapshot, LEGACY_WORKOUTS, snapshot.workouts, 'lifts')
+  const lifts = legacyEnvelope(
+    snapshot,
+    LEGACY_WORKOUTS,
+    snapshot.workouts,
+    'lifts'
+  )
   const tags = legacyEnvelope(snapshot, LEGACY_TAGS, snapshot.tags, 'tags')
   const result = emptyTrainingDocument()
   const byName = new Map<string, TrainingDocument['exercises'][number]>()
@@ -195,18 +230,28 @@ export function convertLegacy(snapshot: LegacySnapshot, policy: LegacyDatePolicy
   }
   lifts.forEach((raw, index) => {
     const row = object(raw, `Legacy workout ${index + 1}`)
-    for (const field of ['name', 'date', 'uom']) text(row[field], `Legacy workout ${index + 1} ${field}`)
-    for (const field of ['set', 'rep', 'weight']) finite(row[field], `Legacy workout ${index + 1} ${field}`)
-    if (row.comment !== undefined && row.comment !== null) text(row.comment, 'Legacy comment')
+    for (const field of ['name', 'date', 'uom'])
+      text(row[field], `Legacy workout ${index + 1} ${field}`)
+    for (const field of ['set', 'rep', 'weight'])
+      finite(row[field], `Legacy workout ${index + 1} ${field}`)
+    if (row.comment !== undefined && row.comment !== null)
+      text(row.comment, 'Legacy comment')
     const source = row.date as string
     const parsed = new Date(source)
     const written = source.match(/^(\d{4}-\d{2}-\d{2})(?:$|[T\s])/i)?.[1]
-    if (!Number.isFinite(parsed.getTime()) || (written !== undefined && !isTrainingDate(written))) {
-      throw new Error(`Legacy workout ${index + 1} has an invalid date: ${source}`)
+    if (
+      !Number.isFinite(parsed.getTime()) ||
+      (written !== undefined && !isTrainingDate(written))
+    ) {
+      throw new Error(
+        `Legacy workout ${index + 1} has an invalid date: ${source}`
+      )
     }
     const trainingDate = policy === 'written' ? written : localDate(parsed)
     if (!isTrainingDate(trainingDate)) {
-      throw new Error(`Legacy workout ${index + 1} has no valid written YYYY-MM-DD date. Review the local-date policy.`)
+      throw new Error(
+        `Legacy workout ${index + 1} has no valid written YYYY-MM-DD date. Review the local-date policy.`
+      )
     }
     result.entries.push({
       id: newId(),
@@ -214,9 +259,19 @@ export function convertLegacy(snapshot: LegacySnapshot, policy: LegacyDatePolicy
       trainingDate,
       performedAt: source,
       recordedAt: null,
-      groups: [{ id: newId(), sets: row.set as number, reps: row.rep as number, weight: row.weight as number, unit: row.uom as string }],
+      groups: [
+        {
+          id: newId(),
+          sets: row.set as number,
+          reps: row.rep as number,
+          weight: row.weight as number,
+          unit: row.uom as string,
+        },
+      ],
       notes: typeof row.comment === 'string' ? row.comment : '',
-      metadata: { legacy: { index, sourceDate: source, row: structuredClone(row) } },
+      metadata: {
+        legacy: { index, sourceDate: source, row: structuredClone(row) },
+      },
     })
   })
   tags.forEach((raw, index) => {
@@ -227,14 +282,22 @@ export function convertLegacy(snapshot: LegacySnapshot, policy: LegacyDatePolicy
     if (!target.tags.includes(row.name)) target.tags.push(row.name)
   })
   // Complete source envelopes preserve duplicate tags, unknown fields and null/missing comments.
-  result.metadata = { legacy: { datePolicy: policy, snapshot: structuredClone(snapshot) } }
+  result.metadata = {
+    legacy: { datePolicy: policy, snapshot: structuredClone(snapshot) },
+  }
   return validateTrainingDocument(result)
 }
 
 export class StorageMutationError extends Error {
   readonly outcome: 'not-written' | 'unverified'
-  constructor(message: string, outcome: 'not-written' | 'unverified', cause?: unknown) {
-    super(`${message}${cause === undefined ? '' : ` ${cause instanceof Error ? cause.message : String(cause)}`}`)
+  constructor(
+    message: string,
+    outcome: 'not-written' | 'unverified',
+    cause?: unknown
+  ) {
+    super(
+      `${message}${cause === undefined ? '' : ` ${cause instanceof Error ? cause.message : String(cause)}`}`
+    )
     this.name = 'StorageMutationError'
     this.outcome = outcome
   }
@@ -242,7 +305,9 @@ export class StorageMutationError extends Error {
 
 // These queues serialize this application's in-process callers only, not other browser tabs.
 let trainingQueue: Promise<unknown> = Promise.resolve()
-export function queueTrainingOperation<T>(action: () => Promise<T>): Promise<T> {
+export function queueTrainingOperation<T>(
+  action: () => Promise<T>
+): Promise<T> {
   const operation = trainingQueue.then(action)
   trainingQueue = operation.catch(() => undefined)
   return operation
@@ -257,7 +322,10 @@ function queueFilters<T>(action: () => Promise<T>): Promise<T> {
 export async function readTrainingDocument(): Promise<TrainingDocument | null> {
   const value = await localforage.getItem(TRAINING_KEY)
   if (value === null) {
-    if ((await localforage.keys()).includes(TRAINING_KEY)) throw new Error('Stored version 2 training is null, not an absent history. Restore a valid backup.')
+    if ((await localforage.keys()).includes(TRAINING_KEY))
+      throw new Error(
+        'Stored version 2 training is null, not an absent history. Restore a valid backup.'
+      )
     return null
   }
   return validateTrainingDocument(value)
@@ -266,36 +334,70 @@ export async function readTrainingDocument(): Promise<TrainingDocument | null> {
 // Object property order is not meaningful; array order and every stored value are.
 export function sameValue(left: unknown, right: unknown): boolean {
   if (Object.is(left, right)) return true
-  if (!left || !right || typeof left !== 'object' || typeof right !== 'object') return false
+  if (!left || !right || typeof left !== 'object' || typeof right !== 'object')
+    return false
   if (Array.isArray(left) || Array.isArray(right)) {
-    return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((value, index) => sameValue(value, right[index]))
+    return (
+      Array.isArray(left) &&
+      Array.isArray(right) &&
+      left.length === right.length &&
+      left.every((value, index) => sameValue(value, right[index]))
+    )
   }
   const a = left as ObjectValue
   const b = right as ObjectValue
   const keys = Object.keys(a)
-  return keys.length === Object.keys(b).length && keys.every((key) => Object.prototype.hasOwnProperty.call(b, key) && sameValue(a[key], b[key]))
+  return (
+    keys.length === Object.keys(b).length &&
+    keys.every(
+      (key) =>
+        Object.prototype.hasOwnProperty.call(b, key) &&
+        sameValue(a[key], b[key])
+    )
+  )
 }
 
-export async function commitTrainingDocument(next: TrainingDocument, expectedRevision: number | null): Promise<TrainingDocument> {
+export async function commitTrainingDocument(
+  next: TrainingDocument,
+  expectedRevision: number | null
+): Promise<TrainingDocument> {
   const validated = validateTrainingDocument(next)
   let current: TrainingDocument | null
   try {
     current = await readTrainingDocument()
   } catch (cause) {
-    throw new StorageMutationError('Training could not be checked; no write was attempted.', 'not-written', cause)
+    throw new StorageMutationError(
+      'Training could not be checked; no write was attempted.',
+      'not-written',
+      cause
+    )
   }
   if ((current?.revision ?? null) !== expectedRevision) {
-    throw new StorageMutationError('Training changed since this snapshot. Reload and review before saving. No write was attempted.', 'not-written')
+    throw new StorageMutationError(
+      'Training changed since this snapshot. Reload and review before saving. No write was attempted.',
+      'not-written'
+    )
   }
   validated.revision = (current?.revision ?? 0) + 1
-  if (!Number.isSafeInteger(validated.revision)) throw new StorageMutationError('Training revision is exhausted; no write was attempted.', 'not-written')
+  if (!Number.isSafeInteger(validated.revision))
+    throw new StorageMutationError(
+      'Training revision is exhausted; no write was attempted.',
+      'not-written'
+    )
   try {
     await localforage.setItem(TRAINING_KEY, validated)
     const verified = await readTrainingDocument()
-    if (!sameValue(verified, validated)) throw new Error('The saved training document does not match the requested snapshot.')
+    if (!sameValue(verified, validated))
+      throw new Error(
+        'The saved training document does not match the requested snapshot.'
+      )
     return validated
   } catch (cause) {
-    throw new StorageMutationError('Training save outcome is unverified. It may already be stored; reload to reconcile before another change. Your draft/source remains available.', 'unverified', cause)
+    throw new StorageMutationError(
+      'Training save outcome is unverified. It may already be stored; reload to reconcile before another change. Your draft/source remains available.',
+      'unverified',
+      cause
+    )
   }
 }
 
@@ -303,23 +405,33 @@ export function readSavedFilters(): Promise<SavedFilters> {
   return queueFilters(async () => {
     const stored = await localforage.getItem(FILTERS_KEY)
     if (stored === null) {
-      if ((await localforage.keys()).includes(FILTERS_KEY)) throw new Error('Stored filters are invalid null. Restore filters in Settings.')
+      if ((await localforage.keys()).includes(FILTERS_KEY))
+        throw new Error(
+          'Stored filters are invalid null. Restore filters in Settings.'
+        )
       return { term: '', tags: [] }
     }
     return validateSavedFilters(stored)
   })
 }
 
-export async function restoreSavedFilters(filters: SavedFilters): Promise<void> {
+export async function restoreSavedFilters(
+  filters: SavedFilters
+): Promise<void> {
   // Capture the caller's snapshot before queuing, including during rapid typing/reset.
   const next = validateSavedFilters(filters)
   return queueFilters(async () => {
     try {
       await localforage.setItem(FILTERS_KEY, next)
       const stored = await localforage.getItem(FILTERS_KEY)
-      if (!sameValue(stored, next)) throw new Error('Saved filters did not match on read-back.')
+      if (!sameValue(stored, next))
+        throw new Error('Saved filters did not match on read-back.')
     } catch (cause) {
-      throw new StorageMutationError('Filter save outcome is unverified. Training history was not changed by this filter operation.', 'unverified', cause)
+      throw new StorageMutationError(
+        'Filter save outcome is unverified. Training history was not changed by this filter operation.',
+        'unverified',
+        cause
+      )
     }
   })
 }

@@ -126,7 +126,8 @@ export function RestTimer() {
           </div>
           <p className="rest-timer-hint">
             Reset replaces only the saved timer with a stopped 90-second timer.
-            If storage is blocked, allow site storage and reload the saved timer.
+            If storage is blocked, allow site storage and reload the saved
+            timer.
           </p>
         </div>
       )}
