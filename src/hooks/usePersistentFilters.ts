@@ -1,13 +1,9 @@
-import localforage from 'localforage'
 import { useEffect, useRef, useState } from 'react'
+import { readSavedFilters, restoreSavedFilters } from '../libs/trainingModel'
+import type { SavedFilters } from '../libs/trainingTypes'
 
-export type PersistentFilter = {
-  tags: string[]
-  term: string
-}
+export type PersistentFilter = SavedFilters
 
-const lskey = 'PersistendFilterakj'
-let pendingFilterWrites = Promise.resolve()
 export const usePersistentFilters = () => {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<Error>()
@@ -16,60 +12,50 @@ export const usePersistentFilters = () => {
   const current = useRef(data)
   const ready = useRef(false)
   const version = useRef(0)
+  const mounted = useRef(true)
 
   useEffect(() => {
+    mounted.current = true
     let active = true
-    pendingFilterWrites
-      .then(() => localforage.getItem<PersistentFilter>(lskey))
+    readSavedFilters()
       .then((stored) => {
         if (!active) return
-        if (
-          stored !== null &&
-          (!stored ||
-            !Array.isArray(stored.tags) ||
-            !stored.tags.every((tag) => typeof tag === 'string') ||
-            typeof stored.term !== 'string')
-        ) {
-          throw new Error(
-            'Saved filters could not be read. Restore them in Settings.'
-          )
-        }
-        current.current = stored ?? { tags: [], term: '' }
-        setData(current.current)
+        current.current = stored
+        setData(stored)
         ready.current = true
       })
       .catch((cause: unknown) => {
-        if (active) {
-          setLoadError(
-            cause instanceof Error ? cause : new Error(String(cause))
-          )
-        }
+        if (active) setLoadError(cause instanceof Error ? cause : new Error(String(cause)))
       })
       .finally(() => {
         if (active) setLoading(false)
       })
     return () => {
       active = false
+      mounted.current = false
+      ready.current = false
     }
   }, [])
 
-  const saveFilters = (patch: Partial<PersistentFilter>) => {
-    if (!ready.current) return Promise.resolve()
-    const next = { ...current.current, ...patch }
+  const saveFilters = async (patch: Partial<PersistentFilter>): Promise<void> => {
+    if (!ready.current) {
+      setError(new Error('Saved filters have not loaded successfully. Restore them in Settings before saving filters.'))
+      return
+    }
     const attempt = ++version.current
+    const next = { ...current.current, ...patch }
     current.current = next
     setData(next)
     setError(undefined)
-    // Keep typing responsive, but commit snapshots in order so Clear stays cleared.
-    pendingFilterWrites = pendingFilterWrites
-      .then(() => localforage.setItem(lskey, next))
-      .then(() => undefined)
-      .catch((cause: unknown) => {
-        if (attempt === version.current) {
-          setError(cause instanceof Error ? cause : new Error(String(cause)))
-        }
-      })
-    return pendingFilterWrites
+    // Optimistic typing stays responsive, but durable snapshots and resets share
+    // the recovery helper's queue. Event callers receive a handled error state.
+    try {
+      await restoreSavedFilters(next)
+    } catch (cause: unknown) {
+      if (mounted.current && attempt === version.current) {
+        setError(cause instanceof Error ? cause : new Error(String(cause)))
+      }
+    }
   }
 
   return { loading, loadError, data, error, saveFilters }
