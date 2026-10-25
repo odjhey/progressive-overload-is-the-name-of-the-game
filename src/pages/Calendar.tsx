@@ -121,27 +121,16 @@ export default function Calendar() {
   return (
     <div className="calendar-page training-page">
       <header className="page-heading">
-        <h1>Calendar</h1>
-        <p className="muted">
-          ✓ = saved training or explicit attendance. Blank = nothing recorded,
-          not necessarily a rest day.
-        </p>
+        <div className="calendar-heading">
+          <h1>Calendar</h1>
+          <h2 id="calendar-month">{monthLabel}</h2>
+        </div>
+        <p className="muted">✓ training · blank: nothing recorded.</p>
       </header>
       {suppliedDate !== null && !isTrainingDate(suppliedDate) && (
         <p role="alert">The linked date is invalid. Showing today instead.</p>
       )}
       <section aria-labelledby="calendar-month">
-        <div className="calendar-heading">
-          <h2 id="calendar-month">{monthLabel}</h2>
-          <button
-            className="btn btn-outline"
-            type="button"
-            disabled={busy}
-            onClick={() => select(today)}
-          >
-            Today
-          </button>
-        </div>
         <div className="calendar-navigation">
           <button
             type="button"
@@ -151,6 +140,14 @@ export default function Calendar() {
             onClick={() => move(-1)}
           >
             ← Previous
+          </button>
+          <button
+            className="btn btn-outline"
+            type="button"
+            disabled={busy}
+            onClick={() => select(today)}
+          >
+            Today
           </button>
           <button
             type="button"

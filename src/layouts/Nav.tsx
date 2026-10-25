@@ -36,7 +36,7 @@ export default function Nav({ children }: PropsWithChildren) {
 
   return (
     <>
-      <ScrollRestoration />
+      {!training.loading && <ScrollRestoration />}
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>

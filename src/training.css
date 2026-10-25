@@ -142,10 +142,14 @@
   max-width: 34rem;
 }
 
+.calendar-page .page-heading {
+  margin-bottom: 0.5rem;
+}
+
 .calendar-heading,
 .calendar-navigation {
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .calendar-month {
@@ -157,7 +161,7 @@
 .calendar-month th {
   font-size: 0.875rem;
   font-weight: normal;
-  padding-block: 0.25rem;
+  padding-block: 0.125rem;
 }
 
 .calendar-month abbr {
@@ -177,7 +181,7 @@
   justify-content: center;
   width: 100%;
   min-width: 0;
-  min-height: 3rem;
+  min-height: 2.75rem;
   line-height: 1.25;
   padding: 0.25rem 0;
   background: white;
