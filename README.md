@@ -57,10 +57,14 @@ only deliberately, with a tested importer/mapping preserving the intended histor
 Keep the production origin unless a separate change is authorized: browser
 storage does not automatically follow a new hostname, scheme, port, or profile.
 
-Before an upgrade, use About → Raw Data to download each key's JSON. CSV is
-not a full backup: it omits units, notes, tags, and filters. Raw upload overwrites
-the supplied key; it does not merge or validate the contents. Restore only a
-trusted backup to its matching key.
+In the old app, use About → Raw Data to download each key's JSON. In the refresh,
+use Settings → Back up your data to download Workouts, Tags, and Saved filters.
+All three stored categories are needed for a complete backup; CSV is partial.
+Restore one JSON file at a time using Preview backup, review the named destination,
+and explicitly acknowledge replacement when data already exists. The restore
+validates the legacy shape, leaves unrelated keys alone, and reports success only
+after read-back verification. It replaces one category; it is not a merge or a
+dataset switch.
 
 When a manual migration is needed, users must be able to obtain the old app's
 complete raw JSON before cutover. Preserve lifts, units, dates, notes, tags, and
@@ -68,8 +72,9 @@ saved filters; the current exporter downloads each key separately. The refreshed
 importer must read these legacy exports, explain any intentional mapping, and
 report success only after the resulting data is verified. Keep the old data and
 downloaded backups until that verification; do not require clearing browser
-storage or uninstalling the old PWA to begin. This is the migration contract,
-not a claim that the current raw uploader validates or migrates schemas.
+storage or uninstalling the old PWA to begin. The current restore supports the
+legacy per-key envelopes without changing their schema. It preserves extra fields
+and optional notes, and does not normalize dates or invent missing values.
 
 The procedure below covers in-place upgrades. For a manual migration, instead
 export from the previous app and import those files into a fresh refreshed-app
@@ -80,8 +85,35 @@ production build, create a workout and tag, then serve the new build at the same
 origin without clearing storage. Verify worker takeover and unchanged stored
 values before mutations, then create/edit/copy, toggle history/filter by tag,
 export and restore raw JSON, and reload/save offline. Deploy all generated
-assets, including `sw.js` and the Workbox runtime. The existing auto-update
-policy reloads the app when an updated worker takes over.
+assets, including `sw.js` and the Workbox runtime. New clients show an update
+prompt: Later/cancel keeps unfinished work open, including when another tab
+activates the worker. Update now requires explicit reload confirmation.
+
+Already-installed legacy clients retain their old auto-update code. For the first
+rollout, ask users to finish/save work and keep complete backups before cutover;
+do not assume the new prompt can retroactively protect every old open tab.
+
+## Daily logging and recovery
+
+- Search/date/tag inputs reflect their active filters; Clear updates both the
+  visible controls and results. Latest only explains how to reveal history.
+- Copy creates a distinct session; Edit targets its original name/date identity.
+  A colliding identity is rejected instead of overwriting another record. Only
+  Edit offers deletion. Renaming does not rename other workouts or tag groups.
+- Save and tag persists the entered workout before navigating. Unsaved navigation
+  offers Keep editing or Discard changes; failed writes keep the attempted form.
+- Weight entry accepts two decimal places. Literal plus signs, spaces, and Unicode
+  survive edit/copy links. Actions and navigation have native labels/controls.
+- Tags with no remaining saved workout stay visible and removable.
+- Restore validates before writing, previews one destination, offers its backup,
+  and checks it has not changed since preview. Failed or mismatched read-back is
+  explicitly unverified; source/previous backups remain the recovery path.
+
+Close other app tabs during restoration. Restores are not a multi-key transaction,
+and snapshot checks are not cross-tab compare-and-swap. Concurrent workout editing
+in multiple tabs still uses whole-snapshot writes; this refresh does not add sync
+or conflict resolution. Real-device/Safari and human usability acceptance remain
+separate from the recorded Chromium proof.
 
 ## Housekeeping refresh
 
@@ -113,12 +145,13 @@ The open [issues](https://github.com/odjhey/progressive-overload-is-the-name-of-
 and [PRs](https://github.com/odjhey/progressive-overload-is-the-name-of-the-game/pulls)
 remain the work queue. Review the running user flow before choosing a redesign.
 
-- Start with search/clear consistency (#1), delete controls on a new entry (#24),
-  and the user-flow review (#63).
-- Consolidate database-key switching (#70/#71); the raw uploader is not a
-  database switcher, and PR #75 is not a working implementation.
-- Difficulty (#57/#73, PR #74) needs explicit optionality and historical
-  “unrated” semantics. Progress/PR metrics need definitions before new fields.
+- Search/clear (#1), New/Copy delete controls (#24), decimal entry (#7), and a
+  code-blind user-flow review (#63) have local implementation/proof. Issues remain
+  open until their full requested scope and disposition are explicitly reviewed.
+- Consolidate database-key switching (#70/#71); category restore is not a dataset
+  switcher, and PR #75 is not a working implementation.
+- Difficulty (#57/#73, PR #74) is explicitly optional; historical absence must stay
+  unrated. Scale/copy behavior and progress/PR metrics need decisions before fields.
 - Dependency PRs overlap this refresh; reconcile them after a replacement lands.
   Do not merge all historical lockfiles. DaisyUI 4+ remains a separate visual
   migration. PR #86's state-management rewrite is not required for UX repairs.
