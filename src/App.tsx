@@ -4,6 +4,7 @@ import About from './pages/About'
 import Nav from './layouts/Nav'
 import New from './pages/New'
 import Tags from './pages/Tags'
+import { UpdatePrompt } from './components/UpdatePrompt'
 
 const router = createBrowserRouter([
   {
@@ -41,5 +42,10 @@ const router = createBrowserRouter([
 ])
 
 export default function App() {
-  return <RouterProvider router={router} />
+  return (
+    <>
+      <UpdatePrompt />
+      <RouterProvider router={router} />
+    </>
+  )
 }

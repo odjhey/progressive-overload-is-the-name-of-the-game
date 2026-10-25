@@ -9,7 +9,7 @@ export default defineConfig({
   },
   plugins: [
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       manifest: {
         description: 'Progressive Overload is the name of the game',
         theme_color: '#ffffff',
