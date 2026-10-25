@@ -142,6 +142,14 @@ Keep the original bumblebee yellow/white/black, compact boxy friends' tool—not
 commercial rebrand. Layouts reflow on small phones without replacing usable
 labels and controls with decorative cards.
 
+Routine actions use familiar named icons: Repeat/Edit beside the exercise,
+new-entry plus, calendar navigation, filters and removal controls. Compact
+secondary targets are at least 2rem; Save buttons retain text and a 2.25rem
+minimum. Inputs keep ordinary 16px text. Navigation is an icon row with accessible
+names, and the running timer fits one row while its native options are collapsed.
+Enlarged text may wrap rather than hide controls. Recovery and destructive
+confirmations retain explicit wording.
+
 - **Workouts:** Latest shows the most recent entry per exercise; History shows
   all saved entries. Search, date and exercise-tag filters remain available with
   visible active filters/reset. A just-saved entry remains reachable outside
