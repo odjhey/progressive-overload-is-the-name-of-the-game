@@ -80,7 +80,9 @@ export default function New() {
   }
   const missingOriginal = title === 'Edit' && !existing
   const previous =
-    title === 'Copy' ? (liftInSearch.previousLift as Lift | undefined) : undefined
+    title === 'Copy'
+      ? (liftInSearch.previousLift as Lift | undefined)
+      : undefined
 
   return (
     <div className="form-page">
@@ -99,13 +101,18 @@ export default function New() {
             >
               Keep editing
             </button>
-            <button className="btn btn-outline" onClick={() => blocker.proceed()}>
+            <button
+              className="btn btn-outline"
+              onClick={() => blocker.proceed()}
+            >
               Discard changes
             </button>
           </div>
         </section>
       )}
-      <Link to="/" className="back-link">← Back to lifts</Link>
+      <Link to="/" className="back-link">
+        ← Back to lifts
+      </Link>
       <header className="page-heading form-heading">
         <div>
           <p className="eyebrow">
@@ -134,11 +141,16 @@ export default function New() {
           <dl className="effort-numbers">
             <div className="effort-weight">
               <dt className="sr-only">Previous weight</dt>
-              <dd><strong>{previous.weight}</strong> <span>{previous.uom}</span></dd>
+              <dd>
+                <strong>{previous.weight}</strong> <span>{previous.uom}</span>
+              </dd>
             </div>
             <div className="effort-reps">
               <dt>Sets × reps</dt>
-              <dd><strong>{previous.set}</strong> × <strong>{previous.rep}</strong></dd>
+              <dd>
+                <strong>{previous.set}</strong> ×{' '}
+                <strong>{previous.rep}</strong>
+              </dd>
             </div>
           </dl>
           {previous.comment && <p className="lift-notes">{previous.comment}</p>}

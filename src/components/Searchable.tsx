@@ -22,7 +22,11 @@ export const Searchable = ({
           <input
             id={id}
             type="search"
-            placeholder={placeholder === 'Search workouts' ? 'Lift name, notes, date…' : placeholder}
+            placeholder={
+              placeholder === 'Search workouts'
+                ? 'Lift name, notes, date…'
+                : placeholder
+            }
             className="input input-bordered"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

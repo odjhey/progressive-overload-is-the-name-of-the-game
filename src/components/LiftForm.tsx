@@ -83,7 +83,11 @@ export const LiftForm = ({
                 className="input input-bordered effort-input"
               />
             </label>
-            <div className="number-shortcuts" role="group" aria-label="Adjust weight">
+            <div
+              className="number-shortcuts"
+              role="group"
+              aria-label="Adjust weight"
+            >
               {[5, 1].map((amount) => (
                 <button
                   type="button"
@@ -107,7 +111,9 @@ export const LiftForm = ({
                 type="button"
                 className="btn btn-outline"
                 aria-label="Reset weight to zero"
-                onClick={() => setValue('lift.weight', 0, { shouldDirty: true })}
+                onClick={() =>
+                  setValue('lift.weight', 0, { shouldDirty: true })
+                }
               >
                 0
               </button>
@@ -129,14 +135,20 @@ export const LiftForm = ({
                 className="input input-bordered effort-input"
               />
             </label>
-            <div className="number-shortcuts" role="group" aria-label="Choose sets">
+            <div
+              className="number-shortcuts"
+              role="group"
+              aria-label="Choose sets"
+            >
               {[3, 4].map((sets) => (
                 <button
                   type="button"
                   key={sets}
                   className="btn btn-outline"
                   aria-label={`Set sets to ${sets}`}
-                  onClick={() => setValue('lift.set', sets, { shouldDirty: true })}
+                  onClick={() =>
+                    setValue('lift.set', sets, { shouldDirty: true })
+                  }
                 >
                   {sets}
                 </button>
@@ -159,14 +171,20 @@ export const LiftForm = ({
                 className="input input-bordered effort-input"
               />
             </label>
-            <div className="number-shortcuts" role="group" aria-label="Choose reps">
+            <div
+              className="number-shortcuts"
+              role="group"
+              aria-label="Choose reps"
+            >
               {[6, 8, 10, 12].map((reps) => (
                 <button
                   type="button"
                   key={reps}
                   className="btn btn-outline"
                   aria-label={`Set reps to ${reps}`}
-                  onClick={() => setValue('lift.rep', reps, { shouldDirty: true })}
+                  onClick={() =>
+                    setValue('lift.rep', reps, { shouldDirty: true })
+                  }
                 >
                   {reps}
                 </button>
@@ -174,7 +192,10 @@ export const LiftForm = ({
             </div>
           </div>
         </section>
-        <section className="session-details" aria-labelledby="session-details-heading">
+        <section
+          className="session-details"
+          aria-labelledby="session-details-heading"
+        >
           <h2 id="session-details-heading">Session details</h2>
           <div className="unit-field">
             <label className="field-label" htmlFor="lift-uom">
@@ -187,14 +208,20 @@ export const LiftForm = ({
                 className="input input-bordered w-full"
               />
             </label>
-            <div className="number-shortcuts" role="group" aria-label="Common units">
+            <div
+              className="number-shortcuts"
+              role="group"
+              aria-label="Common units"
+            >
               {['lbs', 'kg'].map((unit) => (
                 <button
                   type="button"
                   key={unit}
                   className="btn btn-outline"
                   aria-label={`Set unit to ${unit}`}
-                  onClick={() => setValue('lift.uom', unit, { shouldDirty: true })}
+                  onClick={() =>
+                    setValue('lift.uom', unit, { shouldDirty: true })
+                  }
                 >
                   {unit}
                 </button>
@@ -208,18 +235,23 @@ export const LiftForm = ({
               {...register('lift.date', { required: true })}
               required
               aria-invalid={!!errors.lift?.date}
-              aria-describedby={title === 'Copy' ? 'repeat-date-hint' : undefined}
+              aria-describedby={
+                title === 'Copy' ? 'repeat-date-hint' : undefined
+              }
               type="datetime-local"
               className="input input-bordered w-full"
             />
           </label>
           {title === 'Copy' && (
             <p className="field-hint" id="repeat-date-hint">
-              This is the new session date, not the previous effort. Choose a distinct date and time for this lift.
+              This is the new session date, not the previous effort. Choose a
+              distinct date and time for this lift.
             </p>
           )}
           <label className="field-label" htmlFor="lift-comment">
-            <span>Notes <span className="muted">(optional)</span></span>
+            <span>
+              Notes <span className="muted">(optional)</span>
+            </span>
             <textarea
               id="lift-comment"
               {...register('lift.comment')}
@@ -229,13 +261,24 @@ export const LiftForm = ({
           </label>
         </section>
         {Object.keys(errors).length > 0 && (
-          <p role="alert">Complete all required workout fields before saving.</p>
+          <p role="alert">
+            Complete all required workout fields before saving.
+          </p>
         )}
         <div className="form-save-actions">
           <button className="btn btn-primary" type="submit" value="save">
-            {busy ? 'Saving...' : title === 'Edit' ? 'Save changes' : 'Save workout'}
+            {busy
+              ? 'Saving...'
+              : title === 'Edit'
+                ? 'Save changes'
+                : 'Save workout'}
           </button>
-          <button className="btn btn-outline" type="submit" name="action" value="tags">
+          <button
+            className="btn btn-outline"
+            type="submit"
+            name="action"
+            value="tags"
+          >
             Save and tag
           </button>
         </div>
@@ -246,7 +289,9 @@ export const LiftForm = ({
               className="btn btn-outline btn-error"
               type="button"
               onClick={() => {
-                if (confirm('Delete this saved workout? This cannot be undone.')) {
+                if (
+                  confirm('Delete this saved workout? This cannot be undone.')
+                ) {
                   void onDelete()
                 }
               }}

@@ -10,13 +10,19 @@ import {
 export default function Nav({ children }: PropsWithChildren) {
   return (
     <>
-      <a className="skip-link" href="#main-content">Skip to content</a>
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <header className="app-header">
-        <span className="brand-mark" aria-hidden="true">PO</span>
+        <span className="brand-mark" aria-hidden="true">
+          PO
+        </span>
         <p className="app-brand">Progressive Overload</p>
         <span className="brand-caption">A workout notebook</span>
       </header>
-      <main id="main-content" className="app-main" tabIndex={-1}>{children}</main>
+      <main id="main-content" className="app-main" tabIndex={-1}>
+        {children}
+      </main>
       <nav className="app-navigation" aria-label="Main navigation">
         <NavLink
           className={({ isActive }) => (isActive ? 'active' : '')}

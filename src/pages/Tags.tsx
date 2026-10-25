@@ -42,7 +42,9 @@ export default function Tags() {
         <div>
           <p className="eyebrow">Organize your lifts</p>
           <h1>Tags</h1>
-          <p className="muted">Tags apply to all workouts with the exact lift name shown.</p>
+          <p className="muted">
+            Tags apply to all workouts with the exact lift name shown.
+          </p>
         </div>
       </header>
       {loadError && (
@@ -72,10 +74,7 @@ export default function Tags() {
             })
           })}
         >
-          <fieldset
-            disabled={!!loadError || busy}
-            className="tag-create"
-          >
+          <fieldset disabled={!!loadError || busy} className="tag-create">
             <legend className="sr-only">Add a tag</legend>
             <label className="field-label" htmlFor="tag-name">
               <span>Tag name</span>

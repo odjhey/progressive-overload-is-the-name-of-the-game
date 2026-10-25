@@ -38,23 +38,31 @@ export const LiftRow = ({
             <time dateTime={lift.date}>{dateLabel}</time>
           </button>
         ) : (
-          <time className="lift-date" dateTime={lift.date}>{dateLabel}</time>
+          <time className="lift-date" dateTime={lift.date}>
+            {dateLabel}
+          </time>
         )}
       </header>
       <dl className="effort-numbers">
         <div className="effort-weight">
           <dt className="sr-only">Weight</dt>
-          <dd><strong>{lift.weight}</strong> <span>{lift.uom}</span></dd>
+          <dd>
+            <strong>{lift.weight}</strong> <span>{lift.uom}</span>
+          </dd>
         </div>
         <div className="effort-reps">
           <dt>Sets × reps</dt>
-          <dd><strong>{lift.set}</strong> × <strong>{lift.rep}</strong></dd>
+          <dd>
+            <strong>{lift.set}</strong> × <strong>{lift.rep}</strong>
+          </dd>
         </div>
       </dl>
       {lift.comment && <p className="lift-notes">{lift.comment}</p>}
       {lift.tags && lift.tags.length > 0 && (
         <ul className="lift-tags" aria-label="Tags">
-          {lift.tags.map((tag) => <li key={tag}>{tag}</li>)}
+          {lift.tags.map((tag) => (
+            <li key={tag}>{tag}</li>
+          ))}
         </ul>
       )}
       <footer className="lift-card-actions">

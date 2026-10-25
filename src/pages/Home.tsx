@@ -17,7 +17,12 @@ export default function Home() {
   const latestOnly = selected.view !== 'history'
   const setLatestOnly = (latest: boolean) =>
     navigate(
-      { search: defaultStringifySearch({ ...selected, view: latest ? 'latest' : 'history' }) },
+      {
+        search: defaultStringifySearch({
+          ...selected,
+          view: latest ? 'latest' : 'history',
+        }),
+      },
       { replace: true }
     )
 
@@ -30,35 +35,37 @@ export default function Home() {
     )
   }
 
-  const visible = data.filter((row) => {
-    if (
-      latestOnly &&
-      !unique.some((lift) => lift.name === row.name && lift.date === row.date)
-    ) {
-      return false
-    }
-    const tagTerm = filters.data.tags[0] ?? ''
-    if (
-      tagTerm !== '' &&
-      !tags.data.some(
-        (tag) =>
-          tag.liftName === row.name &&
-          tag.name.toLowerCase().includes(tagTerm.toLowerCase())
+  const visible = data
+    .filter((row) => {
+      if (
+        latestOnly &&
+        !unique.some((lift) => lift.name === row.name && lift.date === row.date)
+      ) {
+        return false
+      }
+      const tagTerm = filters.data.tags[0] ?? ''
+      if (
+        tagTerm !== '' &&
+        !tags.data.some(
+          (tag) =>
+            tag.liftName === row.name &&
+            tag.name.toLowerCase().includes(tagTerm.toLowerCase())
+        )
+      ) {
+        return false
+      }
+      return (
+        filters.data.term === '' ||
+        JSON.stringify(Object.values(row))
+          .toLowerCase()
+          .includes(filters.data.term.toLowerCase())
       )
-    ) {
-      return false
-    }
-    return (
-      filters.data.term === '' ||
-      JSON.stringify(Object.values(row))
-        .toLowerCase()
-        .includes(filters.data.term.toLowerCase())
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime() ||
+        a.name.localeCompare(b.name)
     )
-  }).sort(
-    (a, b) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime() ||
-      a.name.localeCompare(b.name)
-  )
   const saved = data.find(
     (lift) =>
       lift.date === selected.selected && lift.name === selected.selectedName
@@ -143,7 +150,9 @@ export default function Home() {
                   Today
                 </button>
               </div>
-              <p className="field-hint">Choosing a date replaces the search text.</p>
+              <p className="field-hint">
+                Choosing a date replaces the search text.
+              </p>
               <Searchable
                 clear={() => filters.saveFilters({ tags: [] })}
                 placeholder="Tag filter"
@@ -191,16 +200,23 @@ export default function Home() {
             <span className="filter-chip">Search: {filters.data.term}</span>
           )}
           {filters.data.tags.map((tag) => (
-            <span className="filter-chip" key={tag}>Tag: {tag}</span>
+            <span className="filter-chip" key={tag}>
+              Tag: {tag}
+            </span>
           ))}
         </div>
       )}
       {saved && (
         <section className="saved-notice" aria-label="Saved workout">
-          <p role="status"><strong>Saved {saved.name}.</strong></p>
+          <p role="status">
+            <strong>Saved {saved.name}.</strong>
+          </p>
           {savedHidden && (
             <>
-              <p>This saved workout is outside the current filters or latest view.</p>
+              <p>
+                This saved workout is outside the current filters or latest
+                view.
+              </p>
               <LiftFormView lift={saved} />
               <button
                 type="button"
@@ -219,14 +235,18 @@ export default function Home() {
       )}
       {visible.length === 0 && (
         <section className="empty-state">
-          <h2>{data.length === 0 ? 'Start your notebook' : 'No matching workouts'}</h2>
+          <h2>
+            {data.length === 0 ? 'Start your notebook' : 'No matching workouts'}
+          </h2>
           <p className="muted">
             {data.length === 0
               ? 'Record your first effort. Next time, it will be here to repeat.'
               : 'Try another search, clear your filters, or switch to History to find an older effort.'}
           </p>
           {data.length === 0 ? (
-            <Link className="btn btn-primary" to="/new">Record a workout</Link>
+            <Link className="btn btn-primary" to="/new">
+              Record a workout
+            </Link>
           ) : (
             <button
               type="button"
