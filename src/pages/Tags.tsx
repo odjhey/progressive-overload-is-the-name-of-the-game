@@ -11,6 +11,7 @@ type NewTag = {
 
 export default function Tags() {
   const [liftInSearch] = useUrlSearchParams()
+  const liftName = liftInSearch.liftName as string | undefined
   const lifts = useLifts()
   const tags = useTags()
   console.log({ liftInSearch })
@@ -55,11 +56,7 @@ export default function Tags() {
           <input
             className="input input-bordered"
             {...register('liftName', { required: true })}
-            defaultValue={
-              liftInSearch &&
-              (liftInSearch as any).liftName &&
-              (liftInSearch as any).liftName.replaceAll('+', ' ')
-            }
+            defaultValue={liftName && liftName.replaceAll('+', ' ')}
           />
           <button type="submit" className="btn btn-sm">
             tag

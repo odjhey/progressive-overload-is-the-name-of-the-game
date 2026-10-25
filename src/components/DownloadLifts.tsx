@@ -20,11 +20,11 @@ function download(filename: string, text: string) {
 
 export const DownloadLifts = () => {
   const { data, loading } = useLifts()
-  const dbRaw = useDbRaw()
+  const { getKeys, ...dbRaw } = useDbRaw()
 
   useEffect(() => {
-    dbRaw.getKeys()
-  }, [])
+    getKeys()
+  }, [getKeys])
 
   if (loading) {
     return <div>loading</div>

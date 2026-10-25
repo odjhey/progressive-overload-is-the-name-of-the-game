@@ -111,7 +111,7 @@ export const useTags = () => {
       .catch((e) => {
         setError(e)
       })
-      .then((_) => {
+      .then(() => {
         // reload
         reloadItem()
         if (options && typeof options.onSuccess === 'function') {

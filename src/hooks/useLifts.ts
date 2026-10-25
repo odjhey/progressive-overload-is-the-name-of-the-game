@@ -12,7 +12,6 @@ export type Lift = {
 }
 
 // TODO: add version support
-// TODO: fix typescript
 const lskey = 'ZLDKSJF'
 export const useLifts = () => {
   const [loading, setLoading] = useState(true)
@@ -32,9 +31,9 @@ export const useLifts = () => {
 
   const reloadItem = () => {
     return localforage
-      .getItem(lskey)
-      .then((d: any) => {
-        const defaultLifts: any[] = []
+      .getItem<{ lifts: Lift[] }>(lskey)
+      .then((d) => {
+        const defaultLifts: Lift[] = []
         if (d && d.lifts) {
           return d.lifts
         }
@@ -56,7 +55,7 @@ export const useLifts = () => {
       })
   }, [])
 
-  const saveLifts = (lifts: any[]) => {
+  const saveLifts = (lifts: Lift[]) => {
     setLoading(true)
     return localforage
       .setItem(lskey, { lifts })
@@ -98,7 +97,7 @@ export const useLifts = () => {
       .catch((e) => {
         setError(e)
       })
-      .then((_) => {
+      .then(() => {
         // reload
         reloadItem()
         if (options && typeof options.onSuccess === 'function') {
@@ -135,7 +134,7 @@ export const useLifts = () => {
       .catch((e) => {
         setError(e)
       })
-      .then((_) => {
+      .then(() => {
         // reload
         reloadItem()
         if (options && typeof options.onSuccess === 'function') {
@@ -148,9 +147,9 @@ export const useLifts = () => {
   }
 
   const appendLift = (
-    lift: any,
+    lift: Lift,
     options?: {
-      onSuccess: (lift: any) => void
+      onSuccess: (lift: Lift) => void
     }
   ) => {
     setLoading(true)
@@ -159,7 +158,7 @@ export const useLifts = () => {
       .catch((e) => {
         setError(e)
       })
-      .then((_) => {
+      .then(() => {
         // reload
         reloadItem()
         if (options && typeof options.onSuccess === 'function') {

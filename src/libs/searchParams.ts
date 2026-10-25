@@ -5,12 +5,8 @@ import { decode, encode } from './qss'
 export const defaultParseSearch = parseSearchWith(JSON.parse)
 export const defaultStringifySearch = stringifySearchWith(JSON.stringify)
 
-// incrementally update this
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface AnySearchSchema {}
-
-export function parseSearchWith(parser: (str: string) => any) {
-  return (searchStr: string): AnySearchSchema => {
+export function parseSearchWith(parser: (str: string) => unknown) {
+  return (searchStr: string): Record<string, unknown> => {
     if (searchStr.substring(0, 1) === '?') {
       searchStr = searchStr.substring(1)
     }
@@ -23,7 +19,7 @@ export function parseSearchWith(parser: (str: string) => any) {
       if (typeof value === 'string') {
         try {
           query[key] = parser(value)
-        } catch (err) {
+        } catch {
           //
           // console.warn(err)
         }
@@ -34,8 +30,8 @@ export function parseSearchWith(parser: (str: string) => any) {
   }
 }
 
-export function stringifySearchWith(stringify: (search: any) => string) {
-  return (search: Record<string, any>) => {
+export function stringifySearchWith(stringify: (search: unknown) => string) {
+  return (search: Record<string, unknown>) => {
     search = { ...search }
 
     if (search) {
@@ -46,7 +42,7 @@ export function stringifySearchWith(stringify: (search: any) => string) {
         } else if (val && typeof val === 'object' && val !== null) {
           try {
             search[key] = stringify(val)
-          } catch (err) {
+          } catch {
             // silent
           }
         }

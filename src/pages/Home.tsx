@@ -104,10 +104,10 @@ export default function Home() {
             saveFilters({ ...filters, term: dateString })
           },
         }}
-        selectedKey={(selected as any).selected ?? ''}
+        selectedKey={(selected.selected as string) ?? ''}
         lifts={data}
         tags={tags}
-        filterFn={(row: any) => {
+        filterFn={(row) => {
           const filterResults = []
 
           // if (row.name === "") { return true } < --- lets accept the misfeature of unable to add after search

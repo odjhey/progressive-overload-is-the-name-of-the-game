@@ -18,7 +18,7 @@ export const LiftsForm = ({
   actions,
 }: {
   lifts: Lift[]
-  filterFn: (row: unknown) => boolean
+  filterFn: (row: Lift) => boolean
   selectedKey?: string
   tags: Tag[]
   actions: {
@@ -41,7 +41,7 @@ export const LiftsForm = ({
   return (
     <div>
       <form>
-        {fields.map((field, _index) => {
+        {fields.map((field) => {
           return (
             <div
               key={field.id}

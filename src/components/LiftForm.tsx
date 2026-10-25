@@ -33,7 +33,7 @@ export const LiftForm = ({
   goToTag,
   title = 'New',
 }: {
-  title: string
+  title?: string
   lift: FormValues['lift']
   onSubmit: (d: Lift) => Promise<unknown>
   onDelete: (keys: Pick<Lift, 'name' | 'date'>) => Promise<unknown>

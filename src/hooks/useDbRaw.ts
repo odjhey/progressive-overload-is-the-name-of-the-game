@@ -1,5 +1,5 @@
 import localforage from 'localforage'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export const useDbRaw = () => {
   const [loading, setLoading] = useState(false)
@@ -20,7 +20,7 @@ export const useDbRaw = () => {
       })
   }
 
-  const getKeys = () => {
+  const getKeys = useCallback(() => {
     localforage
       .keys()
       .then((keys) => {
@@ -30,7 +30,7 @@ export const useDbRaw = () => {
       .finally(() => {
         setLoading(false)
       })
-  }
+  }, [])
 
   const getValues = (key: string) => {
     return localforage.getItem(key).then((value) => {

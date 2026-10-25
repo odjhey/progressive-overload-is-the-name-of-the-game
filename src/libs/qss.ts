@@ -15,11 +15,11 @@ export function encode(obj, pfx?: string) {
     if ((tmp = obj[k]) !== void 0) {
       if (Array.isArray(tmp)) {
         for (i = 0; i < tmp.length; i++) {
-          str && (str += '&')
+          if (str) str += '&'
           str += encodeURIComponent(k) + '=' + encodeURIComponent(tmp[i])
         }
       } else {
-        str && (str += '&')
+        if (str) str += '&'
         str += encodeURIComponent(k) + '=' + encodeURIComponent(tmp)
       }
     }

@@ -18,19 +18,20 @@ export default function New() {
     return <div>{error.message}</div>
   }
 
-  const defaults = (liftInSearch && (liftInSearch as any).lift) ?? {
+  const defaults = (liftInSearch.lift as Lift | undefined) ?? {
     date: new Date().toISOString().substring(0, 16),
     name: '',
     rep: 0,
     set: 0,
     uom: 'lbs',
     weight: 0,
+    comment: '',
   }
 
   // we have the %20 issue about spaces and + sign
   return (
     <LiftForm
-      title={liftInSearch && (liftInSearch as any).title}
+      title={liftInSearch.title as string | undefined}
       lift={{
         ...defaults,
         name: String(defaults.name).replaceAll('+', ' '),
@@ -40,7 +41,7 @@ export default function New() {
       }}
       onDelete={(k) =>
         deleteLift(k, {
-          onSuccess: (_) =>
+          onSuccess: () =>
             navigate({
               pathname: '/',
             }),
