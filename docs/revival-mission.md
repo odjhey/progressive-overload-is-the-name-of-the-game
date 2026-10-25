@@ -1,8 +1,8 @@
 # Progressive Overload — revival mission brief
 
-**CORE PUBLISHED · COMPACT BOXY UX CORRECTION APPROVED · 25 October 2026**
+**CORE PUBLISHED · INTENT-FIRST REDESIGN APPROVED · SILENT TIMER / CALENDAR · 25 October 2026**
 
-The core is live at the existing origin at `e52919a`; the operator confirmed the upgrade worked and backed up their data. The approved UX goal remains finding and repeating a previous lift on iPhone/Android. The operator rejected the first local candidate's commercial-looking visual direction and explicitly requires the old feel/color, minimal compact layouts for smaller phones, and a boxy presentation. Current work remains local-trunk/private-preview only; no further publication, unrelated feature, closure, or data-deletion authority is implied.
+The operator accepted the broader intent-first redesign, including user flows and a new data model where needed, then added a silent persistent rest timer with negative overtime and a simple recorded-training calendar with backfill. Running support is explicitly backlog. Preserve the familiar yellow, compact, boxy friends-tool character, offline use and recoverable history. Earlier presentation-only data/schema freezes describe completed waves, not a veto on this approved redesign. Current work remains local-trunk/private-preview only; no new publication, remote issue/PR mutation, or destructive user-data operation is authorized.
 
 ## 1. Purpose and audience
 
@@ -135,7 +135,7 @@ No fabricated performance target, automatic training recommendation, all-browser
 
 ## 9. Decisions for the operator
 
-The operator resolved the immediate audience/outcome: iPhone and Android, prioritizing finding and repeating a previous lift. The core first release was accepted and published. Optional-feature decisions can wait until their family is selected.
+The operator selected iPhone/Android, finding and repeating a previous lift, and the compact original yellow/boxy character. They have now accepted the broader redesign direction and the silent signed rest timer/calendar requirements in section 18. Running remains backlog. Difficulty-scale wording, detailed progress formulas, and multi-dataset semantics still need their specific definitions before those features are implemented.
 
 | Decision                                  | Recommended starting position                                                                                                   | Alternative / tradeoff                                                                                                                    |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -155,7 +155,7 @@ The operator resolved the immediate audience/outcome: iPhone and Android, priori
 
 **Review:** use independent code/safety review and actual-surface observation where they answer different questions. An author smoke, passing lint, or attractive screenshot does not by itself establish acceptance. UI changes get before/after evidence; data changes get compatibility/failure-path proof.
 
-**Authority now:** implement the phone-first find/repeat UX rework in task worktrees, preserve history/recovery/offline behavior, commit and integrate verified work into local `next`, and provide a private tailnet preview. The prior core release was separately authorized and completed; it is not standing publication permission. Optional feature semantics, unrelated issue/PR closure or rewrites, remote merges, pushes, another deployment, production-origin changes, destructive user-data operations, and paid/external service adoption remain separate decisions. Manual migration permission is not permission to discard history or a reason to rewrite the schema.
+**Authority now:** advance the approved intent-first redesign, including user-flow and model changes where needed for section 18, in task worktrees; preserve recoverable history/offline operation, commit and integrate verified increments into local `next`, and provide a private tailnet preview. This approval supersedes earlier presentation-only schema/identity freezes, not data safety. The prior core publication grant was fulfilled and is not standing release permission. Running implementation, unrelated backlog features or issue/PR closure/rewrites, remote merges, pushes/deployment, production-origin changes, destructive user-data operations and paid/external service adoption remain separate decisions. Manual migration is permitted with an explicit, proven preservation mapping.
 
 ## 11. Stopping conditions and next step
 
@@ -163,7 +163,7 @@ The **core** initiative is locally ready when its agreed daily journeys and reco
 
 At each wave, continue, reshape, or stop from evidence. If a required capability or authority is missing, name the exact missing prerequisite and continue independent authorized work; do not relabel a partial build as complete.
 
-**Next:** deliver the phone-first find/repeat UX slice in section 14, observe its populated flow, preserve the existing persistence/recovery contract, and show a working private preview. The user chooses whether to publish that candidate after review. Optional feature decisions remain separate.
+**Next:** refine and deliver the approved section 18 end-to-end design in local increments, beginning with stable exercise/performance identity, explicit training-date semantics, migration/recovery, and a small-phone quick-log/calendar backfill journey. The timer is an independent silent local capability; running is not part of that implementation. Show composed private-preview evidence before a separately authorized release.
 
 ## 12. Core wave receipt — local readiness, not deployment
 
@@ -191,7 +191,7 @@ In an isolated owned browser, closing old clients and reopening activated the ne
 
 The operator then reported “worked. i backed up my stuff. i think safe to do a UX rework now”. This is human confirmation of their upgrade, not permission to discard history or assume the next UX is already accepted.
 
-## 14. Active UX wave — find and repeat
+## 14. Previous UX wave — find and repeat
 
 **Operator choices:** iPhone and Android; lead with finding and repeating a previous lift. Scope owner is the coordinator, with delegated UI implementation and independent UX observation; the operator retains product/release acceptance.
 
@@ -199,7 +199,7 @@ The operator then reported “worked. i backed up my stuff. i think safe to do a
 
 **Design direction — amended by the operator:** keep the original bumblebee yellow/white/black feel of an internal tool for friends. Minimal, compact layouts for smaller phones, flat rectangular controls/sections, ordinary-sized type and numbers, little rounding, no shadows or decorative branding. Search and lift records lead; less frequent filtering can remain disclosed with active filters visible. Preserve usable labels/touch targets/keyboard focus, and reuse the existing stack. The earlier green/warm-paper notebook direction is superseded, not a requirement.
 
-**Boundaries:** existing storage hooks, schemas, name/date identity, tag meaning, date policy, backup validation, and restore lifecycle are retained. A read-only previous-effort reference may travel in navigation state/query separately from the saved record. No new progress formulas, templates/session entities, account/sync feature, automatic load recommendation, or publication is implied.
+**Boundaries of that completed presentation wave:** existing hooks, schemas, name/date identity, tag meaning, date policy, backup validation and restore lifecycle were retained. The broader redesign in section 18 now permits deliberate model changes with proven migration. No account/sync feature, invented progress formula, automatic load recommendation or publication is implied by either wave.
 
 **Local acceptance:** exercise a populated find → Repeat → inspect previous values → adjust → save → revisit/history flow; original records and legacy extras survive. Preserve truthful failure/retry, dirty navigation, save-and-tag, recovery, and offline use. Capture matched before/after views and check 320px reflow, phone-sized keyboard/focus clearance and a wider layout. Independent agent evidence is distinct from physical iPhone/Safari/Android and human acceptance.
 
@@ -234,3 +234,57 @@ That observer and the coordinator identified that the previous-effort reference 
 Composed browser proof also exercised failed-save value/storage retention and retry, unchanged original records/extras, History/date return context, recovery-preview acknowledgment and no-write Cancel, offline save/reload, 320px reflow and enlarged text, and short-viewport keyboard Save clearance. Final-runtime reference reload, note expansion, separate save/reload/History and browser error checks passed. Evidence and original reports remain outside product commits.
 
 The private tailnet preview is the review surface. Production remains `e52919a`; no push, publication or remote issue/PR mutation occurred. This proof is responsive Chromium/agent evidence, not physical iPhone/Android, software-keyboard, screen-reader or human visual acceptance.
+
+## 18. Accepted intent-first redesign
+
+### Intent and retained character
+
+The operator clarified that redesign includes the data model and user flows where needed, and said “agree, with your design proposals.” The goal is to remember previous training, record actual work without unnecessary re-entry, inspect meaningful history, organize exercises/workouts, and own/recover the data. Preserve the compact bumblebee yellow/white/black, boxy internal-tool-for-friends character on small iPhone/Android screens. Do not turn this into coaching, a social network, a dashboard product or a mandatory set-by-set workflow.
+
+Current local runtime is still the compact correction from section 17. This section is accepted product direction and acceptance criteria, not a claim that the new model, timer or calendar already exists.
+
+### Model and recording flows
+
+- **Exercise:** stable identity, name and tags. Renaming should not split history or orphan tags; labels are not identifiers. Migration must not silently merge different legacy names/variants.
+- **Entry:** an actual performance with stable identity, training date, recorded-at time, notes and optionally reported effort. Recording time is not the performance's primary key. Old absence of a rating remains unrated; repeating does not copy an effort rating as a new observation.
+- **Set group:** compactly records repeated work with its actual count, reps, load and unit. Different groups can capture different values. A legacy aggregate remains a group; do not manufacture separately observed per-set records or force a tap for every identical set.
+- **Workout:** optional grouping of entries, with explicit attendance-only confirmation when someone trained but will add details later. Quick logging does not require starting/finishing a workout. An empty started draft is not confirmed training.
+- **Tags:** classify exercises through their stable identities, not name-string relationships.
+- **Draft versus actual:** Repeat/routine reuse prefills a draft, never completed history. Save records actual work. Routines describe intended work and stay separate from performances; do not add a second logging system or implement speculative routine machinery before the recording flow proves useful.
+- **Progress:** begin with comparable history and explicit changes in recorded values. Do not equate a heavier load with better training or silently compare incompatible units. Define any metric and rating scale before shipping it.
+- **Migration/recovery:** retain complete original exports, timestamps, units, notes, associations and unrecognized metadata through an explicit mapping. Do not invent old workout boundaries, ratings or precise individual-set details. A complete versioned backup must restore the redesigned data; manual migration is permitted, silent loss is not.
+
+### Silent persistent rest timer
+
+Operator requirement: “don't make sounds. thats not a requirement. we don't want to be intrusive”; show negative time to answer how long it has been since the rest period ended.
+
+- One optional active rest timer persists locally across routes/reload and recovers elapsed time after backgrounding or reopening. Calculate signed remaining time from its saved deadline rather than decrementing a counter as though background callbacks were reliable.
+- Continue below zero, for example `−00:35`; do not clamp to zero, stop automatically at expiry, or mistake expiry for readiness to lift.
+- No sound, vibration, notification permission, push service, flashing expiry, automatic modal or completion nag. This is display-only rest assistance, not a lock-screen alarm guarantee.
+- Manual start works without individual-set logging. Duration choice, extension, restart and stop remain explicit. Optional start after an explicit set-completion action must not start a timer merely because history was edited or an entry copied/saved.
+- Timer state is transient local utility state, separate from training history. Starting/expiring it never creates a set or fills a calendar day. Restoring a history backup must not resurrect an old running countdown.
+- No timer use is required to log training. Keep its persistent display compact rather than allowing it to consume the small-phone working area.
+
+### Simple calendar and backfill
+
+Operator requirement: a simple “did I workout?” calendar; seeing an unfilled date helps people notice training they did without the phone and enter it later.
+
+- Show a simple month calendar with a binary recorded-training marker. Use accessible non-color-only day states. No fabricated intensity scale, streak pressure, leaderboard or implied requirement to train every day.
+- Empty means **nothing recorded**, not proof that no training occurred. A marker comes from saved actual performance or an explicit “Trained — details later” confirmation, not a plan, draft, opened workout or running timer.
+- Tap a date to see its recorded work and add/backfill a workout or entry with that training date preselected. Allow truthful attendance-only confirmation without inventing exercises, weights or sets; detailed entries can be added later without counting the day twice.
+- Distinguish the selected civil **training date** from **recordedAt**, the instant the record was created. Logging an old workout today must fill the chosen old day, not today. Keep date-only attendance date-only; do not invent its exact performance time.
+- Do not silently shift an already selected training day when the device timezone changes. Preserve legacy timestamp text and make import date interpretation reviewable rather than silently re-bucketing old history.
+- Deletion/correction recomputes markers from remaining actual records and explicit attendance confirmations. An automatically derived marker is not a second editable source of truth; explicit attendance can be corrected/removed independently.
+- The calendar represents this user's local training record. The mention of friends does not authorize shared accounts, remote observation of friends, telemetry or social comparison.
+
+### Running — backlog, not this implementation
+
+Operator: “we need to support runners as well (but this will be in the backlog, some of my friends started running).”
+
+Retain the intent to log/review running appropriately later, rather than forcing distance/duration into weight/reps. Keep calendar presence activity-independent so future running records can contribute. Do not build running fields/screens, reserved placeholder models, GPS/location tracking, routes, live tracking, coaching or integrations now. Define the runner's actual recording/comparison needs when this backlog item is selected.
+
+### Composed acceptance and first delivery slice
+
+Prove legacy history remains recoverable under the selected model; then a user can find/repeat a prior effort, save actual work with originals intact, see its correct calendar day, notice an empty past day, backfill actual work/attendance without fabricated numbers, and revisit both history and calendar after offline reload. A silent timer must survive navigation/reload/background return, display signed overtime, and never trigger alerts or create training records. Backup/restore preserves the relationships and selected dates without restoring transient timer state.
+
+Begin with the smallest populated quick-log → calendar → backfill → revisit path and its model/import contract; progress comparisons/routines follow only their defined user need. Implement the independent timer against its explicit state contract without turning it into a required recording step. Running stays deferred. Preserve meaningful failure/retry and draft recovery, inspect 320px/short-phone input/focus behavior, and separate agent/browser evidence from real-device and human acceptance. No new push/deployment follows from approving this brief.

@@ -4,6 +4,10 @@ A local-first workout log used by friends, built as an offline PWA.
 See [progressive overload](https://en.wikipedia.org/wiki/Progressive_overload).
 Live app: https://gains.odjhey.com.
 
+The [revival mission](docs/revival-mission.md) records rollout status and governing
+product intent. Section 18 defines the approved next redesign, including the
+silent rest timer and calendar; those are planned behavior, not current features.
+
 ## Development
 
 Use Node 24 (`.nvmrc`) and Yarn Classic 1.22.22. The supported Node range is
