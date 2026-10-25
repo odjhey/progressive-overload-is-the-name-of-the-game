@@ -60,6 +60,7 @@
 
 .rest-timer input {
   font-size: 1rem;
+  min-height: 2.75rem;
 }
 
 .rest-timer button:disabled,

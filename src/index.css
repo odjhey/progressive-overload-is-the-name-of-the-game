@@ -7,7 +7,7 @@
 }
 
 html {
-  scroll-padding-bottom: calc(9rem + env(safe-area-inset-bottom));
+  scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom));
 }
 
 body {
@@ -20,7 +20,7 @@ body {
 }
 
 .app-main :is(input, textarea, button, select, a, summary) {
-  scroll-margin-block: 1rem calc(9rem + env(safe-area-inset-bottom));
+  scroll-margin-block: 1rem calc(6rem + env(safe-area-inset-bottom));
 }
 
 .app-header,
@@ -29,8 +29,8 @@ body {
 }
 
 .app-header {
-  padding: calc(0.5rem + env(safe-area-inset-top))
-    max(0.75rem, env(safe-area-inset-right)) 0.5rem
+  padding: calc(0.25rem + env(safe-area-inset-top))
+    max(0.75rem, env(safe-area-inset-right)) 0.25rem
     max(0.75rem, env(safe-area-inset-left));
 }
 
@@ -46,8 +46,8 @@ body {
 
 .app-main {
   @apply mx-auto max-w-5xl;
-  padding: 0.75rem max(0.75rem, env(safe-area-inset-right))
-    calc(9rem + env(safe-area-inset-bottom))
+  padding: 0.5rem max(0.75rem, env(safe-area-inset-right))
+    calc(6rem + env(safe-area-inset-bottom))
     max(0.75rem, env(safe-area-inset-left));
   overflow-wrap: anywhere;
 }
@@ -64,13 +64,15 @@ body {
 }
 
 .app-navigation a {
-  @apply flex min-w-0 flex-1 flex-col items-center justify-center p-1 text-sm;
-  min-height: 2.75rem;
+  @apply flex min-w-0 flex-1 items-center justify-center p-1;
+  min-height: 2rem;
+  border: 1px solid transparent;
   overflow-wrap: anywhere;
 }
 
 .app-navigation a.active {
   @apply bg-base-100 font-bold;
+  border-color: #000;
 }
 
 .skip-link {
@@ -101,11 +103,24 @@ h1 {
 }
 
 .btn {
-  @apply h-auto px-3 py-2 normal-case shadow-none;
-  min-height: 2.75rem;
+  @apply h-auto px-2 py-1 normal-case shadow-none;
+  min-height: 2rem;
   max-width: 100%;
   white-space: normal;
   overflow-wrap: anywhere;
+}
+
+.icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 2rem;
+}
+
+.btn.icon-action {
+  flex: 0 0 auto;
+  padding: 0.25rem;
 }
 
 .btn,
@@ -204,7 +219,7 @@ fieldset,
 .search-clear,
 .number-shortcuts .btn {
   @apply px-2;
-  min-width: 2.75rem;
+  min-width: 2rem;
 }
 
 .view-switch {
@@ -214,8 +229,8 @@ fieldset,
 }
 
 .view-switch button {
-  @apply min-w-0 flex-1 p-2;
-  min-height: 2.75rem;
+  @apply min-w-0 flex-1 px-2 py-1;
+  min-height: 2rem;
 }
 
 .view-switch [aria-pressed='true'] {
@@ -230,8 +245,8 @@ summary,
 .text-action,
 .back-link,
 .date-action {
-  @apply cursor-pointer py-2;
-  min-height: 2.75rem;
+  @apply cursor-pointer py-1;
+  min-height: 2rem;
 }
 
 .advanced-filters > summary {
@@ -360,6 +375,7 @@ summary,
 
 .form-save-actions .btn {
   flex: 1 1 8rem;
+  min-height: 2.25rem;
 }
 
 [role='alert'] {
