@@ -12,6 +12,23 @@
   gap: 0.5rem;
 }
 
+.workout-collection .page-heading {
+  margin-bottom: 0.25rem;
+}
+
+.workout-collection .collection-tools,
+.workout-collection .lift-card {
+  gap: 0.25rem;
+}
+
+.workout-collection .collection-summary {
+  margin-block: 0.25rem;
+}
+
+.workout-collection .lift-entry {
+  padding-block: 0.5rem;
+}
+
 .training-actions,
 .calendar-heading,
 .calendar-navigation {
