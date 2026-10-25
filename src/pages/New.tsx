@@ -96,7 +96,7 @@ function EntryEditor({
   const view = params.get('view') === 'history' ? 'history' : 'latest'
   const calendarDate = params.get('date')
   const back = calendarDate
-    ? `/calendar?${new URLSearchParams({ date: calendarDate, month: calendarDate.slice(0, 7) })}`
+    ? `/calendar?${new URLSearchParams({ date: calendarDate, month: calendarDate.slice(0, 7) })}#selected-date`
     : `/?${new URLSearchParams({ view })}`
   const [initial] = useState<EntryInput>(() => {
     const trainingDate =
@@ -177,7 +177,7 @@ function EntryEditor({
         )
       } else if (calendarDate) {
         leave(
-          `/calendar?${new URLSearchParams({ date: saved.trainingDate, month: saved.trainingDate.slice(0, 7) })}`
+          `/calendar?${new URLSearchParams({ date: saved.trainingDate, month: saved.trainingDate.slice(0, 7) })}#selected-date`
         )
       } else {
         leave(`/?${new URLSearchParams({ view, selected: saved.id })}`)

@@ -186,8 +186,12 @@ export function RecoveryReview({
                   (exercise) => exercise.id === entry.exerciseId
                 )?.name
               }
-              : {entry.performedAt ?? '(no exact source time)'} →{' '}
-              {entry.trainingDate}; entry {entry.id}
+              : training date {entry.trainingDate};
+              {entry.performedAt
+                ? ` source timestamp ${entry.performedAt};`
+                : ' exact training time not recorded;'}{' '}
+              recorded at {entry.recordedAt ?? 'unknown in legacy data'}; entry{' '}
+              {entry.id}
             </li>
           ))}
           {training.workouts.map((workout) => (
@@ -352,7 +356,7 @@ export function RecoveryReview({
               }
             }}
           >
-            I have read the outcome — reload stored history
+            Reload saved data
           </button>
         )}
       </div>

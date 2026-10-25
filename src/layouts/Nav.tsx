@@ -1,5 +1,5 @@
 import { PropsWithChildren, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, ScrollRestoration, useLocation } from 'react-router-dom'
 import { IconHome, IconCalendar, IconInfoCircle } from '@tabler/icons-react'
 import { useTraining } from '../hooks/useTraining'
 import { isTrainingDate } from '../libs/trainingModel'
@@ -13,6 +13,15 @@ export default function Nav({ children }: PropsWithChildren) {
   const search = new URLSearchParams(location.search)
   const history = search.get('view') === 'history'
   const selectedDate = search.get('date')
+  const selectedEntry = search.get('selected')
+  const workoutParams = new URLSearchParams(history ? { view: 'history' } : {})
+  if (
+    selectedEntry &&
+    training.document?.entries.some((entry) => entry.id === selectedEntry)
+  ) {
+    workoutParams.set('selected', selectedEntry)
+  }
+  const workoutSearch = workoutParams.toString()
   const settings = location.pathname === '/about'
   const retry = async () => {
     setRetryError('')
@@ -27,6 +36,7 @@ export default function Nav({ children }: PropsWithChildren) {
 
   return (
     <>
+      <ScrollRestoration />
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
@@ -61,7 +71,7 @@ export default function Nav({ children }: PropsWithChildren) {
       </main>
       <nav className="app-navigation" aria-label="Main navigation">
         <NavLink
-          to={history ? '/?view=history' : '/'}
+          to={workoutSearch ? `/?${workoutSearch}` : '/'}
           end
           className={({ isActive }) => (isActive ? 'active' : '')}
         >

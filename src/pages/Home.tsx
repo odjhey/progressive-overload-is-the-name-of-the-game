@@ -91,22 +91,14 @@ export default function Home() {
   ].sort((a, b) => a.localeCompare(b))
   return (
     <div className="workout-collection training-page">
-      <header className="page-heading">
+      <header className="page-heading training-heading">
         <h1>Workouts</h1>
-        <div className="training-actions">
-          <Link
-            className="btn btn-primary"
-            to={`/new?${new URLSearchParams({ view })}`}
-          >
-            + New entry
-          </Link>
-          <Link className="back-link" to="/calendar">
-            Calendar
-          </Link>
-          <Link className="back-link" to="/tags">
-            Exercises &amp; tags
-          </Link>
-        </div>
+        <Link
+          className="btn btn-primary"
+          to={`/new?${new URLSearchParams({ view })}`}
+        >
+          + New entry
+        </Link>
       </header>
       {filters.loadError && (
         <p role="alert">
@@ -120,85 +112,92 @@ export default function Home() {
           filters are shown; change or clear them to retry.
         </p>
       )}
-      <div className="view-switch" role="group" aria-label="Workout view">
-        <button
-          type="button"
-          aria-pressed={view === 'latest'}
-          onClick={() => setView('latest')}
-        >
-          Latest
-        </button>
-        <button
-          type="button"
-          aria-pressed={view === 'history'}
-          onClick={() => setView('history')}
-        >
-          History
-        </button>
-      </div>
-      <fieldset disabled={!!filters.loadError} className="collection-tools">
-        <legend className="sr-only">Filter entries</legend>
-        <Searchable
-          searchTerm={filters.data.term}
-          setSearchTerm={setTerm}
-          clear={() => setTerm('')}
-        />
-        <details className="advanced-filters">
-          <summary>Date &amp; tags</summary>
-          <div className="filter-fields">
-            <div className="date-filter">
-              <label className="field-label" htmlFor="search-date">
-                <span>Search date</span>
-                <input
-                  id="search-date"
-                  className="input input-bordered"
-                  type="date"
-                  value={
-                    /^\d{4}-\d{2}-\d{2}$/.test(filters.data.term)
-                      ? filters.data.term
-                      : ''
-                  }
-                  onChange={(event) => setTerm(event.target.value)}
-                />
-              </label>
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={() => setTerm(localDate())}
-              >
-                Today
-              </button>
-            </div>
-            <p className="field-hint">
-              Choosing a date replaces the search text.
-            </p>
-            <Searchable
-              placeholder="Tag filter"
-              searchTerm={filters.data.tags[0] ?? ''}
-              setSearchTerm={(value) => {
-                void filters.saveFilters({ tags: value ? [value] : [] })
-              }}
-              clear={() => {
-                void filters.saveFilters({ tags: [] })
-              }}
-            />
-            <div className="tag-shortcuts">
-              {tags.map((tag) => (
-                <button
-                  className="btn btn-outline"
-                  type="button"
-                  key={tag}
-                  onClick={() => {
-                    void filters.saveFilters({ tags: [tag] })
-                  }}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
+      <div className="collection-tools">
+        <fieldset disabled={!!filters.loadError}>
+          <legend className="sr-only">Search entries</legend>
+          <Searchable
+            searchTerm={filters.data.term}
+            setSearchTerm={setTerm}
+            clear={() => setTerm('')}
+          />
+        </fieldset>
+        <div className="collection-options">
+          <div className="view-switch" role="group" aria-label="Workout view">
+            <button
+              type="button"
+              aria-pressed={view === 'latest'}
+              onClick={() => setView('latest')}
+            >
+              Latest
+            </button>
+            <button
+              type="button"
+              aria-pressed={view === 'history'}
+              onClick={() => setView('history')}
+            >
+              History
+            </button>
           </div>
-        </details>
-      </fieldset>
+          <details className="advanced-filters">
+            <summary>Date &amp; tags</summary>
+            <fieldset disabled={!!filters.loadError} className="filter-fields">
+              <div className="date-filter">
+                <label className="field-label" htmlFor="search-date">
+                  <span>Search date</span>
+                  <input
+                    id="search-date"
+                    className="input input-bordered"
+                    type="date"
+                    value={
+                      /^\d{4}-\d{2}-\d{2}$/.test(filters.data.term)
+                        ? filters.data.term
+                        : ''
+                    }
+                    onChange={(event) => setTerm(event.target.value)}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => setTerm(localDate())}
+                >
+                  Today
+                </button>
+              </div>
+              <p className="field-hint">
+                Choosing a date replaces the search text.
+              </p>
+              <Searchable
+                placeholder="Tag filter"
+                searchTerm={filters.data.tags[0] ?? ''}
+                setSearchTerm={(value) => {
+                  void filters.saveFilters({ tags: value ? [value] : [] })
+                }}
+                clear={() => {
+                  void filters.saveFilters({ tags: [] })
+                }}
+              />
+              <div className="tag-shortcuts">
+                {tags.map((tag) => (
+                  <button
+                    className="btn btn-outline"
+                    type="button"
+                    key={tag}
+                    onClick={() => {
+                      void filters.saveFilters({ tags: [tag] })
+                    }}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+              <Link className="back-link" to="/tags">
+                Exercises &amp; tags
+              </Link>
+            </fieldset>
+          </details>
+        </div>
+      </div>
       <div className="collection-summary">
         <p role="status">
           {visible.length} of {document.entries.length} entries ·{' '}

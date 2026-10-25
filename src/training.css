@@ -4,6 +4,14 @@
   margin-inline: auto;
 }
 
+.training-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .training-actions,
 .calendar-heading,
 .calendar-navigation {

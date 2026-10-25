@@ -26,6 +26,7 @@ export default function Calendar() {
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
   const inFlight = useRef(false)
+  const selectedDetails = useRef<HTMLHeadingElement>(null)
   if (loading) return <p role="status">Loading calendar…</p>
   if (loadError)
     return <p role="alert">Training could not be read: {loadError.message}</p>
@@ -73,12 +74,19 @@ export default function Calendar() {
     const [year, number] = month.split('-').map(Number)
     const next = year * 12 + number - 1 + offset
     const nextMonth = `${String(Math.floor(next / 12)).padStart(4, '0')}-${String((next % 12) + 1).padStart(2, '0')}`
-    setParams({ month: nextMonth, date: `${nextMonth}-01` })
+    setParams(
+      { month: nextMonth, date: `${nextMonth}-01` },
+      { preventScrollReset: true }
+    )
     setStatus('')
   }
   const select = (date: string) => {
-    setParams({ date, month: date.slice(0, 7) })
+    setParams({ date, month: date.slice(0, 7) }, { preventScrollReset: true })
     setStatus('')
+    requestAnimationFrame(() => {
+      selectedDetails.current?.scrollIntoView({ block: 'start' })
+      selectedDetails.current?.focus({ preventScroll: true })
+    })
   }
   const confirmAttendance = async (confirmed: boolean) => {
     if (inFlight.current) return
@@ -218,7 +226,7 @@ export default function Calendar() {
       {error && <p role="alert">{error}</p>}
       {status && <p role="status">{status}</p>}
       <section className="calendar-details" aria-labelledby="selected-date">
-        <h2 id="selected-date">
+        <h2 id="selected-date" ref={selectedDetails} tabIndex={-1}>
           <time dateTime={selected}>{selected}</time>
           {selected === today ? ' · Today' : ''}
         </h2>
