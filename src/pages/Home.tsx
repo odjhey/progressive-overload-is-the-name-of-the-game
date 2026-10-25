@@ -174,14 +174,16 @@ export default function Home() {
           <strong>{visible.length}</strong> of {data.length} workouts
           {latestOnly ? ' · Most recent per lift' : ' · All sessions'}
         </p>
-        <button
-          type="button"
-          className="text-action"
-          disabled={!!filters.loadError || !hasFilters}
-          onClick={clearFilters}
-        >
-          Clear all filters
-        </button>
+        {hasFilters && (
+          <button
+            type="button"
+            className="text-action"
+            disabled={!!filters.loadError}
+            onClick={clearFilters}
+          >
+            Clear all filters
+          </button>
+        )}
       </div>
       {hasFilters && (
         <div className="active-filters" aria-label="Active filters">

@@ -283,6 +283,7 @@ fieldset {
 .view-switch {
   display: flex;
   flex: 1 1 8rem;
+  min-width: 0;
   padding: 0.25rem;
   border: 1px solid #dedbd0;
   border-radius: 0.75rem;
@@ -292,7 +293,7 @@ fieldset {
 .view-switch button {
   flex: 1;
   min-height: 2.75rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem;
   border-radius: 0.5rem;
   font-size: 0.9375rem;
   font-weight: 650;
