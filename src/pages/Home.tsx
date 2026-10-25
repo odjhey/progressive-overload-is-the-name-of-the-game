@@ -79,11 +79,7 @@ export default function Home() {
   return (
     <div className="workout-collection">
       <header className="page-heading">
-        <div>
-          <p className="eyebrow">Your workout notebook</p>
-          <h1>Your lifts</h1>
-          <p className="muted">Find a previous effort. Repeat it your way.</p>
-        </div>
+        <h1>Workouts</h1>
       </header>
       {tags.loadError && (
         <p role="alert">Tags could not be loaded: {tags.loadError.message}</p>
@@ -236,11 +232,11 @@ export default function Home() {
       {visible.length === 0 && (
         <section className="empty-state">
           <h2>
-            {data.length === 0 ? 'Start your notebook' : 'No matching workouts'}
+            {data.length === 0 ? 'No workouts yet' : 'No matching workouts'}
           </h2>
           <p className="muted">
             {data.length === 0
-              ? 'Record your first effort. Next time, it will be here to repeat.'
+              ? 'Record a workout to get started.'
               : 'Try another search, clear your filters, or switch to History to find an older effort.'}
           </p>
           {data.length === 0 ? (

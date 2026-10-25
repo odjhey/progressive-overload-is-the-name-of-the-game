@@ -7,7 +7,7 @@ export default function About() {
 
   return (
     <div className="settings-page">
-      <h1>Settings and recovery</h1>
+      <h1>Settings</h1>
       <p>
         Progressive Overload is an offline workout log. Your workouts, tags and
         saved filters live in this browser, not in a remote account.

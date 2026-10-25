@@ -39,13 +39,10 @@ export default function Tags() {
   return (
     <div className="tags-page">
       <header className="page-heading">
-        <div>
-          <p className="eyebrow">Organize your lifts</p>
-          <h1>Tags</h1>
-          <p className="muted">
-            Tags apply to all workouts with the exact lift name shown.
-          </p>
-        </div>
+        <h1>Tags</h1>
+        <p className="muted">
+          Tags apply to all workouts with the exact lift name shown.
+        </p>
       </header>
       {loadError && (
         <p role="alert">
@@ -60,7 +57,6 @@ export default function Tags() {
         </p>
       )}
       <p role="status">{status}</p>
-      <div>
         <form
           aria-busy={busy}
           onSubmit={handleSubmit((values) => {
@@ -107,7 +103,6 @@ export default function Tags() {
             </button>
           </fieldset>
         </form>
-      </div>
       <div className="tag-groups">
         {names.length === 0 && !loadError && (
           <p>

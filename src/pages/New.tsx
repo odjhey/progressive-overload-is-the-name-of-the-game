@@ -115,22 +115,21 @@ export default function New() {
         to={{ pathname: '/', search: defaultStringifySearch({ view }) }}
         className="back-link"
       >
-        ← Back to lifts
+        ← Back to workouts
       </Link>
       <header className="page-heading form-heading">
-        <div>
-          <p className="eyebrow">
-            {title === 'Edit' ? 'Update a saved session' : 'Record an effort'}
-          </p>
-          <h1>{title === 'Copy' ? 'Repeat' : title} workout</h1>
+        <h1>{title === 'Copy' ? 'Repeat' : title} workout</h1>
+        {title === 'Copy' && (
           <p className="muted">
-            {title === 'Copy'
-              ? 'Start from this effort. Adjust the numbers and save a separate session.'
-              : title === 'Edit'
-                ? 'Editing only this session. Changing its name does not rename other workouts or move name-based tags.'
-                : 'Keep a record to come back to next time.'}
+            Adjust the numbers and save a separate session.
           </p>
-        </div>
+        )}
+        {title === 'Edit' && (
+          <p className="muted">
+            Editing only this session. Changing its name does not rename other
+            workouts or move name-based tags.
+          </p>
+        )}
       </header>
       {previous && (
         <section className="previous-effort" aria-labelledby="previous-heading">
@@ -146,14 +145,13 @@ export default function New() {
             <div className="effort-weight">
               <dt className="sr-only">Previous weight</dt>
               <dd>
-                <strong>{previous.weight}</strong> <span>{previous.uom}</span>
+                {previous.weight} <span>{previous.uom}</span>
               </dd>
             </div>
             <div className="effort-reps">
               <dt>Sets × reps</dt>
               <dd>
-                <strong>{previous.set}</strong> ×{' '}
-                <strong>{previous.rep}</strong>
+                {previous.set} × {previous.rep}
               </dd>
             </div>
           </dl>

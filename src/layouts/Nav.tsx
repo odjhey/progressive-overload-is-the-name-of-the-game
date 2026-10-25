@@ -17,11 +17,7 @@ export default function Nav({ children }: PropsWithChildren) {
         Skip to content
       </a>
       <header className="app-header">
-        <span className="brand-mark" aria-hidden="true">
-          PO
-        </span>
         <p className="app-brand">Progressive Overload</p>
-        <span className="brand-caption">A workout notebook</span>
       </header>
       <main id="main-content" className="app-main" tabIndex={-1}>
         {children}

@@ -47,13 +47,13 @@ export const LiftRow = ({
         <div className="effort-weight">
           <dt className="sr-only">Weight</dt>
           <dd>
-            <strong>{lift.weight}</strong> <span>{lift.uom}</span>
+            {lift.weight} <span>{lift.uom}</span>
           </dd>
         </div>
         <div className="effort-reps">
           <dt>Sets × reps</dt>
           <dd>
-            <strong>{lift.set}</strong> × <strong>{lift.rep}</strong>
+            {lift.set} × {lift.rep}
           </dd>
         </div>
       </dl>

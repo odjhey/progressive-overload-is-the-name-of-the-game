@@ -255,7 +255,7 @@ export const LiftForm = ({
             <textarea
               id="lift-comment"
               {...register('lift.comment')}
-              rows={3}
+              rows={2}
               className="textarea textarea-bordered w-full"
             />
           </label>
