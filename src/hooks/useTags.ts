@@ -1,127 +1,119 @@
 import localforage from 'localforage'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 export type Tag = {
   name: string
   liftName: string
 }
 
-// TODO: add version support
-// TODO: fix typescript
 const lskey = 'TAGSlksajdf'
 export const useTags = () => {
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [loadError, setLoadError] = useState<Error>()
   const [error, setError] = useState<Error>()
   const [data, setData] = useState<Tag[]>([])
+  const stored = useRef<{ tags: Tag[] }>()
+  const pending = useRef(false)
 
   const unique = useMemo(() => {
     const tagNames = data.map((d) => d.name)
     return [...new Set(tagNames)]
   }, [data])
 
-  const reloadItem = () => {
-    return localforage
-      .getItem(lskey)
-      .then((d) => {
-        const defaultTags: Tag[] = []
-        const typedD = d as { tags: Tag[] }
-        if (typedD && typedD.tags) {
-          return typedD.tags
-        }
-        return defaultTags
-      })
-      .then((d) => {
-        setData(d)
-      })
-  }
-
   useEffect(() => {
-    setLoading(true)
-    reloadItem()
-      .catch((e) => {
-        setError(e)
+    let active = true
+    localforage
+      .getItem<{ tags: Tag[] }>(lskey)
+      .then((value) => {
+        if (!active) return
+        const next = value ?? { tags: [] }
+        if (!Array.isArray(next.tags)) {
+          throw new Error('Tags could not be read. Restore a valid tags backup in Settings before saving.')
+        }
+        stored.current = next
+        setData(next.tags)
+      })
+      .catch((cause: unknown) => {
+        if (!active) return
+        const failure = cause instanceof Error ? cause : new Error(String(cause))
+        setLoadError(failure)
+        setError(failure)
       })
       .finally(() => {
-        setLoading(false)
+        if (active) setLoading(false)
       })
+    return () => {
+      active = false
+    }
   }, [])
 
-  const saveTags = (tags: Tag[]) => {
-    setLoading(true)
-    return localforage
-      .setItem(lskey, { tags })
-      .catch((e) => {
-        setError(e)
-      })
-      .then(() => {
-        // reload
-        return reloadItem()
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+  const mutateTags = async (
+    change: (tags: Tag[]) => { tags: Tag[]; tag: Tag },
+    onSuccess?: (tag: Tag) => void
+  ): Promise<void> => {
+    if (pending.current) return
+    setError(undefined)
+    const current = stored.current
+    if (!current) {
+      setError(loadError ?? new Error('Wait for tags to load before saving. If loading failed, reopen the app or restore a backup in Settings.'))
+      return
+    }
+    pending.current = true
+    setSaving(true)
+    try {
+      const result = change(current.tags)
+      const next = { ...current, tags: result.tags }
+      await localforage.setItem(lskey, next)
+      stored.current = next
+      setData(next.tags)
+      onSuccess?.(result.tag)
+    } catch (cause: unknown) {
+      setError(cause instanceof Error ? cause : new Error(String(cause)))
+    } finally {
+      pending.current = false
+      setSaving(false)
+    }
   }
 
   const deleteTag = (
     tag: Tag,
     options?: {
-      onSuccess: (tag: Tag) => void
+      onSuccess?: (tag: Tag) => void
     }
-  ) => {
-    setLoading(true)
-    const newData = data.filter(
-      (d) => d.liftName !== tag.liftName || d.name !== tag.name
-    )
-
-    return localforage
-      .setItem(lskey, { tags: newData })
-      .catch((e) => {
-        setError(e)
-      })
-      .then(() => {
-        // reload
-        reloadItem()
-        if (options && typeof options.onSuccess === 'function') {
-          options.onSuccess(tag)
-        }
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
+  ): Promise<void> =>
+    mutateTags((tags) => {
+      const index = tags.findIndex(
+        (item) => item.liftName === tag.liftName && item.name === tag.name
+      )
+      if (index === -1) {
+        throw new Error('This tag is no longer assigned to this lift. Return to the tag list and select it again.')
+      }
+      return {
+        tags: tags.filter(
+          (item) => item.liftName !== tag.liftName || item.name !== tag.name
+        ),
+        tag: tags[index],
+      }
+    }, options?.onSuccess)
 
   const appendTag = (
     tag: Tag,
     options?: {
-      onSuccess: (tag: Tag) => void
+      onSuccess?: (tag: Tag) => void
     }
-  ) => {
-    setLoading(true)
-    const match = data.find(
-      (d) => d.liftName === tag.liftName && d.name === tag.name
-    )
-    if (match) {
-      // already exist, skip
-      // FIXME: no empty return
-      return
-    }
+  ): Promise<void> =>
+    mutateTags((tags) => {
+      if (
+        tags.some(
+          (item) => item.liftName === tag.liftName && item.name === tag.name
+        )
+      ) {
+        throw new Error('This tag is already assigned to this lift. Choose a different tag name.')
+      }
+      const savedTag = { ...tag }
+      return { tags: [...tags, savedTag], tag: savedTag }
+    }, options?.onSuccess)
 
-    return localforage
-      .setItem(lskey, { tags: [...data, tag] })
-      .catch((e) => {
-        setError(e)
-      })
-      .then(() => {
-        // reload
-        reloadItem()
-        if (options && typeof options.onSuccess === 'function') {
-          options.onSuccess(tag)
-        }
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
-
-  return { loading, data, error, unique, saveTags, appendTag, deleteTag }
+  return { loading, saving, loadError, data, error, unique, appendTag, deleteTag }
 }
