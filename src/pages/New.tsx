@@ -120,9 +120,7 @@ export default function New() {
       <header className="page-heading form-heading">
         <h1>{title === 'Copy' ? 'Repeat' : title} workout</h1>
         {title === 'Copy' && (
-          <p className="muted">
-            Adjust the numbers and save a separate session.
-          </p>
+          <p className="muted">New session; original unchanged.</p>
         )}
         {title === 'Edit' && (
           <p className="muted">
