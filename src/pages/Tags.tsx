@@ -1,7 +1,7 @@
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { Lift, useLifts } from '../hooks/useLifts'
+import { useForm } from 'react-hook-form'
+import { useLifts } from '../hooks/useLifts'
 import { useTags } from '../hooks/useTags'
-import { useMemo } from 'react'
+import { useState } from 'react'
 import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
 
 type NewTag = {
@@ -11,110 +11,138 @@ type NewTag = {
 
 export default function Tags() {
   const [liftInSearch] = useUrlSearchParams()
-  const liftName = liftInSearch.liftName as string | undefined
+  const liftName =
+    typeof liftInSearch.liftName === 'string' ? liftInSearch.liftName : ''
   const lifts = useLifts()
   const tags = useTags()
-  console.log({ liftInSearch })
+  const [status, setStatus] = useState('')
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    setFocus,
+    formState: { isSubmitting, errors },
+  } = useForm<NewTag>({ defaultValues: { name: '', liftName } })
 
-  const { register, handleSubmit, setValue, setFocus, getValues } =
-    useForm<NewTag>()
-  const onSubmit: SubmitHandler<NewTag> = (data) => {
-    tags.appendTag(
-      { liftName: data.liftName, name: data.name },
-      {
-        onSuccess: (d) => {
-          console.log('success', d)
-        },
-      }
-    )
-    window.scrollTo({ top: 0 })
+  if (lifts.loading || tags.loading) {
+    return <div role="status">Loading workouts and tags...</div>
   }
-
-  const uniqueLifts = useMemo<typeof lifts.data>(() => {
-    const orderedData = lifts.data.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    )
-    const keys = new Set(orderedData.map((d) => d.name))
-    const isLift = (item: Lift | undefined): item is Lift => item !== undefined
-    return [...keys.values()]
-      .map((k) => orderedData.find((d) => d.name === k))
-      .filter(isLift)
-  }, [lifts.data])
+  const loadError = lifts.loadError ?? tags.loadError
+  const busy = tags.saving || isSubmitting
 
   return (
     <>
-      <div>Tags</div>
+      <h1 className="text-lg font-bold">Tags</h1>
+      <p>Tags apply to all workouts with the exact lift name shown.</p>
+      {loadError && (
+        <p role="alert">
+          Workouts or tags could not be loaded: {loadError.message} Tag changes
+          are unavailable until saved data can be read.
+        </p>
+      )}
+      {tags.error && (
+        <p role="alert">
+          Tag change failed: {tags.error.message} Your entered values are still
+          here. Correct the problem and try again.
+        </p>
+      )}
+      <p role="status">{status}</p>
       <div className="p-2">
         <form
-          className="flex gap-2 flex-wrap items-center p-2 border-solid border-primary border"
-          onSubmit={handleSubmit(onSubmit)}
+          aria-busy={busy}
+          onSubmit={handleSubmit((values) => {
+            setStatus('')
+            return tags.appendTag(values, {
+              onSuccess: (saved) => {
+                setStatus(`Added ${saved.name} to ${saved.liftName}.`)
+                setValue('name', '')
+                window.scrollTo({ top: 0 })
+              },
+            })
+          })}
         >
-          <input
-            className="input input-bordered"
-            {...register('name', { required: true })}
-          />
-          <input
-            className="input input-bordered"
-            {...register('liftName', { required: true })}
-            defaultValue={liftName && liftName.replaceAll('+', ' ')}
-          />
-          <button type="submit" className="btn btn-sm">
-            tag
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm"
-            onClick={() => {
-              if (confirm('Are you sure you want to delete?')) {
-                tags.deleteTag(
-                  { name: getValues('name'), liftName: getValues('liftName') },
-                  {
-                    onSuccess: (t) => {
-                      console.log('success delete', t.liftName, t.name)
-                    },
-                  }
-                )
-              }
-            }}
+          <fieldset
+            disabled={!!loadError || busy}
+            className="flex gap-2 flex-wrap items-end p-2 border-solid border-primary border"
           >
-            delete tag entry
-          </button>
+            <legend className="sr-only">Add a tag</legend>
+            <label className="flex flex-col gap-1" htmlFor="tag-name">
+              <span>Tag name</span>
+              <input
+                id="tag-name"
+                className="input input-bordered w-full"
+                {...register('name', { required: true })}
+                required
+                aria-invalid={!!errors.name}
+              />
+            </label>
+            <label className="flex flex-col gap-1" htmlFor="tag-lift-name">
+              <span>Lift name</span>
+              <input
+                id="tag-lift-name"
+                className="input input-bordered w-full"
+                {...register('liftName', { required: true })}
+                required
+                aria-invalid={!!errors.liftName}
+                list="tag-lift-options"
+              />
+            </label>
+            <datalist id="tag-lift-options">
+              {lifts.unique.map((lift) => (
+                <option key={lift.name} value={lift.name} />
+              ))}
+            </datalist>
+            <button type="submit" className="btn btn-sm">
+              {busy ? 'Saving...' : 'Add tag'}
+            </button>
+          </fieldset>
         </form>
       </div>
-      <div>
-        {uniqueLifts.map((d) => {
-          return (
-            <div className="flex flex-wrap space-x-1 items-center" key={d.name}>
-              <div>{d.name}</div>
-              {tags.data
-                .filter((v) => v.liftName === d.name)
-                .map((t) => {
-                  return (
-                    <div className="badge" key={t.name}>
-                      {t.name}
-                      <button
-                        className="btn btn-xs"
-                        onClick={() => {
-                          tags.deleteTag(t)
-                        }}
-                      >
-                        x
-                      </button>
-                    </div>
-                  )
-                })}
-              <button
-                className="btn btn-xs"
-                onClick={() => {
-                  setValue('liftName', d.name)
-                  setFocus('name')
-                }}
-              >
-                +
-              </button>
-            </div>
-          )
-        })}
+      <div className="space-y-2">
+        {lifts.unique.length === 0 && !loadError && (
+          <p>No saved workouts yet. Save a workout before assigning its tags.</p>
+        )}
+        {lifts.unique.map((lift) => (
+          <div className="flex flex-wrap gap-1 items-center" key={lift.name}>
+            <span>{lift.name}</span>
+            {tags.data
+              .filter((tag) => tag.liftName === lift.name)
+              .map((tag) => (
+                <span className="badge" key={tag.name}>
+                  {tag.name}
+                  <button
+                    type="button"
+                    className="btn btn-xs"
+                    aria-label={`Remove ${tag.name} tag from ${lift.name}`}
+                    disabled={!!loadError || busy}
+                    onClick={() => {
+                      if (confirm(`Remove "${tag.name}" from "${lift.name}"?`)) {
+                        setStatus('')
+                        void tags.deleteTag(tag, {
+                          onSuccess: () =>
+                            setStatus(`Removed ${tag.name} from ${lift.name}.`),
+                        })
+                      }
+                    }}
+                  >
+                    Remove
+                  </button>
+                </span>
+              ))}
+            <button
+              type="button"
+              className="btn btn-sm"
+              disabled={!!loadError || busy}
+              aria-label={`Add tag to ${lift.name}`}
+              onClick={() => {
+                setValue('liftName', lift.name, { shouldDirty: true })
+                setFocus('name')
+              }}
+            >
+              Add tag
+            </button>
+          </div>
+        ))}
       </div>
     </>
   )

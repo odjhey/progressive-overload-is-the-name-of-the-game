@@ -1,148 +1,186 @@
-import { PropsWithChildren, useState } from 'react'
+import { useState } from 'react'
 import { useLifts } from '../hooks/useLifts'
-import { useDebouncedCallback } from 'use-debounce'
 import { Searchable } from '../components/Searchable'
 import { LiftsForm } from '../components/LiftsForm'
+import { LiftFormView } from '../components/LiftFormView'
 import { useUrlSearchParams } from '../hooks/useUrlSearchParams'
 import { useTags } from '../hooks/useTags'
 import { usePersistentFilters } from '../hooks/usePersistentFilters'
 
-const DateSearch = (
-  props: PropsWithChildren<{
-    setDate: (date: string) => void
-  }>
-) => {
-  const { setDate, children } = props
-  return (
-    <>
-      <input
-        className="input input-sm input-bordered"
-        type="date"
-        onChange={(e) => {
-          setDate(e.target.value)
-        }}
-      ></input>
-      <button
-        type="button"
-        className="btn btn-xs"
-        onClick={() => {
-          setDate(new Date().toISOString().slice(0, 10))
-        }}
-      >
-        today
-      </button>
-      {children}
-    </>
-  )
-}
-
 export default function Home() {
-  const { data, error, loading, unique } = useLifts()
-  const { data: tags } = useTags()
-  const { data: filters, saveFilters } = usePersistentFilters()
-  const setSearchTermDeb = useDebouncedCallback((value) => {
-    saveFilters({ ...filters, term: value })
-  }, 500)
+  const { data, loadError, loading, unique } = useLifts()
+  const tags = useTags()
+  const filters = usePersistentFilters()
   const [selected] = useUrlSearchParams()
   const [latestOnly, setLatestOnly] = useState(true)
 
-  if (loading) {
-    return <div>Loading...</div>
+  if (loading || tags.loading || filters.loading) {
+    return <div role="status">Loading workouts and filters...</div>
+  }
+  if (loadError) {
+    return <div role="alert">Workouts could not be loaded: {loadError.message}</div>
   }
 
-  if (error) {
-    return <div>{error.message}</div>
-  }
+  const visible = data.filter((row) => {
+    if (
+      latestOnly &&
+      !unique.some((lift) => lift.name === row.name && lift.date === row.date)
+    ) {
+      return false
+    }
+    const tagTerm = filters.data.tags[0] ?? ''
+    if (
+      tagTerm !== '' &&
+      !tags.data.some(
+        (tag) =>
+          tag.liftName === row.name &&
+          tag.name.toLowerCase().includes(tagTerm.toLowerCase())
+      )
+    ) {
+      return false
+    }
+    return (
+      filters.data.term === '' ||
+      JSON.stringify(Object.values(row))
+        .toLowerCase()
+        .includes(filters.data.term.toLowerCase())
+    )
+  })
+  const saved = data.find(
+    (lift) =>
+      lift.date === selected.selected && lift.name === selected.selectedName
+  )
+  const savedHidden = saved && !visible.includes(saved)
+  const setTerm = (term: string) => filters.saveFilters({ term })
 
   return (
     <>
-      <div className="flex flex-col">
-        <div className="flex flex-row flex-wrap">
+      <h1 className="text-lg font-bold">Workouts</h1>
+      {tags.loadError && (
+        <p role="alert">Tags could not be loaded: {tags.loadError.message}</p>
+      )}
+      {filters.loadError && (
+        <p role="alert">
+          Saved filters could not be loaded: {filters.loadError.message} Restore
+          them in Settings before changing saved filters.
+        </p>
+      )}
+      {filters.error && (
+        <p role="alert">
+          Filters could not be saved: {filters.error.message} Your current filters
+          are still shown; change or clear them to retry.
+        </p>
+      )}
+      <fieldset disabled={!!filters.loadError} className="flex flex-col gap-2">
+        <legend className="sr-only">Filter workouts</legend>
+        <div className="flex flex-row flex-wrap items-end gap-2">
           <Searchable
-            clear={() => saveFilters({ ...filters, term: '' })}
-            searchTerm={filters.term}
-            setSearchTerm={setSearchTermDeb}
-          ></Searchable>
-          <DateSearch
-            setDate={(v: string) => saveFilters({ ...filters, term: v })}
+            clear={() => setTerm('')}
+            searchTerm={filters.data.term}
+            setSearchTerm={setTerm}
           />
+          <label className="flex flex-col gap-1" htmlFor="workout-date">
+            <span className="text-sm">Search date</span>
+            <input
+              id="workout-date"
+              className="input input-sm input-bordered"
+              type="date"
+              value={
+                /^\d{4}-\d{2}-\d{2}$/.test(filters.data.term)
+                  ? filters.data.term
+                  : ''
+              }
+              onChange={(e) => setTerm(e.target.value)}
+            />
+          </label>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() => setTerm(new Date().toISOString().slice(0, 10))}
+          >
+            Today
+          </button>
         </div>
-
-        <div className="flex gap-1 items-center flex-wrap">
+        <div className="flex gap-1 items-end flex-wrap">
           <Searchable
-            clear={() => saveFilters({ ...filters, tags: [] })}
-            placeholder="tag search"
-            searchTerm={filters.tags[0]}
-            setSearchTerm={(v: string) =>
-              saveFilters({ ...filters, tags: [v] })
+            clear={() => filters.saveFilters({ tags: [] })}
+            placeholder="Tag filter"
+            searchTerm={filters.data.tags[0] ?? ''}
+            setSearchTerm={(value) =>
+              filters.saveFilters({ tags: value ? [value] : [] })
             }
-          ></Searchable>
-          {['push', 'pull', 'leg'].map((d) => (
+          />
+          {['push', 'pull', 'leg'].map((tag) => (
             <button
-              className="btn btn-xs"
-              key={d}
-              onClick={() => saveFilters({ ...filters, tags: [d] })}
+              type="button"
+              className="btn btn-sm"
+              key={tag}
+              aria-label={`Filter by ${tag} tag`}
+              onClick={() => filters.saveFilters({ tags: [tag] })}
             >
-              {d}
+              {tag}
             </button>
           ))}
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() => filters.saveFilters({ term: '', tags: [] })}
+          >
+            Clear all filters
+          </button>
         </div>
-        <div className="flex gap-1">
-          <input
-            id="latest-only"
-            type="checkbox"
-            checked={latestOnly}
-            onChange={(e) => setLatestOnly(e.target.checked)}
-          ></input>
-          <label htmlFor="latest-only">latest</label>
+      </fieldset>
+      <label className="flex gap-2 items-center my-2" htmlFor="latest-only">
+        <input
+          id="latest-only"
+          type="checkbox"
+          checked={latestOnly}
+          onChange={(e) => setLatestOnly(e.target.checked)}
+        />
+        Latest only (most recent session per lift)
+      </label>
+      <p className="text-sm" role="status">
+        {visible.length} of {data.length} workouts shown.{' '}
+        {latestOnly ? 'Uncheck Latest only to see history.' : 'Showing history.'}
+      </p>
+      {saved && (
+        <div className="my-2">
+          <p role="status">Saved {saved.name}.</p>
+          {savedHidden && (
+            <>
+              <p>
+                This saved workout is outside the current filters or latest view.
+              </p>
+              <LiftFormView lift={saved} />
+              <button
+                type="button"
+                className="btn btn-sm"
+                disabled={!!filters.loadError}
+                onClick={() => {
+                  filters.saveFilters({ term: '', tags: [] })
+                  setLatestOnly(false)
+                }}
+              >
+                Show saved workout in history
+              </button>
+            </>
+          )}
         </div>
-      </div>
+      )}
       <div className="bg-secondary w-full h-1 my-2"></div>
+      {visible.length === 0 && (
+        <p>
+          {data.length === 0
+            ? 'No workouts yet. Choose New to record your first workout.'
+            : 'No workouts match. Clear filters or uncheck Latest only to see more history.'}
+        </p>
+      )}
       <LiftsForm
-        actions={{
-          onDateClick: (dateString: string) => {
-            saveFilters({ ...filters, term: dateString })
-          },
-        }}
-        selectedKey={(selected.selected as string) ?? ''}
-        lifts={data}
-        tags={tags}
-        filterFn={(row) => {
-          const filterResults = []
-
-          // if (row.name === "") { return true } < --- lets accept the misfeature of unable to add after search
-
-          if (latestOnly) {
-            const match = unique.find(
-              (d) => d.name === row.name && d.date === row.date
-            )
-            filterResults.push(!!match)
-          }
-
-          if (filters.tags.length > 0 && filters.tags[0] !== '') {
-            const match = tags.find(
-              (t) =>
-                t.liftName === row.name &&
-                t.name.toLowerCase().includes(filters.tags[0].toLowerCase())
-            )
-            filterResults.push(!!match)
-          }
-
-          if (filters.term === '') {
-            // none
-          } else {
-            filterResults.push(
-              JSON.stringify(Object.values(row))
-                .toLowerCase()
-                .includes(filters.term.toLowerCase())
-            )
-          }
-
-          return (
-            filterResults.length === 0 || filterResults.every((v) => v === true)
-          )
-        }}
-      ></LiftsForm>
+        actions={{ onDateClick: setTerm }}
+        selectedKey={saved ? `${saved.name}\0${saved.date}` : ''}
+        lifts={visible}
+        tags={tags.data}
+      />
     </>
   )
 }

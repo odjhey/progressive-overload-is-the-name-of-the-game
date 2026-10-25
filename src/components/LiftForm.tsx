@@ -2,300 +2,273 @@ import { PropsWithChildren, ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { Lift } from '../hooks/useLifts'
 
-type FormValues = {
-  lift: {
-    date: string
-    name: string
-    weight: number
-    uom: string
-    set: number
-    rep: number
-    comment: string
-  }
-}
+type FormValues = { lift: Lift }
 
 const LabeledFieldLayout = ({
   children,
   controls,
-}: PropsWithChildren<{ controls: ReactNode }>) => {
-  return (
-    <div className="flex gap-1 border border-solid flex-wrap justify-between">
-      <div className="flex gap-1">{children}</div>
-      <div className="flex gap-1">{controls}</div>
-    </div>
-  )
-}
+}: PropsWithChildren<{ controls: ReactNode }>) => (
+  <div className="flex gap-1 border border-solid flex-wrap justify-between">
+    <div className="flex flex-wrap gap-1 items-center min-w-0">{children}</div>
+    <div className="flex gap-1 flex-wrap">{controls}</div>
+  </div>
+)
 
 export const LiftForm = ({
   lift,
   onSubmit,
   onDelete,
-  goToTag,
+  onSaveAndTag,
   title = 'New',
+  saving = false,
+  disabled = false,
 }: {
   title?: string
-  lift: FormValues['lift']
-  onSubmit: (d: Lift) => Promise<unknown>
-  onDelete: (keys: Pick<Lift, 'name' | 'date'>) => Promise<unknown>
-  goToTag?: (keys: Pick<Lift, 'name'>) => void
+  lift: Lift
+  onSubmit: (lift: Lift) => Promise<void>
+  onDelete?: () => Promise<void>
+  onSaveAndTag: (lift: Lift) => Promise<void>
+  saving?: boolean
+  disabled?: boolean
 }) => {
   const {
     register,
     handleSubmit,
-    setFocus,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     getValues,
   } = useForm<FormValues>({
     mode: 'onBlur',
-    values: { lift },
+    defaultValues: { lift },
   })
-
-  const onSubmitForm = (data: FormValues) => {
-    onSubmit(data.lift)
-  }
-
-  const TAB_FIELD_COUNT = 6
-  const index = 0
+  const busy = saving || isSubmitting
 
   return (
     <div>
-      <div className="text text-lg font-bold">{title}</div>
-      <form onSubmit={handleSubmit(onSubmitForm)}>
-        <div key={lift.name}>
-          <section className="flex flex-col gap-5 p-1" key={lift.date}>
-            <LabeledFieldLayout controls={<></>}>
-              <label className="label text-slate-400" htmlFor={`lift.date`}>
-                UTC
+      <h1 className="text text-lg font-bold">{title} workout</h1>
+      {title === 'Copy' && (
+        <p>Save a separate session. Choose a distinct date and time for this lift.</p>
+      )}
+      {title === 'Edit' && (
+        <p>
+          Editing only this session. Changing its name does not rename other
+          workouts or move name-based tags.
+        </p>
+      )}
+      <form
+        aria-busy={busy}
+        onSubmit={handleSubmit((data, event) => {
+          const submitter = (event?.nativeEvent as SubmitEvent | undefined)
+            ?.submitter
+          return submitter instanceof HTMLButtonElement &&
+            submitter.value === 'tags'
+            ? onSaveAndTag(data.lift)
+            : onSubmit(data.lift)
+        })}
+      >
+        <fieldset disabled={disabled || busy}>
+          <legend className="sr-only">Workout details</legend>
+          <section className="flex flex-col gap-5 p-1">
+            <LabeledFieldLayout controls={null}>
+              <label className="label text-slate-400" htmlFor="lift-date">
+                Date and time (UTC)
               </label>
               <input
-                tabIndex={1 + index * TAB_FIELD_COUNT}
-                {...register(`lift.date` as const, {
-                  required: true,
-                })}
-                className={errors?.lift?.date ? 'error' : ''}
+                id="lift-date"
+                {...register('lift.date', { required: true })}
+                required
+                aria-invalid={!!errors.lift?.date}
                 type="datetime-local"
+                className="max-w-full"
               />
             </LabeledFieldLayout>
 
-            <input
-              onKeyUp={(e) => {
-                if (e.key === 'Enter') {
-                  setFocus(`lift.weight`)
-                }
-              }}
-              tabIndex={2 + index * TAB_FIELD_COUNT}
-              placeholder="name"
-              {...register(`lift.name` as const, {
-                required: true,
-              })}
-              className={`input input-bordered ${
-                errors?.lift?.name ? 'error' : ''
-              }`}
-            />
+            <label className="flex flex-col gap-1" htmlFor="lift-name">
+              <span>Lift name</span>
+              <input
+                id="lift-name"
+                placeholder="Lift name"
+                {...register('lift.name', { required: true })}
+                required
+                aria-invalid={!!errors.lift?.name}
+                className="input input-bordered w-full"
+              />
+            </label>
 
             <LabeledFieldLayout
               controls={
                 <>
-                  {['+5', '+1'].map((v) => (
+                  {[5, 1].map((amount) => (
                     <button
                       type="button"
-                      key={v}
+                      key={amount}
                       className="btn"
-                      onClick={() => {
-                        const bias =
-                          v.charAt(0) === '+'
-                            ? Number(v.substring(1)) * 1
-                            : Number(v.substring(1)) * -1
-                        setValue('lift.weight', getValues('lift.weight') + bias)
-                      }}
+                      aria-label={`Add ${amount} to weight`}
+                      onClick={() =>
+                        setValue(
+                          'lift.weight',
+                          Math.round(
+                            (Number(getValues('lift.weight')) + amount) * 100
+                          ) / 100,
+                          { shouldDirty: true }
+                        )
+                      }
                     >
-                      {v}
+                      +{amount}
                     </button>
                   ))}
                   <button
                     type="button"
-                    className="btn "
-                    onClick={() => {
-                      setValue('lift.weight', 0)
-                    }}
+                    className="btn"
+                    aria-label="Reset weight to zero"
+                    onClick={() =>
+                      setValue('lift.weight', 0, { shouldDirty: true })
+                    }
                   >
                     0
                   </button>
                 </>
               }
             >
-              <div className="flex gap-1">
-                <label className="label text-slate-400" htmlFor={`lift.weight`}>
-                  weight
-                </label>
-                <input
-                  onKeyUp={(e) => {
-                    if (e.key === 'Enter') {
-                      setFocus(`lift.rep`)
-                    }
-                  }}
-                  tabIndex={3 + index * TAB_FIELD_COUNT}
-                  placeholder="weight"
-                  type="number"
-                  step={0.25}
-                  {...register(`lift.weight` as const, {
-                    valueAsNumber: true,
-                    required: true,
-                  })}
-                  className={errors?.lift?.weight ? 'error' : 'w-16'}
-                />
-              </div>
-            </LabeledFieldLayout>
-
-            <LabeledFieldLayout
-              controls={
-                <>
-                  {['lbs', 'kg'].map((v) => (
-                    <button
-                      type="button"
-                      key={v}
-                      className="btn "
-                      onClick={() => {
-                        setValue('lift.uom', v)
-                      }}
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </>
-              }
-            >
-              <label className="label text-slate-400" htmlFor={`lift.uom`}>
-                uom
+              <label className="label text-slate-400" htmlFor="lift-weight">
+                Weight
               </label>
               <input
-                onKeyUp={(e) => {
-                  if (e.key === 'Enter') {
-                    setFocus(`lift.rep`)
-                  }
-                }}
-                placeholder="uom"
-                {...register(`lift.uom` as const, {
-                  required: true,
-                })}
-                className={errors?.lift?.uom ? 'error' : 'w-16'}
-              />
-            </LabeledFieldLayout>
-
-            <LabeledFieldLayout
-              controls={
-                <>
-                  {[6, 8, 10, 12].map((v) => (
-                    <button
-                      type="button"
-                      key={v}
-                      className="btn "
-                      onClick={() => setValue('lift.rep', v)}
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </>
-              }
-            >
-              <label className="label text-slate-400" htmlFor={`lift.rep`}>
-                rep
-              </label>
-              <input
-                onKeyUp={(e) => {
-                  if (e.key === 'Enter') {
-                    setFocus(`lift.set`)
-                  }
-                }}
-                tabIndex={4 + index * TAB_FIELD_COUNT}
-                placeholder="rep"
+                id="lift-weight"
                 type="number"
-                {...register(`lift.rep` as const, {
+                inputMode="decimal"
+                step={0.01}
+                {...register('lift.weight', {
                   valueAsNumber: true,
                   required: true,
                 })}
-                className={errors?.lift?.rep ? 'error' : 'w-12'}
+                required
+                aria-invalid={!!errors.lift?.weight}
+                className="w-24"
               />
             </LabeledFieldLayout>
 
             <LabeledFieldLayout
-              controls={
-                <>
-                  {[3, 4].map((v) => (
-                    <button
-                      type="button"
-                      key={v}
-                      className="btn "
-                      onClick={() => setValue('lift.set', v)}
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </>
-              }
+              controls={['lbs', 'kg'].map((unit) => (
+                <button
+                  type="button"
+                  key={unit}
+                  className="btn"
+                  aria-label={`Set unit to ${unit}`}
+                  onClick={() => setValue('lift.uom', unit, { shouldDirty: true })}
+                >
+                  {unit}
+                </button>
+              ))}
             >
-              <label className="label text-slate-400" htmlFor={`lift.set`}>
-                set
+              <label className="label text-slate-400" htmlFor="lift-uom">
+                Unit
               </label>
               <input
-                onKeyUp={(e) => {
-                  if (e.key === 'Enter') {
-                    // TODO set focus to submit
-                  }
-                }}
-                tabIndex={5 + index * TAB_FIELD_COUNT}
-                placeholder="set"
-                type="number"
-                {...register(`lift.set` as const, {
-                  valueAsNumber: true,
-                  required: true,
-                })}
-                className={errors?.lift?.set ? 'error' : 'w-12'}
+                id="lift-uom"
+                {...register('lift.uom', { required: true })}
+                required
+                aria-invalid={!!errors.lift?.uom}
+                className="w-16"
               />
             </LabeledFieldLayout>
-            <textarea
-              onKeyUp={(e) => {
-                if (e.key === 'Enter') {
-                  // TODO set focus to submit
-                }
-              }}
-              tabIndex={6 + index * TAB_FIELD_COUNT}
-              placeholder="notes"
-              {...register(`lift.comment` as const, {
-                required: false,
-              })}
-              className={`input w-full ${errors?.lift?.comment ? 'error' : ''}`}
-            />
+
+            <LabeledFieldLayout
+              controls={[6, 8, 10, 12].map((reps) => (
+                <button
+                  type="button"
+                  key={reps}
+                  className="btn"
+                  aria-label={`Set reps to ${reps}`}
+                  onClick={() => setValue('lift.rep', reps, { shouldDirty: true })}
+                >
+                  {reps}
+                </button>
+              ))}
+            >
+              <label className="label text-slate-400" htmlFor="lift-rep">
+                Reps
+              </label>
+              <input
+                id="lift-rep"
+                type="number"
+                {...register('lift.rep', { valueAsNumber: true, required: true })}
+                required
+                aria-invalid={!!errors.lift?.rep}
+                className="w-16"
+              />
+            </LabeledFieldLayout>
+
+            <LabeledFieldLayout
+              controls={[3, 4].map((sets) => (
+                <button
+                  type="button"
+                  key={sets}
+                  className="btn"
+                  aria-label={`Set sets to ${sets}`}
+                  onClick={() => setValue('lift.set', sets, { shouldDirty: true })}
+                >
+                  {sets}
+                </button>
+              ))}
+            >
+              <label className="label text-slate-400" htmlFor="lift-set">
+                Sets
+              </label>
+              <input
+                id="lift-set"
+                type="number"
+                {...register('lift.set', { valueAsNumber: true, required: true })}
+                required
+                aria-invalid={!!errors.lift?.set}
+                className="w-16"
+              />
+            </LabeledFieldLayout>
+
+            <label className="flex flex-col gap-1" htmlFor="lift-comment">
+              <span>Notes (optional)</span>
+              <textarea
+                id="lift-comment"
+                {...register('lift.comment')}
+                className="textarea textarea-bordered w-full"
+              />
+            </label>
           </section>
+          {Object.keys(errors).length > 0 && (
+            <p role="alert">Complete all required workout fields before saving.</p>
+          )}
           <div className="bg-slate-100 p-2"></div>
-        </div>
-
-        <div className="flex gap-1 justify-center p-5 pb-10">
-          <input className="btn btn-primary " type="submit" />
-          <button
-            className="btn btn-info"
-            type="button"
-            onClick={() => {
-              if (typeof goToTag === 'function') {
-                goToTag({ name: lift.name })
-              }
-            }}
-          >
-            tag
-          </button>
-          <button
-            className="btn btn-error "
-            type="button"
-            onClick={() => {
-              if (confirm('Are you sure you want to delete?')) {
-                onDelete(lift)
-              }
-            }}
-          >
-            x
-          </button>
-        </div>
+          <div className="flex flex-wrap gap-2 justify-center p-5 pb-10">
+            <button className="btn btn-primary" type="submit" value="save">
+              {busy
+                ? 'Saving...'
+                : title === 'Edit'
+                  ? 'Save changes'
+                  : 'Save workout'}
+            </button>
+            <button
+              className="btn btn-info"
+              type="submit"
+              name="action"
+              value="tags"
+            >
+              Save and tag
+            </button>
+            {onDelete && (
+              <button
+                className="btn btn-error"
+                type="button"
+                onClick={() => {
+                  if (confirm('Delete this saved workout? This cannot be undone.')) {
+                    void onDelete()
+                  }
+                }}
+              >
+                Delete workout
+              </button>
+            )}
+          </div>
+        </fieldset>
       </form>
     </div>
   )
