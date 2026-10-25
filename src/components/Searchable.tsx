@@ -16,23 +16,24 @@ export const Searchable = ({
   const id = useId()
   return (
     <>
-      <div className="flex flex-wrap items-end gap-2">
-        <label className="flex flex-col gap-1" htmlFor={id}>
-          <span className="text-sm">{placeholder}</span>
+      <div className="search-control">
+        <label className="field-label" htmlFor={id}>
+          <span>{placeholder}</span>
           <input
             id={id}
             type="search"
-            placeholder={placeholder}
+            placeholder={placeholder === 'Search workouts' ? 'Lift name, notes, date…' : placeholder}
+            className="input input-bordered"
             value={searchTerm}
-            className="input input-sm input-bordered w-40"
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </label>
         <button
           type="button"
-          className="btn btn-sm"
+          className="btn btn-outline search-clear"
           aria-label={`Clear ${placeholder.toLowerCase()}`}
           onClick={clear}
+          disabled={!searchTerm}
         >
           <IconX size={16} aria-hidden="true" />
         </button>

@@ -24,35 +24,20 @@ export const LiftFormView = ({ lift }: { lift: FormValues['lift'] }) => {
         edit: () => {
           navigate({
             pathname: '/new',
-            search: `${defaultStringifySearch({
-              title: 'Edit',
-              lift: {
-                name: lift.name,
-                date: lift.date,
-                rep: lift.rep,
-                set: lift.set,
-                weight: lift.weight,
-                uom: lift.uom,
-                comment: lift.comment,
-              },
-            })}`,
+            search: defaultStringifySearch({ title: 'Edit', lift }),
           })
         },
         copy: () => {
           navigate({
             pathname: '/new',
-            search: `${defaultStringifySearch({
+            search: defaultStringifySearch({
               title: 'Copy',
+              previousLift: lift,
               lift: {
-                name: lift.name,
+                ...lift,
                 date: new Date().toISOString().substring(0, 16),
-                rep: lift.rep,
-                set: lift.set,
-                weight: lift.weight,
-                uom: lift.uom,
-                comment: lift.comment,
               },
-            })}`,
+            }),
           })
         },
       }}

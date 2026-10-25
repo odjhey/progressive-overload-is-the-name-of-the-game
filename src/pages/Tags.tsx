@@ -37,9 +37,14 @@ export default function Tags() {
   ]
 
   return (
-    <>
-      <h1 className="text-lg font-bold">Tags</h1>
-      <p>Tags apply to all workouts with the exact lift name shown.</p>
+    <div className="tags-page">
+      <header className="page-heading">
+        <div>
+          <p className="eyebrow">Organize your lifts</p>
+          <h1>Tags</h1>
+          <p className="muted">Tags apply to all workouts with the exact lift name shown.</p>
+        </div>
+      </header>
       {loadError && (
         <p role="alert">
           Workouts or tags could not be loaded: {loadError.message} Tag changes
@@ -53,7 +58,7 @@ export default function Tags() {
         </p>
       )}
       <p role="status">{status}</p>
-      <div className="p-2">
+      <div>
         <form
           aria-busy={busy}
           onSubmit={handleSubmit((values) => {
@@ -69,10 +74,10 @@ export default function Tags() {
         >
           <fieldset
             disabled={!!loadError || busy}
-            className="flex gap-2 flex-wrap items-end p-2 border-solid border-primary border"
+            className="tag-create"
           >
             <legend className="sr-only">Add a tag</legend>
-            <label className="flex flex-col gap-1" htmlFor="tag-name">
+            <label className="field-label" htmlFor="tag-name">
               <span>Tag name</span>
               <input
                 id="tag-name"
@@ -82,7 +87,7 @@ export default function Tags() {
                 aria-invalid={!!errors.name}
               />
             </label>
-            <label className="flex flex-col gap-1" htmlFor="tag-lift-name">
+            <label className="field-label" htmlFor="tag-lift-name">
               <span>Lift name</span>
               <input
                 id="tag-lift-name"
@@ -98,32 +103,32 @@ export default function Tags() {
                 <option key={lift.name} value={lift.name} />
               ))}
             </datalist>
-            <button type="submit" className="btn btn-sm">
+            <button type="submit" className="btn btn-primary">
               {busy ? 'Saving...' : 'Add tag'}
             </button>
           </fieldset>
         </form>
       </div>
-      <div className="space-y-2">
+      <div className="tag-groups">
         {names.length === 0 && !loadError && (
           <p>
             No saved workouts yet. Save a workout before assigning its tags.
           </p>
         )}
         {names.map((name) => (
-          <div className="flex flex-wrap gap-1 items-center" key={name}>
-            <span>{name}</span>
+          <section className="tag-group" key={name}>
+            <h2>{name}</h2>
             {!lifts.unique.some((lift) => lift.name === name) && (
               <span className="text-sm">(no saved workouts)</span>
             )}
             {tags.data
               .filter((tag) => tag.liftName === name)
               .map((tag) => (
-                <span className="badge" key={tag.name}>
+                <span className="tag-assignment" key={tag.name}>
                   {tag.name}
                   <button
                     type="button"
-                    className="btn btn-xs"
+                    className="btn btn-ghost"
                     aria-label={`Remove ${tag.name} tag from ${name}`}
                     disabled={!!loadError || busy}
                     onClick={() => {
@@ -142,7 +147,7 @@ export default function Tags() {
               ))}
             <button
               type="button"
-              className="btn btn-sm"
+              className="btn btn-outline"
               disabled={!!loadError || busy}
               aria-label={`Add tag to ${name}`}
               onClick={() => {
@@ -152,9 +157,9 @@ export default function Tags() {
             >
               Add tag
             </button>
-          </div>
+          </section>
         ))}
       </div>
-    </>
+    </div>
   )
 }

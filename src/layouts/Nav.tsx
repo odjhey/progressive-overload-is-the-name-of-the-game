@@ -10,37 +10,42 @@ import {
 export default function Nav({ children }: PropsWithChildren) {
   return (
     <>
-      <header className="navbar bg-primary">Progressive Overload</header>
-      <main className="pb-24">{children}</main>
-      <nav className="btm-nav bg-primary" aria-label="Main navigation">
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <header className="app-header">
+        <span className="brand-mark" aria-hidden="true">PO</span>
+        <p className="app-brand">Progressive Overload</p>
+        <span className="brand-caption">A workout notebook</span>
+      </header>
+      <main id="main-content" className="app-main" tabIndex={-1}>{children}</main>
+      <nav className="app-navigation" aria-label="Main navigation">
         <NavLink
           className={({ isActive }) => (isActive ? 'active' : '')}
           to="/"
           end
         >
-          <IconHome aria-hidden="true" />
-          <span className="btm-nav-label">Home</span>
+          <IconHome size={22} aria-hidden="true" />
+          <span>Home</span>
         </NavLink>
         <NavLink
           to="/new"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
-          <IconNewSection aria-hidden="true" />
-          <span className="btm-nav-label">New</span>
+          <IconNewSection size={22} aria-hidden="true" />
+          <span>New</span>
         </NavLink>
         <NavLink
           to="/tags"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
-          <IconTags aria-hidden="true" />
-          <span className="btm-nav-label">Tags</span>
+          <IconTags size={22} aria-hidden="true" />
+          <span>Tags</span>
         </NavLink>
         <NavLink
           to="/about"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
-          <IconInfoCircle aria-hidden="true" />
-          <span className="btm-nav-label">Settings</span>
+          <IconInfoCircle size={22} aria-hidden="true" />
+          <span>Settings</span>
         </NavLink>
       </nav>
     </>

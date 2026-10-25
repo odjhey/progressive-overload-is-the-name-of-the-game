@@ -21,14 +21,12 @@ export const LiftsForm = ({
   const navigate = useNavigate()
 
   return (
-    <div>
+    <div className="lift-list">
       {lifts.map((lift) => (
         <section
-          className={`border-secondary ${
-            selectedKey === `${lift.name}\0${lift.date}`
-              ? 'border-solid border-2'
-              : ''
-          } ${isWithinToday(toLocalDate(lift.date)) ? 'border-l-8' : ''}`}
+          className={`lift-entry ${
+            selectedKey === `${lift.name}\0${lift.date}` ? 'is-saved' : ''
+          } ${isWithinToday(toLocalDate(lift.date)) ? 'is-today' : ''}`}
           key={`${lift.name}\0${lift.date}`}
         >
           <LiftRow
@@ -49,6 +47,7 @@ export const LiftsForm = ({
                   pathname: '/new',
                   search: defaultStringifySearch({
                     title: 'Copy',
+                    previousLift: lift,
                     lift: {
                       ...lift,
                       date: new Date().toISOString().substring(0, 16),

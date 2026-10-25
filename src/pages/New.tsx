@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Lift, useLifts } from '../hooks/useLifts'
 import { LiftForm } from '../components/LiftForm'
 import {
+  Link,
   To,
   useBeforeUnload,
   useBlocker,
@@ -78,28 +79,69 @@ export default function New() {
     comment: '',
   }
   const missingOriginal = title === 'Edit' && !existing
+  const previous =
+    title === 'Copy' ? (liftInSearch.previousLift as Lift | undefined) : undefined
 
   return (
-    <>
+    <div className="form-page">
       {blocker.state === 'blocked' && (
         <section
           role="alert"
           aria-label="Unsaved workout"
-          className="fixed top-20 left-2 right-2 z-50 mx-auto max-w-lg rounded border border-warning bg-base-100 p-3 shadow-lg"
+          className="navigation-guard"
         >
           <p>This workout has unsaved changes. Leave without saving?</p>
-          <div className="mt-2 flex gap-2">
+          <div className="guard-actions">
             <button
               ref={keepEditing}
-              className="btn btn-sm btn-primary"
+              className="btn btn-primary"
               onClick={() => blocker.reset()}
             >
               Keep editing
             </button>
-            <button className="btn btn-sm" onClick={() => blocker.proceed()}>
+            <button className="btn btn-outline" onClick={() => blocker.proceed()}>
               Discard changes
             </button>
           </div>
+        </section>
+      )}
+      <Link to="/" className="back-link">← Back to lifts</Link>
+      <header className="page-heading form-heading">
+        <div>
+          <p className="eyebrow">
+            {title === 'Edit' ? 'Update a saved session' : 'Record an effort'}
+          </p>
+          <h1>{title === 'Copy' ? 'Repeat' : title} workout</h1>
+          <p className="muted">
+            {title === 'Copy'
+              ? 'Start from this effort. Adjust the numbers and save a separate session.'
+              : title === 'Edit'
+                ? 'Editing only this session. Changing its name does not rename other workouts or move name-based tags.'
+                : 'Keep a record to come back to next time.'}
+          </p>
+        </div>
+      </header>
+      {previous && (
+        <section className="previous-effort" aria-labelledby="previous-heading">
+          <div className="previous-heading">
+            <h2 id="previous-heading">Previous effort</h2>
+            <span className="context-label">Reference only</span>
+          </div>
+          <p className="previous-name">{previous.name}</p>
+          <time className="muted" dateTime={previous.date}>
+            {new Date(previous.date).toLocaleString()}
+          </time>
+          <dl className="effort-numbers">
+            <div className="effort-weight">
+              <dt className="sr-only">Previous weight</dt>
+              <dd><strong>{previous.weight}</strong> <span>{previous.uom}</span></dd>
+            </div>
+            <div className="effort-reps">
+              <dt>Sets × reps</dt>
+              <dd><strong>{previous.set}</strong> × <strong>{previous.rep}</strong></dd>
+            </div>
+          </dl>
+          {previous.comment && <p className="lift-notes">{previous.comment}</p>}
         </section>
       )}
       {error && (
@@ -153,6 +195,6 @@ export default function New() {
           })
         }
       />
-    </>
+    </div>
   )
 }
