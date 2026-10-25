@@ -1,6 +1,6 @@
 import { PropsWithChildren, useState } from 'react'
 import { NavLink, ScrollRestoration, useLocation } from 'react-router-dom'
-import { IconHome, IconCalendar, IconInfoCircle } from '@tabler/icons-react'
+import { IconHome, IconCalendar, IconSettings } from '@tabler/icons-react'
 import { useTraining } from '../hooks/useTraining'
 import { isTrainingDate } from '../libs/trainingModel'
 import { LegacyMigration } from '../components/LegacyMigration'
@@ -73,10 +73,11 @@ export default function Nav({ children }: PropsWithChildren) {
         <NavLink
           to={workoutSearch ? `/?${workoutSearch}` : '/'}
           end
+          title="Workouts"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
-          <IconHome size={22} aria-hidden="true" />
-          <span>Workouts</span>
+          <IconHome size={20} aria-hidden="true" />
+          <span className="sr-only">Workouts</span>
         </NavLink>
         <NavLink
           to={
@@ -84,19 +85,21 @@ export default function Nav({ children }: PropsWithChildren) {
               ? `/calendar?date=${selectedDate}`
               : '/calendar'
           }
+          title="Calendar"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >
-          <IconCalendar size={22} aria-hidden="true" />
-          <span>Calendar</span>
+          <IconCalendar size={20} aria-hidden="true" />
+          <span className="sr-only">Calendar</span>
         </NavLink>
         <NavLink
           to="/about"
+          title="Settings"
           className={({ isActive }) =>
             isActive || location.pathname === '/tags' ? 'active' : ''
           }
         >
-          <IconInfoCircle size={22} aria-hidden="true" />
-          <span>Settings</span>
+          <IconSettings size={20} aria-hidden="true" />
+          <span className="sr-only">Settings</span>
         </NavLink>
       </nav>
     </>

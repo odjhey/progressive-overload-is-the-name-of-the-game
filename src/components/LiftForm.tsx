@@ -1,3 +1,4 @@
+import { IconX } from '@tabler/icons-react'
 import { useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { newId } from '../libs/trainingModel'
@@ -206,12 +207,13 @@ export const LiftForm = ({
                 </button>
                 <button
                   type="button"
-                  className="btn btn-outline"
+                  className="btn btn-outline icon-action"
                   disabled={fields.length === 1}
                   aria-label={`Remove group ${index + 1}`}
+                  title={`Remove group ${index + 1}`}
                   onClick={() => remove(index)}
                 >
-                  Remove
+                  <IconX size={20} aria-hidden="true" />
                 </button>
               </div>
             </fieldset>

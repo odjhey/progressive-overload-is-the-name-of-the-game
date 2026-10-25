@@ -1,3 +1,4 @@
+import { IconX } from '@tabler/icons-react'
 import { useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTraining } from '../hooks/useTraining'
@@ -168,10 +169,11 @@ function ExerciseEditor({
             <li key={value}>
               <span>{value}</span>
               <button
-                className="btn btn-outline"
+                className="btn btn-outline icon-action"
                 type="button"
                 disabled={busy}
                 aria-label={`Remove ${value} tag from ${exercise.name}`}
+                title={`Remove ${value} tag from ${exercise.name}`}
                 onClick={() => {
                   if (confirm(`Remove "${value}" from "${exercise.name}"?`))
                     void mutate(
@@ -184,7 +186,7 @@ function ExerciseEditor({
                     )
                 }}
               >
-                Remove
+                <IconX size={20} aria-hidden="true" />
               </button>
             </li>
           ))}

@@ -1,3 +1,9 @@
+import {
+  IconCalendarEvent,
+  IconChevronLeft,
+  IconChevronRight,
+  IconPlus,
+} from '@tabler/icons-react'
 import { useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { LiftRow } from '../components/LiftRow'
@@ -134,29 +140,33 @@ export default function Calendar() {
         <div className="calendar-navigation">
           <button
             type="button"
-            className="btn btn-outline"
+            className="btn btn-outline icon-action"
             aria-label="Previous month"
+            title="Previous month"
             disabled={busy || month === '0001-01'}
             onClick={() => move(-1)}
           >
-            ← Previous
+            <IconChevronLeft size={20} aria-hidden="true" />
           </button>
           <button
-            className="btn btn-outline"
+            className="btn btn-outline icon-action"
             type="button"
+            aria-label="Today"
+            title="Today"
             disabled={busy}
             onClick={() => select(today)}
           >
-            Today
+            <IconCalendarEvent size={20} aria-hidden="true" />
           </button>
           <button
             type="button"
-            className="btn btn-outline"
+            className="btn btn-outline icon-action"
             aria-label="Next month"
+            title="Next month"
             disabled={busy || month === '9999-12'}
             onClick={() => move(1)}
           >
-            Next →
+            <IconChevronRight size={20} aria-hidden="true" />
           </button>
         </div>
         <table className="calendar-month" aria-label={monthLabel}>
@@ -248,9 +258,12 @@ export default function Calendar() {
         <div className="training-actions">
           <Link
             className="btn btn-primary"
+            aria-label={`Add details for ${selected}`}
+            title={`Add workout details for ${selected}`}
             to={`/new?${new URLSearchParams({ date: selected, ...(workout ? { workout: workout.id } : {}) })}`}
           >
-            Add workout details
+            <IconPlus size={20} aria-hidden="true" />
+            Add details
           </Link>
           {attendance.length > 0 ? (
             <button

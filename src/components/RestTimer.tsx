@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import { IconPlayerStop, IconRefresh, IconSettings } from '@tabler/icons-react'
 import { formatRestTime, useRestTimer } from '../hooks/useRestTimer'
 import './RestTimer.css'
 
@@ -33,18 +34,46 @@ export function RestTimer() {
           >
             {formatRestTime(remainingMs)}
           </span>
-          <button type="button" onClick={extend} disabled={!ready}>
+          <button
+            type="button"
+            className="rest-timer-icon"
+            onClick={start}
+            disabled={!ready}
+            aria-label={`Restart rest timer · ${chosenDuration}`}
+            title={`Restart rest timer · ${chosenDuration}`}
+          >
+            <IconRefresh size={20} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={extend}
+            disabled={!ready}
+            aria-label="Extend rest timer by 30 seconds (+30s)"
+            title="Extend rest timer by 30 seconds (+30s)"
+          >
             +30s
           </button>
-          <button type="button" onClick={stop} disabled={!ready}>
-            Stop
+          <button
+            type="button"
+            className="rest-timer-icon"
+            onClick={stop}
+            disabled={!ready}
+            aria-label="Stop rest timer"
+            title="Stop rest timer"
+          >
+            <IconPlayerStop size={20} aria-hidden="true" />
           </button>
         </div>
       )}
-      <details className="rest-timer-settings">
-        <summary>
-          {active ? 'Duration' : 'Rest timer'} · {chosenDuration}
-          {!active && ' · optional'}
+      <details
+        className={`rest-timer-settings${active ? ' rest-timer-settings-active' : ''}`}
+      >
+        <summary
+          aria-label={active ? 'Rest timer options' : undefined}
+          title="Rest timer options"
+        >
+          <IconSettings size={20} aria-hidden="true" />
+          {!active && <span>Rest timer · {chosenDuration} · optional</span>}
         </summary>
         <div className="rest-timer-options">
           <div className="rest-timer-presets" aria-label="Duration presets">

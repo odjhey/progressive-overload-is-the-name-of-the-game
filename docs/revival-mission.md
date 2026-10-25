@@ -389,3 +389,52 @@ deliberately not overwrite-repaired by this API. Browser eviction and device-clo
 changes remain real risks. The old production build cannot read new-format
 records after a code rollback; keep complete backups and use a forward-capable
 build for recovery. Publication still needs separate operator authorization.
+
+## 20. Smaller icon controls — local presentation refinement
+
+The operator asked for smaller buttons and icons so more content is visible
+without scrolling. Candidate `6b5e5b3` applies that refinement without changing
+storage, hooks, URLs, validation, confirmation guards or save/restore semantics.
+It retains the original yellow/white/dark boxy appearance.
+
+Repeat/Edit sit beside the exercise heading; dates share the effort metadata
+area. New entry, filters, month navigation and routine removal actions use
+familiar decorative icons with meaningful accessible names and titles. Save,
+Save and tag, attendance meaning and recovery/destructive confirmations retain
+text. Compact secondary targets use a 2rem minimum, Save a 2.25rem minimum, and
+inputs retain 16px text. This deliberately reduces the earlier 44px density
+preference; it is not a physical finger-accuracy or WCAG conformance claim.
+
+The running timer has explicit restart/extension/stop and a native options
+disclosure alongside the clock. Collapsed options no longer consume a second
+row. Expanded options remain open until the user closes them, including after
+Start; failed/unverified storage results are not hidden to save space.
+
+Measured default-size synthetic fixture at 320 × 568:
+
+| Region                           | Before | After |
+| -------------------------------- | ------ | ----- |
+| Running timer, options collapsed | 97px   | 43px  |
+| Bottom navigation                | 60px   | 42px  |
+| First tagged workout row         | 198px  | 155px |
+| Six-row month grid bottom        | 507px  | 401px |
+
+Lint and TypeScript/Vite/PWA build passed on `6b5e5b3`. Independent source review
+found no concrete patch-introduced defect. A fresh code-blind agent completed
+logging/repeat/reload, calendar confirmation/correction and silent timer overtime,
+including keyboard activation; its two short Bench history cards fit at 320 × 480.
+These are bounded observations, not a guarantee for long names, active filters,
+save banners, expanded controls or every device.
+
+Coordinator browser proof also exercised icon group/tag removal with retained
+confirmation, durable Save and tag/return context, calendar backfill and entry
+edit, timer restart/extension/stop and failed-storage recovery. At 200% root text,
+closed/open timer options stayed reachable without horizontal overflow or
+occluded hit targets. Notes → Tab focused Save above navigation on 320 × 480,
+with visible focus and 16px input text; Keep/Discard still worked. Matched
+before/after screenshots remain in local session evidence, not product assets.
+
+No production publication, remote issue/PR operation, model migration or new
+dependency is part of this refinement. Physical-phone, screen-reader and human
+acceptance remain separate. The private tailnet preview remains the review
+surface.
