@@ -1,99 +1,90 @@
-import { IconEdit, IconCopy } from '@tabler/icons-react'
-import type { Lift } from '../hooks/useLifts'
-import dayjs from 'dayjs'
+import { Fragment } from 'react'
+import { IconNotes, IconPencil, IconRepeat } from '@tabler/icons-react'
+import { Link, useLocation } from 'react-router-dom'
+import type { Exercise, TrainingEntry } from '../libs/trainingTypes'
+import { dateLabel, loadLabel } from './dailyFlow'
 
-export const LiftRow = ({
-  lift,
-  actions,
+export function LiftRow({
+  entry,
+  exercise,
+  calendar = false,
+  history = false,
+  highlighted = false,
 }: {
-  lift: Lift & { tags?: string[] }
-  actions: {
-    copy: () => void
-    edit: () => void
-    onDateClick?: (date: string) => void
-  }
-}) => {
-  const dateLabel = (
-    <>
-      {dayjs(Date.now()).diff(dayjs(lift.date), 'day')}
-      {'d - '}
-      {new Date(lift.date).toLocaleDateString()}
-    </>
-  )
+  entry: TrainingEntry
+  exercise: Exercise
+  calendar?: boolean
+  history?: boolean
+  highlighted?: boolean
+}) {
+  const location = useLocation()
+  const context: Record<string, string> = calendar
+    ? { date: entry.trainingDate }
+    : {}
+  const state = { backgroundLocation: location }
+  const edit = `/new?${new URLSearchParams({ edit: entry.id, ...context })}`
+  const first = entry.groups[0]
   return (
-    <div className="card card-compact">
-      <div className="card-body">
-        <span className="card-title text-sm flex flex-wrap gap-1 justify-between break-words">
-          {lift.name}{' '}
-          {actions.onDateClick ? (
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm text-xs"
-              aria-label={`Filter by date of ${lift.name}: ${new Date(lift.date).toLocaleDateString()}`}
-              onClick={() => {
-                const offset = new Date().getTimezoneOffset()
-                actions.onDateClick?.(
-                  new Date(new Date(lift.date).getTime() - offset * 60 * 1000)
-                    .toISOString()
-                    .split('T')[0]
-                )
-              }}
+    <article
+      className={`row${highlighted ? ' saved' : ''}`}
+      data-entry-id={entry.id}
+    >
+      <Link
+        className="main"
+        to={history ? edit : `/exercise/${encodeURIComponent(exercise.id)}`}
+        state={history ? state : undefined}
+      >
+        <span className="name">
+          {history ? dateLabel(entry.trainingDate, true) : exercise.name}
+        </span>
+        <span className={`stat${history || calendar ? ' all-groups' : ''}`}>
+          {(history || calendar ? entry.groups : [first]).map(
+            (group, index) => (
+              <Fragment key={group.id}>
+                {index > 0 && <span aria-hidden="true">|</span>}
+                <b>{loadLabel(group.weight, group.unit)}</b>
+                <span>
+                  {group.sets} × {group.reps}
+                </span>
+              </Fragment>
+            )
+          )}
+          {!history && !calendar && entry.groups.length > 1 && (
+            <span
+              className="more"
+              aria-label={`${entry.groups.length} set groups`}
             >
-              {dateLabel}
-            </button>
-          ) : (
-            <span className="text-xs text-slate-500">{dateLabel}</span>
+              +{entry.groups.length - 1}
+            </span>
+          )}
+          {history && entry.notes && (
+            <IconNotes size={16} role="img" aria-label="Has notes" />
+          )}
+          {!history && (
+            <time className="d" dateTime={entry.trainingDate}>
+              {dateLabel(entry.trainingDate)}
+            </time>
           )}
         </span>
-        <div className="flex flex-wrap gap-3">
-          <div>
-            <span className="font-bold">{lift.weight}</span>{' '}
-            <span>{lift.uom}</span>
-          </div>
-          <div>
-            <span className="font-bold">{lift.set}</span>{' '}
-            <span className="text-slate-500">sets x </span>
-            <span className="font-bold">{lift.rep}</span>{' '}
-            <span className="text-slate-500">reps</span>
-          </div>
-          {lift.comment && (
-            <div className="min-w-0 break-words">
-              <span>{lift.comment}</span>
-            </div>
-          )}
-        </div>
-        <div className="card-actions justify-between">
-          <button
-            type="button"
-            className="btn btn-sm"
-            aria-label={`Edit ${lift.name} from ${lift.date}`}
-            onClick={actions.edit}
-          >
-            <IconEdit size={16} aria-hidden="true" />
-            Edit
-          </button>
-          {lift.tags && lift.tags.length > 0 && (
-            <div className="flex gap-1">
-              {lift.tags.map((n) => {
-                return (
-                  <span key={n} className="badge badge-sm badge-info">
-                    {n}
-                  </span>
-                )
-              })}
-            </div>
-          )}
-          <button
-            type="button"
-            className="btn btn-sm"
-            aria-label={`Copy ${lift.name} from ${lift.date}`}
-            onClick={actions.copy}
-          >
-            <IconCopy size={20} aria-hidden="true" />
-            Copy
-          </button>
-        </div>
-      </div>
-    </div>
+      </Link>
+      {!history && (
+        <Link
+          className="ib ib-36 ghost"
+          aria-label={`Edit ${exercise.name} from ${entry.trainingDate}`}
+          to={edit}
+          state={state}
+        >
+          <IconPencil size={20} aria-hidden="true" />
+        </Link>
+      )}
+      <Link
+        className="ib y"
+        aria-label={`Repeat ${exercise.name} from ${entry.trainingDate}`}
+        to={`/new?${new URLSearchParams({ repeat: entry.id, ...context })}`}
+        state={state}
+      >
+        <IconRepeat size={20} aria-hidden="true" />
+      </Link>
+    </article>
   )
 }

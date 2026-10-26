@@ -1,0 +1,78 @@
+.rest-timer-popover {
+  z-index: 40;
+  max-height: calc(
+    100vh - 80px - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  );
+  max-height: calc(
+    100dvh - 80px - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  );
+  overflow: auto;
+  color: var(--ink);
+  font-size: 14px;
+}
+.rest-timer-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rest-timer-heading > svg {
+  color: var(--ink-3);
+}
+.rest-timer-clock {
+  flex: 1;
+  min-width: 0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.rest-timer-clock.over {
+  color: var(--red);
+}
+.rest-timer-presets {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.rest-timer-presets .chip {
+  justify-content: center;
+  min-width: 0;
+  padding: 0;
+}
+.rest-timer-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.rest-timer-actions .btn {
+  min-width: 0;
+  padding-inline: 4px;
+}
+.rest-timer-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rest-timer-custom-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rest-timer-custom-controls input {
+  flex: 1;
+  min-width: 0;
+}
+.rest-timer-error {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.rest-timer-error > p:first-child {
+  color: var(--red);
+}

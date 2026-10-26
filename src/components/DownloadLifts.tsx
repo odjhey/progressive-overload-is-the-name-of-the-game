@@ -1,184 +1,217 @@
-import { useEffect, useState } from 'react'
-import { useDbRaw } from '../hooks/useDbRaw'
+import { IconChevronRight, IconDownload } from '@tabler/icons-react'
+import localforage from 'localforage'
+import { useEffect, useRef, useState } from 'react'
+import { useTraining } from '../hooks/useTraining'
 import {
+  assertRecoveryDestination,
+  makeTrainingBackup,
+  readRecoveryDestination,
+  recoveryError,
+  legacyTargets,
   recoveryTargets,
-  RecoveryTarget,
-  validateBackup,
 } from '../libs/backupValidation'
 import { downloadFile } from '../libs/downloadFile'
+import { readLegacySnapshot, validateSavedFilters } from '../libs/trainingModel'
+import type { LegacySnapshot } from '../libs/trainingTypes'
+import { LegacySourceDownloads } from './LegacyMigration'
 
-export const DownloadLifts = ({ revision = 0 }: { revision?: number }) => {
-  const { getKeys, keys, loading, error, getValues } = useDbRaw()
+export const DownloadLifts = () => {
+  const { document, legacy, loading, saving, storedRevision } = useTraining()
+  const [originals, setOriginals] = useState<LegacySnapshot>()
+  const [rawKeys, setRawKeys] = useState<string[]>([])
+  const [refresh, setRefresh] = useState(0)
+  const [reading, setReading] = useState(true)
   const [busy, setBusy] = useState(false)
-  const [feedback, setFeedback] = useState('')
-  const [downloadError, setDownloadError] = useState('')
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+  const running = useRef(false)
 
   useEffect(() => {
-    void getKeys()
-  }, [getKeys, revision])
-
-  const exportKey = async (key: string, label: string) => {
-    setBusy(true)
-    setFeedback('')
-    setDownloadError('')
-    try {
-      const text = await getValues(key)
-      const category = label.toLowerCase().replace(/\s+/g, '-')
-      downloadFile(
-        `values-${category}-${new Date().toISOString()}-${key}.json`,
-        text
-      )
-      setFeedback(
-        `${label} download requested. Keep the downloaded file; this app cannot confirm where your browser saved it.`
-      )
-    } catch {
-      setDownloadError(
-        `Could not download ${label.toLowerCase()}. Stored data was not changed. Refresh and retry.`
-      )
-    } finally {
-      setBusy(false)
+    let active = true
+    setReading(true)
+    Promise.all([readLegacySnapshot(), localforage.keys()])
+      .then(([snapshot, keys]) => {
+        if (active) {
+          setOriginals(snapshot)
+          setRawKeys(
+            keys.filter(
+              (key) => !key.startsWith('progressive-overload:rest-timer:')
+            )
+          )
+        }
+      })
+      .catch((cause: unknown) => {
+        if (active)
+          setError(`Stored exports could not be read: ${recoveryError(cause)}`)
+      })
+      .finally(() => {
+        if (active) setReading(false)
+      })
+    return () => {
+      active = false
     }
-  }
-
-  const extraKeys = keys.filter(
-    (key) =>
-      !Object.values(recoveryTargets).some((target) => target.key === key)
-  )
+  }, [storedRevision, refresh])
 
   return (
-    <section
-      className="flex flex-col gap-3 border border-secondary p-3"
-      aria-labelledby="backup-heading"
-    >
-      <h2 id="backup-heading" className="text-lg font-bold">
-        Back up your data
-      </h2>
-      <p>
-        A complete backup is three separate JSON files: Workouts (including
-        units, dates and notes), Tags (workout-name associations), and Saved
-        filters (search text and selected tags). Download every stored item
-        below before migrating. An item marked not stored has no saved data to
-        export.
-      </p>
-      <p>
-        Keep the old app and these files until you have restored and checked all
-        three items. Do not clear browser storage or uninstall the old app
-        first.
-      </p>
+    <section aria-label="Export backups">
       <button
-        className="btn btn-sm self-start"
         type="button"
-        disabled={loading || busy}
-        onClick={() => void getKeys()}
-      >
-        Refresh stored items
-      </button>
-      {loading && <p role="status">Reading stored items…</p>}
-      {error && <p role="alert">{error.message}</p>}
-      {(Object.keys(recoveryTargets) as RecoveryTarget[]).map((target) => {
-        const { key, label } = recoveryTargets[target]
-        const exists = keys.includes(key)
-        return (
-          <div
-            key={key}
-            className="flex flex-wrap items-center justify-between gap-2"
-          >
-            <span>
-              {label}
-              {!loading && !error && !exists ? ' — not stored' : ''}
-            </span>
-            <button
-              className="btn btn-sm btn-info"
-              type="button"
-              disabled={loading || busy || !!error || !exists}
-              onClick={() => void exportKey(key, label)}
-            >
-              Download {label.toLowerCase()} JSON
-            </button>
-          </div>
-        )
-      })}
-      {extraKeys.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold">Other stored data (raw JSON)</h3>
-          <p>
-            Keep these files too if you need them. This restore tool only
-            handles workouts, tags and saved filters; other keys are never
-            overwritten.
-          </p>
-          {extraKeys.map((key) => (
-            <div
-              key={key}
-              className="flex flex-wrap items-center justify-between gap-2"
-            >
-              <span className="break-all">{key}</span>
-              <button
-                className="btn btn-sm"
-                type="button"
-                disabled={loading || busy || !!error}
-                onClick={() => void exportKey(key, key)}
-              >
-                Download raw JSON: {key}
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-      <div className="border-t pt-3">
-        <h3 className="font-bold">Partial CSV export</h3>
-        <p>
-          For spreadsheets only: names, weights, reps, sets and dates. It omits
-          units, notes, tags, filters and other fields. Not a backup; CSV cannot
-          be restored here.
-        </p>
-        <button
-          className="btn btn-sm mt-2"
-          type="button"
-          disabled={
-            loading ||
-            busy ||
-            !!error ||
-            !keys.includes(recoveryTargets.workouts.key)
-          }
-          onClick={async () => {
-            setBusy(true)
-            setFeedback('')
-            setDownloadError('')
-            try {
-              const value: unknown = JSON.parse(
-                await getValues(recoveryTargets.workouts.key)
+        className="srow"
+        disabled={loading || saving || busy || !document || !!legacy}
+        onClick={async () => {
+          if (running.current || !document) return
+          running.current = true
+          setBusy(true)
+          setMessage('')
+          setError('')
+          try {
+            const destination = await readRecoveryDestination()
+            if (destination.legacy.keys.length > 0 && !destination.training) {
+              throw new Error(
+                'Original data must be reviewed and converted first. Download the original files below now.'
               )
-              validateBackup('workouts', value)
-              const { lifts } = value as { lifts: Record<string, unknown>[] }
-              const rows = lifts.map((lift) =>
-                ['name', 'weight', 'rep', 'set', 'date']
-                  .map(
-                    (field) => `"${String(lift[field]).replaceAll('"', '""')}"`
-                  )
-                  .join(',')
-              )
-              downloadFile(
-                'export-lifts-partial.csv',
-                ['name,weight,rep,set,date', ...rows].join('\n'),
-                'text/csv'
-              )
-              setFeedback(
-                'Partial CSV download requested. Use JSON files for recovery.'
-              )
-            } catch {
-              setDownloadError(
-                'Could not export workout CSV. Try the unmodified workouts JSON backup instead.'
-              )
-            } finally {
-              setBusy(false)
             }
-          }}
-        >
-          Download partial workout CSV
-        </button>
-      </div>
-      {downloadError && <p role="alert">{downloadError}</p>}
-      <p role="status">{feedback}</p>
+            const backup = makeTrainingBackup(
+              destination.training ?? document,
+              destination.filtersExist
+                ? validateSavedFilters(destination.filters)
+                : { term: '', tags: [] }
+            )
+            await assertRecoveryDestination(destination)
+            downloadFile(
+              `progressive-overload-${backup.exportedAt.slice(0, 10)}.json`,
+              JSON.stringify(backup, null, 2)
+            )
+            setMessage(
+              'Complete version 2 backup download requested. Check your browser saved it; the app cannot confirm where it was saved.'
+            )
+          } catch (cause) {
+            setError(recoveryError(cause))
+          } finally {
+            running.current = false
+            setBusy(false)
+          }
+        }}
+      >
+        <IconDownload className="ic" aria-hidden="true" />
+        <span className="t">
+          {busy ? 'Exporting…' : 'Export backup'}
+          <span className="s">JSON file</span>
+        </span>
+        <IconChevronRight className="ic" aria-hidden="true" />
+      </button>
+      <details>
+        <summary className="srow">Export recovery files</summary>
+        <div className="recovery-stack">
+          <p>
+            A complete version 2 backup contains exercises, tags, entries, set
+            groups, workouts, dates, notes, metadata and saved filters. Timer
+            and default unit/weight step are not included. Keep the file outside
+            this browser.
+          </p>
+          {legacy && (
+            <p>
+              Original history is awaiting conversion. Use the original
+              downloads below first.
+            </p>
+          )}
+          {originals &&
+            legacyTargets.some((target) =>
+              originals.keys.includes(recoveryTargets[target].key)
+            ) && (
+              <details>
+                <summary>Original legacy JSON downloads</summary>
+                <LegacySourceDownloads snapshot={originals} />
+                <details>
+                  <summary>Inspect original legacy source JSON</summary>
+                  <pre className="recovery-json">
+                    {JSON.stringify(originals, null, 2)}
+                  </pre>
+                </details>
+              </details>
+            )}
+          <details>
+            <summary>
+              Raw stored JSON — including unreadable current history
+            </summary>
+            <p>
+              These are unmodified per-key safety copies, not complete version 2
+              backups. No raw file is written back directly. A malformed current
+              history cannot be overwritten here; keep its raw copy and restore
+              a valid complete backup in a fresh browser profile instead.
+              Unrelated keys are never modified. Timer storage is excluded.
+            </p>
+            <button
+              type="button"
+              className="btn sm"
+              disabled={busy || reading}
+              onClick={() => setRefresh((value) => value + 1)}
+            >
+              Refresh stored items
+            </button>
+            {reading && <p role="status">Reading stored item names…</p>}
+            {rawKeys.map((key) => (
+              <div key={key} className="recovery-stack">
+                <span className="break-all">{key}</span>
+                <button
+                  type="button"
+                  className="btn sm"
+                  disabled={busy || reading}
+                  onClick={async () => {
+                    if (running.current) return
+                    running.current = true
+                    setBusy(true)
+                    setError('')
+                    setMessage('')
+                    try {
+                      if (!(await localforage.keys()).includes(key))
+                        throw new Error(
+                          'This item is no longer stored. Refresh the stored items.'
+                        )
+                      const text = JSON.stringify(
+                        await localforage.getItem(key)
+                      )
+                      if (text === undefined)
+                        throw new Error(
+                          'This value cannot be represented as JSON.'
+                        )
+                      downloadFile(
+                        `raw-${encodeURIComponent(key)}-${new Date().toISOString()}.json`,
+                        text
+                      )
+                      setMessage(
+                        'Raw JSON download requested. Check the browser saved it. This file alone is not a complete history backup.'
+                      )
+                    } catch (cause) {
+                      setError(recoveryError(cause))
+                    } finally {
+                      running.current = false
+                      setBusy(false)
+                    }
+                  }}
+                >
+                  Download raw JSON: {key}
+                </button>
+              </div>
+            ))}
+          </details>
+          <p>
+            Unrelated browser data is left untouched. JSON is the restorable
+            backup format; no partial spreadsheet export is presented as a
+            backup.
+          </p>
+        </div>
+      </details>
+      {error && (
+        <p className="recovery-error" role="alert">
+          {error}
+        </p>
+      )}
+      {message && (
+        <p className="recovery-stack" role="status">
+          {message}
+        </p>
+      )}
     </section>
   )
 }

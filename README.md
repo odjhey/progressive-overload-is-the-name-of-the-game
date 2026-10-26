@@ -4,6 +4,10 @@ A local-first workout log used by friends, built as an offline PWA.
 See [progressive overload](https://en.wikipedia.org/wiki/Progressive_overload).
 Live app: https://gains.odjhey.com.
 
+The [revival mission](docs/revival-mission.md) records rollout status and governing
+product intent. Section 21 records adoption of the approved 26 October designer
+package. Local integration does not publish these changes.
+
 ## Development
 
 Use Node 24 (`.nvmrc`) and Yarn Classic 1.22.22. The supported Node range is
@@ -42,98 +46,155 @@ the PR route rather than relying on an administrator's direct-push bypass.
 
 The SPA fallback in `vercel.json` follows
 [Vercel's Vite guidance](https://vercel.com/docs/frameworks/frontend/vite#using-vite-to-make-spas).
-After publishing, check direct `/new`, `/tags`, and `/about` requests with the
-service worker bypassed, not just in-app navigation or cached reloads. Verify
+After publishing, check direct `/new`, `/calendar`, `/about` and a saved
+`/exercise/<id>` request with the service worker bypassed, not just in-app navigation
+or cached reloads. Verify
 scripts, styles, `sw.js`, the Workbox runtime, and the manifest still return
 their actual content rather than the HTML fallback.
 
 For rollback, promote the previous successful production deployment in Vercel
-without changing the origin. A code rollback does not roll back browser data;
-keep backups and verify stored data independently.
+without changing the origin. A code rollback does not roll back browser data.
+The old app cannot read version 2 history: new-format work will not appear there,
+even though it remains stored. Keep complete backups and the original browser
+store; use a forward-capable build to inspect/recover new records. Do not clear
+storage to make an older build look current.
 
 ## Existing users' data is the compatibility contract
 
-Existing history must remain recoverable. The operator permits either in-place
-compatibility or a necessary manual migration: export from the old app's Settings,
-then import into the refreshed app. A schema/storage change must demonstrate
-preservation through the chosen path; silent data loss is not permitted.
+History stays browser-local; there is no account or cloud sync. localforage uses
+its default database (IndexedDB preferred, with supported fallbacks), so the log
+is not necessarily in `window.localStorage`. Keep the production origin:
+storage does not follow a different hostname, scheme, port or browser profile.
 
-The current app uses localforage's default database: IndexedDB is preferred,
-with WebSQL/localStorage fallbacks where supported. Browser-local does not mean
-the records are necessarily in `window.localStorage`. Current keys:
+The redesigned app writes new namespaces rather than overwriting old data:
 
-| Key                   | Stored value                   |
+| Storage      | Key                                   | Purpose                                                                                        |
+| ------------ | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| localforage  | `progressive-overload:training:v2`    | One versioned document: stable exercises, entries, set groups and optional workouts/attendance |
+| localforage  | `progressive-overload:filters:v2`     | Saved search and tag filters                                                                   |
+| localStorage | `progressive-overload:rest-timer:v1`  | Optional rest deadline and chosen duration; not history                                        |
+| localStorage | `progressive-overload:preferences:v1` | Device defaults for new-entry unit and weight-step controls; not history                       |
+
+Original keys remain read-only migration sources:
+
+| Key                   | Legacy value                   |
 | --------------------- | ------------------------------ |
 | `ZLDKSJF`             | `{ lifts: [...] }`             |
 | `TAGSlksajdf`         | `{ tags: [...] }`              |
 | `PersistendFilterakj` | `{ tags: [...], term: "..." }` |
 
-Lift identity is currently the exact name/date pair; tags reference the lift name.
-These are compatibility facts, not permanent schema requirements. Change them
-only deliberately, with a tested importer/mapping preserving the intended history.
-Keep the production origin unless a separate change is authorized: browser
-storage does not automatically follow a new hostname, scheme, port, or profile.
+### Upgrade or manual migration
 
-In the old app, use About → Raw Data to download each key's JSON. In the refresh,
-use Settings → Back up your data to download Workouts, Tags, and Saved filters.
-All three stored categories are needed for a complete backup; CSV is partial.
-Restore one JSON file at a time using Preview backup, review the named destination,
-and explicitly acknowledge replacement when data already exists. The restore
-validates the legacy shape, leaves unrelated keys alone, and reports success only
-after read-back verification. It replaces one category; it is not a merge or a
-dataset switch.
+If old data exists without a new-format history, normal recording is blocked by
+a reviewed migration, not replaced with writable empty history.
 
-When a manual migration is needed, users must be able to obtain the old app's
-complete raw JSON before cutover. Preserve lifts, units, dates, notes, tags, and
-saved filters; the current exporter downloads each key separately. The refreshed
-importer must read these legacy exports, explain any intentional mapping, and
-report success only after the resulting data is verified. Keep the old data and
-downloaded backups until that verification; do not require clearing browser
-storage or uninstalling the old PWA to begin. The current restore supports the
-legacy per-key envelopes without changing their schema. It preserves extra fields
-and optional notes, and does not normalize dates or invent missing values.
+1. Download every stored original JSON file before conversion. Older builds
+   expose these under About → Raw Data or Settings backups. Keep the files.
+2. Choose how to interpret old dates: **Written** keeps the date in the original
+   text; **Local** matches the old app using this device's current timezone.
+   Review the mapped dates, counts and original JSON before confirming.
+3. Download the offered destination safety backup, acknowledge replacement and
+   confirm once. Inspect the verified, partial or unverified outcome before
+   reloading stored data.
+4. Check Workouts, tags and Calendar; export a new complete backup. Keep the old
+   data and files until the result is verified.
 
-The procedure below covers in-place upgrades. For a manual migration, instead
-export from the previous app and import those files into a fresh refreshed-app
-store, then verify preserved values and associations before relying on it.
+For a different browser/profile, Settings can stage the three old JSON exports
+together. Provide each category or explicitly mark it not stored in the original
+app. One old file is not a complete backup. Conversion retains exact exercise
+names, every aggregate row (including duplicate name/date pairs), units, notes,
+tag associations, raw date text and unknown source metadata. It does not invent
+old creation times, sessions, individual sets or effort ratings.
 
-For upgrade smoke checks, use a disposable browser profile: load the previous
-production build, create a workout and tag, then serve the new build at the same
-origin without clearing storage. Verify worker takeover and unchanged stored
-values before mutations, then create/edit/copy, toggle history/filter by tag,
-export and restore raw JSON, and reload/save offline. Deploy all generated
-assets, including `sw.js` and the Workbox runtime. New clients show an update
-prompt: Later/cancel keeps unfinished work open, including when another tab
-activates the worker. Update now requires explicit reload confirmation.
+### Complete backup and restore
 
-Already-installed legacy clients retain their old auto-update code. For the first
-rollout, ask users to finish/save work and keep complete backups before cutover;
-do not assume the new prompt can retroactively protect every old open tab.
-The first production transition can leave the new worker waiting for old clients.
-After saving work, fully close all app tabs and the installed PWA, then reopen.
-Do not clear site storage or uninstall the PWA to get the update.
+Settings exports one **version 2 JSON** containing training and saved filters.
+It excludes timer state. Restore previews the complete replacement, validates
+IDs/references/dates, offers the current destination's backup, requires consent
+and rechecks the destination before writing. Cancel or invalid input writes
+nothing. This is replacement, not merging or switching datasets; CSV is not a
+restorable backup.
 
-## Daily logging and recovery
+History is committed/read back as one document; preferences are a separate
+write. If only history is verified, recovery reports a partial outcome rather
+than claiming success or rollback. Close other app tabs during recovery:
+revision/snapshot checks are not cross-tab compare-and-swap.
 
-- Search/date/tag inputs reflect their active filters; Clear updates both the
-  visible controls and results. Latest only explains how to reveal history.
-- Copy creates a distinct session; Edit targets its original name/date identity.
-  A colliding identity is rejected instead of overwriting another record. Only
-  Edit offers deletion. Renaming does not rename other workouts or tag groups.
-- Save and tag persists the entered workout before navigating. Unsaved navigation
-  offers Keep editing or Discard changes; failed writes keep the attempted form.
-- Weight entry accepts two decimal places. Literal plus signs, spaces, and Unicode
-  survive edit/copy links. Actions and navigation have native labels/controls.
-- Tags with no remaining saved workout stay visible and removable.
-- Restore validates before writing, previews one destination, offers its backup,
-  and checks it has not changed since preview. Failed or mismatched read-back is
-  explicitly unverified; source/previous backups remain the recovery path.
+Unreadable current history is not treated as absent or automatically overwritten.
+Settings still offers raw JSON downloads, including malformed and unrelated keys.
+Preserve that copy and use a valid backup in another browser/profile for recovery;
+the current restore API deliberately does not repair an untrusted destination.
 
-Close other app tabs during restoration. Restores are not a multi-key transaction,
-and snapshot checks are not cross-tab compare-and-swap. Concurrent workout editing
-in multiple tabs still uses whole-snapshot writes; this refresh does not add sync
-or conflict resolution. Real-device/Safari and human usability acceptance remain
-separate from the recorded Chromium proof.
+### PWA updates
+
+For an upgrade smoke, use a disposable profile at the same origin: load the old
+build, seed history/tags/preferences, then serve the new production build without
+clearing storage. Exercise worker takeover, reviewed migration, repeat/edit,
+calendar backfill, complete backup/restore and offline reload/save.
+
+Deploy all generated assets, including `sw.js` and Workbox. Later/cancel keeps
+unfinished work open, including when another tab activates a worker; Update now
+requires explicit reload confirmation. Very old installed clients retain their
+old update code, so finish/save work and back up first. Close all app tabs/PWA and
+reopen if the worker is waiting; do not clear site storage or uninstall to update.
+
+## Daily logging, calendar and rest
+
+The approved design keeps the bumblebee yellow, white and ink, compact boxy
+friends-tool character. Search replaces the title bar; a four-slot bottom
+navigation holds Log, Calendar, Timer and Settings. The list scrolls independently
+of the navigation. Routine icon actions have accessible names; Save, replacement
+and destructive confirmations retain text. Inputs use 16px text, primary Save
+uses a 48px target, and compact controls retain usable hit areas.
+
+- **Log:** latest effort per exercise, sorted by training date. Search names and
+  notes, with OR tag filters and a month filter. A nonempty query without an exact
+  exercise-name match offers Create. Exercise names open their complete history;
+  that page replaces the global Latest/History switch.
+- **Create/Repeat/Edit:** one bottom-sheet flow. Repeat copies the selected
+  entry's groups and units into a distinct draft, with blank notes and a compact
+  Last reference. It defaults to today's local training date unless opened for a
+  calendar date. Edit targets a stable entry ID; only Edit offers deletion, with
+  an in-place confirmation naming the entry. Date changes update calendar marks.
+- **Set groups:** weight readout with six tap/hold buttons, unit segment and
+  set/rep steppers; no numeric keyboard is needed for ordinary logging. Settings
+  chooses step 1, 2.5 or 5, used at ×1, ×2 and ×4 in either unit. Groups collapse
+  to summaries while one is edited. Stored precision and group-specific units
+  remain intact; switching a unit relabels rather than converts the weight.
+- **History and organization:** an exercise page exposes every saved entry and
+  its own Repeat/Edit actions. Rename retains exercise identity, history and
+  tags; a collision is refused rather than merging logs. Tags belong to the
+  exercise, not one entry.
+- **Saving:** await durable storage before closing or showing Saved. Failure
+  retains entered values. An identical retry after an accepted but unverified
+  write reconciles the same draft ID. The saved entry stays reachable outside
+  retained filters. Keep/Discard and reload warnings protect unfinished input;
+  this is not persistent draft autosave. Saved feedback offers Edit and an
+  explicit rest-start action; saving never starts the timer itself.
+- **Calendar:** entries and separate Trained attendance mark recorded days with
+  distinguishable states. Blank means nothing recorded, not proof of rest. The
+  day panel offers Entry with that civil date and a Trained toggle for details
+  later. Removing attendance leaves genuine entries; adding details does not
+  count the day twice. Training date does not shift with timezone.
+- **Rest timer:** the navigation slot shows a running clock and signed negative
+  overtime. Its popover offers presets, custom duration, restart, +30s and Stop.
+  The saved deadline survives routes, reload and reopening. Settings changes
+  the chosen duration without restarting; selecting a popover preset explicitly
+  starts it. No sound, vibration, notifications, permission request, expiry modal
+  or training marker. This uses the device clock, not a background alarm.
+  Timer-only recovery never changes training; history restore never imports a
+  timer.
+- **Settings:** default new-exercise unit, weight step and the timer's existing
+  preset; complete JSON export, reviewed import and old-history migration.
+  Backup replacement changes training and saved filters, not timer state,
+  device defaults or unrelated browser data. Raw recovery downloads remain
+  available when current history cannot be read.
+
+Training writes are queued within this app instance, not transactional across
+tabs; simultaneous editors remain last-writer/race risks, not sync. Browser
+storage can be evicted: keep backups elsewhere. Responsive Chromium and agent
+proof do not establish physical iPhone/Safari/Android, software-keyboard,
+screen-reader or human usability acceptance.
 
 ## Housekeeping refresh
 
@@ -144,7 +205,7 @@ Tailwind 3, and localforage 1.10.0. Vite's production compilation targets retain
 the previous Chrome 87 / Edge 88 / Firefox 78 / Safari 14 floor; this is not a
 claim of device-level testing.
 
-The refreshed lockfile's audit reports zero high/critical entries and five
+The housekeeping-wave lockfile audit recorded zero high/critical entries and five
 moderate dependency-path entries across three advisories:
 
 - [Router open redirect](https://github.com/advisories/GHSA-wrjc-x8rr-h8h6):
@@ -163,7 +224,7 @@ transitive versions solely to make the audit green.
 
 The open [issues](https://github.com/odjhey/progressive-overload-is-the-name-of-the-game/issues)
 and [PRs](https://github.com/odjhey/progressive-overload-is-the-name-of-the-game/pulls)
-remain the work queue. Review the running user flow before choosing a redesign.
+remain the work queue. Local delivery of an intent does not close its issue or PR.
 
 - Search/clear (#1), New/Copy delete controls (#24), decimal entry (#7), and a
   code-blind user-flow review (#63) have local implementation/proof. Issues remain
@@ -172,6 +233,8 @@ remain the work queue. Review the running user flow before choosing a redesign.
   switcher, and PR #75 is not a working implementation.
 - Difficulty (#57/#73, PR #74) is explicitly optional; historical absence must stay
   unrated. Scale/copy behavior and progress/PR metrics need decisions before fields.
+- Running remains explicitly deferred: define runners' distance/duration and
+  comparison needs before adding fields, screens, GPS or integrations.
 - Dependency PRs overlap this refresh; reconcile them after a replacement lands.
   Do not merge all historical lockfiles. DaisyUI 4+ remains a separate visual
   migration. PR #86's state-management rewrite is not required for UX repairs.

@@ -1,43 +1,38 @@
-import { PropsWithChildren, useId } from 'react'
-import { IconX } from '@tabler/icons-react'
+import { IconSearch, IconX } from '@tabler/icons-react'
 
-export const Searchable = ({
+export function Searchable({
   searchTerm,
-  children,
   setSearchTerm,
-  placeholder = 'Search workouts',
   clear,
-}: PropsWithChildren<{
+  disabled = false,
+}: {
   searchTerm: string
-  setSearchTerm: (searchTerm: string) => void
+  setSearchTerm: (value: string) => void
   clear: () => void
-  placeholder?: string
-}>) => {
-  const id = useId()
+  disabled?: boolean
+}) {
   return (
-    <>
-      <div className="flex flex-wrap items-end gap-2">
-        <label className="flex flex-col gap-1" htmlFor={id}>
-          <span className="text-sm">{placeholder}</span>
-          <input
-            id={id}
-            type="search"
-            placeholder={placeholder}
-            value={searchTerm}
-            className="input input-sm input-bordered w-40"
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </label>
+    <div className="search">
+      <IconSearch size={20} aria-hidden="true" />
+      <input
+        type="search"
+        aria-label="Search or add exercise"
+        placeholder="Search or add exercise"
+        value={searchTerm}
+        disabled={disabled}
+        onChange={(event) => setSearchTerm(event.target.value)}
+      />
+      {searchTerm && (
         <button
+          className="clr"
           type="button"
-          className="btn btn-sm"
-          aria-label={`Clear ${placeholder.toLowerCase()}`}
+          aria-label="Clear search"
+          disabled={disabled}
           onClick={clear}
         >
-          <IconX size={16} aria-hidden="true" />
+          <IconX size={18} aria-hidden="true" />
         </button>
-      </div>
-      {children}
-    </>
+      )}
+    </div>
   )
 }

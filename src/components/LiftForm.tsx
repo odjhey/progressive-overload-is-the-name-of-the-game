@@ -1,299 +1,543 @@
-import { PropsWithChildren, ReactNode, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { Lift } from '../hooks/useLifts'
+import {
+  IconCalendar,
+  IconChevronDown,
+  IconHash,
+  IconMinus,
+  IconNotes,
+  IconPencil,
+  IconPlus,
+  IconTrash,
+  IconX,
+} from '@tabler/icons-react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { newId } from '../libs/trainingModel'
+import type {
+  EntryInput,
+  Exercise,
+  SetGroup,
+  TrainingEntry,
+} from '../libs/trainingTypes'
+import { usePreferences } from '../hooks/usePreferences'
+import {
+  dateLabel,
+  loadLabel,
+  matchingExercises,
+  newestFirst,
+  unitLabel,
+  withTypedTag,
+} from './dailyFlow'
+import { StepButton } from './StepButton'
+import { TagPicker } from './TagPicker'
 
-type FormValues = { lift: Lift }
-
-const LabeledFieldLayout = ({
-  children,
-  controls,
-}: PropsWithChildren<{ controls: ReactNode }>) => (
-  <div className="flex gap-1 border border-solid flex-wrap justify-between">
-    <div className="flex flex-wrap gap-1 items-center min-w-0">{children}</div>
-    <div className="flex gap-1 flex-wrap">{controls}</div>
-  </div>
-)
-
-export const LiftForm = ({
-  lift,
+export function LiftForm({
+  initial,
+  exercises,
+  entries,
+  source,
+  editing,
+  saving,
+  error,
+  confirmation,
   onSubmit,
   onDelete,
-  onSaveAndTag,
+  onClose,
+  onEditReference,
+  onExerciseRecognized,
   onDirtyChange,
-  title = 'New',
-  saving = false,
-  disabled = false,
 }: {
-  title?: string
-  lift: Lift
-  onSubmit: (lift: Lift) => Promise<void>
+  initial: EntryInput
+  exercises: Exercise[]
+  entries: TrainingEntry[]
+  source?: TrainingEntry
+  editing: boolean
+  saving: boolean
+  error: string
+  confirmation: ReactNode
+  onSubmit: (input: EntryInput, tags: string[]) => Promise<void>
   onDelete?: () => Promise<void>
-  onSaveAndTag: (lift: Lift) => Promise<void>
+  onClose: () => void
+  onEditReference: (id: string) => void
+  onExerciseRecognized: () => void
   onDirtyChange: (dirty: boolean) => void
-  saving?: boolean
-  disabled?: boolean
-}) => {
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors, isSubmitting, isDirty },
-    getValues,
-  } = useForm<FormValues>({
-    mode: 'onBlur',
-    defaultValues: { lift },
-  })
-  const busy = saving || isSubmitting
+}) {
+  const preferences = usePreferences()
+  const [draft, setDraft] = useState(initial)
+  const [reference, setReference] = useState(source)
+  const [tags, setTags] = useState(
+    () =>
+      exercises.find((exercise) => exercise.id === initial.exerciseId)?.tags ??
+      []
+  )
+  const [tagDraft, setTagDraft] = useState('')
+  const [baseline] = useState(() =>
+    JSON.stringify({
+      draft: initial,
+      tags:
+        exercises.find((exercise) => exercise.id === initial.exerciseId)
+          ?.tags ?? [],
+    })
+  )
+  const [openGroup, setOpenGroup] = useState(initial.groups[0].id)
+  const [notesOpen, setNotesOpen] = useState(editing && !!initial.notes)
+  const [tagsOpen, setTagsOpen] = useState(editing && tags.length > 0)
+  const [deleting, setDeleting] = useState(false)
+  const keep = useRef<HTMLButtonElement>(null)
+  const closeControl = useRef<HTMLButtonElement>(null)
+  const busy = saving || deleting
+  const knownTags = exercises.flatMap((exercise) => exercise.tags)
+  useLayoutEffect(
+    () =>
+      onDirtyChange(
+        !!tagDraft.trim() || JSON.stringify({ draft, tags }) !== baseline
+      ),
+    [draft, tags, tagDraft, baseline, onDirtyChange]
+  )
   useEffect(() => {
-    onDirtyChange(isDirty)
-  }, [isDirty, onDirtyChange])
-
+    if (deleting) keep.current?.focus()
+  }, [deleting])
+  const updateGroup = (id: string, update: (group: SetGroup) => SetGroup) =>
+    setDraft((current) => ({
+      ...current,
+      groups: current.groups.map((group) =>
+        group.id === id ? update(group) : group
+      ),
+    }))
+  const recognize = (value: string) => {
+    const matches = matchingExercises(exercises, value)
+    if (value.trim() && matches.length === 1) {
+      const exercise = matches[0]
+      const last = entries
+        .filter((entry) => entry.exerciseId === exercise.id)
+        .sort(newestFirst)[0]
+      const groups = last
+        ? last.groups.map((group) => ({ ...group, id: newId() }))
+        : draft.groups
+      setDraft((current) => ({
+        ...current,
+        exerciseName: exercise.name,
+        exerciseId: exercise.id,
+        groups,
+        notes: '',
+      }))
+      setOpenGroup(groups[0].id)
+      setReference(last)
+      setTags(exercise.tags)
+      onExerciseRecognized()
+      closeControl.current?.focus()
+    } else
+      setDraft((current) => ({
+        ...current,
+        exerciseName: value,
+        exerciseId: undefined,
+      }))
+  }
   return (
-    <div>
-      <h1 className="text text-lg font-bold">{title} workout</h1>
-      {title === 'Copy' && (
-        <p>
-          Save a separate session. Choose a distinct date and time for this
-          lift.
-        </p>
-      )}
-      {title === 'Edit' && (
-        <p>
-          Editing only this session. Changing its name does not rename other
-          workouts or move name-based tags.
-        </p>
-      )}
-      <form
-        aria-busy={busy}
-        onSubmit={handleSubmit((data, event) => {
-          const submitter = (event?.nativeEvent as SubmitEvent | undefined)
-            ?.submitter
-          return submitter instanceof HTMLButtonElement &&
-            submitter.value === 'tags'
-            ? onSaveAndTag(data.lift)
-            : onSubmit(data.lift)
-        })}
-      >
-        <fieldset disabled={disabled || busy}>
-          <legend className="sr-only">Workout details</legend>
-          <section className="flex flex-col gap-5 p-1">
-            <LabeledFieldLayout controls={null}>
-              <label className="label text-slate-400" htmlFor="lift-date">
-                Date and time (UTC)
-              </label>
-              <input
-                id="lift-date"
-                {...register('lift.date', { required: true })}
-                required
-                aria-invalid={!!errors.lift?.date}
-                type="datetime-local"
-                className="max-w-full"
+    <form
+      className="entry-form"
+      data-draft-id={initial.id}
+      aria-busy={saving}
+      onSubmit={(event) => {
+        event.preventDefault()
+        if (!busy && draft.exerciseName.trim())
+          void onSubmit(draft, withTypedTag(tags, knownTags, tagDraft))
+      }}
+    >
+      <div className="sh-h">
+        {editing || draft.exerciseId ? (
+          <h2>{draft.exerciseName}</h2>
+        ) : (
+          <input
+            className="field"
+            id="entry-name"
+            aria-label="Exercise name"
+            placeholder="Exercise name"
+            value={draft.exerciseName}
+            disabled={busy}
+            onChange={(event) =>
+              setDraft({ ...draft, exerciseName: event.target.value })
+            }
+            onBlur={(event) => recognize(event.target.value)}
+            onKeyDown={(event) => {
+              if (
+                event.key === 'Enter' &&
+                matchingExercises(exercises, draft.exerciseName).length === 1
+              ) {
+                event.preventDefault()
+                recognize(draft.exerciseName)
+              }
+            }}
+          />
+        )}
+        {onDelete && (
+          <button
+            type="button"
+            className={`ib ib-36 ghost danger${deleting ? ' on' : ''}`}
+            aria-label="Delete entry"
+            disabled={saving}
+            onClick={() => setDeleting(!deleting)}
+          >
+            <IconTrash size={20} aria-hidden="true" />
+          </button>
+        )}
+        <button
+          ref={closeControl}
+          type="button"
+          className="ib ib-36 ghost"
+          aria-label="Close"
+          disabled={saving}
+          onClick={onClose}
+        >
+          <IconX size={20} aria-hidden="true" />
+        </button>
+      </div>
+      <div className="sub">
+        {editing ? (
+          <span className="chip on">EDIT</span>
+        ) : (
+          <span>{draft.exerciseId ? 'New entry' : 'New exercise'}</span>
+        )}
+        <label className="chip date date-control">
+          <IconCalendar size={16} aria-hidden="true" />
+          {dateLabel(draft.trainingDate)}
+          <IconChevronDown size={14} aria-hidden="true" />
+          <input
+            type="date"
+            aria-label="Training date"
+            required
+            value={draft.trainingDate}
+            disabled={busy}
+            onChange={(event) => {
+              if (event.target.value)
+                setDraft({ ...draft, trainingDate: event.target.value })
+            }}
+          />
+        </label>
+      </div>
+      <div className="entry-scroll">
+        {!editing && reference && (
+          <div
+            className="last"
+            data-source-id={reference.id}
+            aria-label="Repeat source, read only"
+          >
+            <span className="lbl">Last</span>
+            <b>
+              {loadLabel(reference.groups[0].weight, reference.groups[0].unit)}
+            </b>
+            <span>
+              {reference.groups[0].sets} × {reference.groups[0].reps}
+            </span>
+            {reference.groups.length > 1 && (
+              <span className="more">+{reference.groups.length - 1}</span>
+            )}
+            <time dateTime={reference.trainingDate}>
+              {dateLabel(reference.trainingDate, true)}
+            </time>
+            {reference.notes && (
+              <IconNotes
+                size={16}
+                role="img"
+                aria-label="Source has notes; new notes start blank"
               />
-            </LabeledFieldLayout>
-
-            <label className="flex flex-col gap-1" htmlFor="lift-name">
-              <span>Lift name</span>
-              <input
-                id="lift-name"
-                placeholder="Lift name"
-                {...register('lift.name', { required: true })}
-                required
-                aria-invalid={!!errors.lift?.name}
-                className="input input-bordered w-full"
-              />
-            </label>
-
-            <LabeledFieldLayout
-              controls={
-                <>
-                  {[5, 1].map((amount) => (
+            )}
+            <button
+              className="ib ib-36 ghost"
+              type="button"
+              aria-label="Edit source entry"
+              disabled={saving}
+              onClick={() => onEditReference(reference.id)}
+            >
+              <IconPencil size={18} aria-hidden="true" />
+            </button>
+          </div>
+        )}
+        <fieldset disabled={busy}>
+          <legend className="sr-only">Entry values</legend>
+          {draft.groups.map((group, index) =>
+            group.id !== openGroup ? (
+              <button
+                type="button"
+                className="grow"
+                data-group-id={group.id}
+                key={group.id}
+                aria-label={`Open group ${index + 1}`}
+                onClick={() => setOpenGroup(group.id)}
+              >
+                <span className="k">{index + 1}</span>
+                <b>{loadLabel(group.weight, group.unit)}</b>
+                <span>
+                  {group.sets} × {group.reps}
+                </span>
+                <IconChevronDown size={18} aria-hidden="true" />
+              </button>
+            ) : (
+              <section
+                className="grp"
+                data-group-id={group.id}
+                key={group.id}
+                aria-label={`Set group ${index + 1}`}
+              >
+                <div className="hd">
+                  {draft.groups.length > 1 && (
+                    <span className="k">{index + 1}</span>
+                  )}
+                  <span className="lbl">Weight</span>
+                  <div
+                    className="seg sm"
+                    role="group"
+                    aria-label={`Group ${index + 1} unit`}
+                  >
+                    {group.unit !== 'kg' && group.unit !== 'lbs' && (
+                      <button type="button" className="on" aria-pressed="true">
+                        {group.unit}
+                      </button>
+                    )}
+                    {(['kg', 'lbs'] as const).map((unit) => (
+                      <button
+                        key={unit}
+                        type="button"
+                        className={group.unit === unit ? 'on' : ''}
+                        aria-pressed={group.unit === unit}
+                        onClick={() =>
+                          updateGroup(group.id, (current) => ({
+                            ...current,
+                            unit,
+                          }))
+                        }
+                      >
+                        {unitLabel(unit)}
+                      </button>
+                    ))}
+                  </div>
+                  {index > 0 && (
                     <button
                       type="button"
-                      key={amount}
-                      className="btn"
-                      aria-label={`Add ${amount} to weight`}
-                      onClick={() =>
-                        setValue(
-                          'lift.weight',
-                          Math.round(
-                            (Number(getValues('lift.weight')) + amount) * 100
-                          ) / 100,
-                          { shouldDirty: true }
-                        )
-                      }
+                      className="ib ib-36 ghost"
+                      aria-label={`Remove group ${index + 1}`}
+                      onClick={() => {
+                        setDraft({
+                          ...draft,
+                          groups: draft.groups.filter(
+                            (item) => item.id !== group.id
+                          ),
+                        })
+                        setOpenGroup(draft.groups[index - 1].id)
+                      }}
                     >
-                      +{amount}
+                      <IconX size={18} aria-hidden="true" />
                     </button>
+                  )}
+                </div>
+                <output
+                  className="wnum"
+                  aria-live="polite"
+                  aria-label={`Group ${index + 1} weight`}
+                >
+                  {group.weight}
+                  <small>{unitLabel(group.unit)}</small>
+                </output>
+                <div className="steps">
+                  {[
+                    [-4, -2, -1],
+                    [1, 2, 4],
+                  ].map((multipliers, side) => (
+                    <div className={`half${side ? ' up' : ''}`} key={side}>
+                      {multipliers.map((multiplier) => {
+                        const delta = multiplier * preferences.weightStep
+                        return (
+                          <StepButton
+                            key={multiplier}
+                            disabled={busy}
+                            aria-label={`${delta < 0 ? 'Minus' : 'Plus'} ${Math.abs(delta)} weight`}
+                            onStep={() =>
+                              updateGroup(group.id, (current) => {
+                                const weight = Math.max(
+                                  0,
+                                  current.weight + delta
+                                )
+                                return Number.isFinite(weight)
+                                  ? { ...current, weight }
+                                  : current
+                              })
+                            }
+                          >
+                            {delta < 0 ? '−' : '+'}
+                            {Math.abs(delta)}
+                          </StepButton>
+                        )
+                      })}
+                    </div>
                   ))}
+                </div>
+                <div className="counter-grid">
+                  {(['sets', 'reps'] as const).map((field) => (
+                    <div key={field}>
+                      <span className="lbl">
+                        {field === 'sets' ? 'Sets' : 'Reps'}
+                      </span>
+                      <div className="step">
+                        <StepButton
+                          className="ib"
+                          disabled={busy}
+                          aria-label={`One ${field === 'sets' ? 'set' : 'rep'} fewer`}
+                          onStep={() =>
+                            updateGroup(group.id, (current) => ({
+                              ...current,
+                              [field]: Math.max(1, current[field] - 1),
+                            }))
+                          }
+                        >
+                          <IconMinus size={20} aria-hidden="true" />
+                        </StepButton>
+                        <output
+                          className="v"
+                          aria-live="polite"
+                          aria-label={`Group ${index + 1} ${field}`}
+                        >
+                          {group[field]}
+                        </output>
+                        <StepButton
+                          className="ib plus"
+                          disabled={busy}
+                          aria-label={`One ${field === 'sets' ? 'set' : 'rep'} more`}
+                          onStep={() =>
+                            updateGroup(group.id, (current) =>
+                              Number.isFinite(current[field] + 1)
+                                ? { ...current, [field]: current[field] + 1 }
+                                : current
+                            )
+                          }
+                        >
+                          <IconPlus size={20} aria-hidden="true" />
+                        </StepButton>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="entry-tools">
                   <button
                     type="button"
-                    className="btn"
-                    aria-label="Reset weight to zero"
-                    onClick={() =>
-                      setValue('lift.weight', 0, { shouldDirty: true })
-                    }
+                    className="btn sm ghost"
+                    onClick={() => {
+                      const added = { ...group, id: newId() }
+                      setDraft({ ...draft, groups: [...draft.groups, added] })
+                      setOpenGroup(added.id)
+                    }}
                   >
-                    0
+                    <IconPlus size={16} aria-hidden="true" />
+                    Group
                   </button>
-                </>
-              }
-            >
-              <label className="label text-slate-400" htmlFor="lift-weight">
-                Weight
-              </label>
-              <input
-                id="lift-weight"
-                type="number"
-                inputMode="decimal"
-                step={0.01}
-                {...register('lift.weight', {
-                  valueAsNumber: true,
-                  required: true,
-                })}
-                required
-                aria-invalid={!!errors.lift?.weight}
-                className="w-24"
-              />
-            </LabeledFieldLayout>
-
-            <LabeledFieldLayout
-              controls={['lbs', 'kg'].map((unit) => (
-                <button
-                  type="button"
-                  key={unit}
-                  className="btn"
-                  aria-label={`Set unit to ${unit}`}
-                  onClick={() =>
-                    setValue('lift.uom', unit, { shouldDirty: true })
-                  }
-                >
-                  {unit}
-                </button>
-              ))}
-            >
-              <label className="label text-slate-400" htmlFor="lift-uom">
-                Unit
-              </label>
-              <input
-                id="lift-uom"
-                {...register('lift.uom', { required: true })}
-                required
-                aria-invalid={!!errors.lift?.uom}
-                className="w-16"
-              />
-            </LabeledFieldLayout>
-
-            <LabeledFieldLayout
-              controls={[6, 8, 10, 12].map((reps) => (
-                <button
-                  type="button"
-                  key={reps}
-                  className="btn"
-                  aria-label={`Set reps to ${reps}`}
-                  onClick={() =>
-                    setValue('lift.rep', reps, { shouldDirty: true })
-                  }
-                >
-                  {reps}
-                </button>
-              ))}
-            >
-              <label className="label text-slate-400" htmlFor="lift-rep">
-                Reps
-              </label>
-              <input
-                id="lift-rep"
-                type="number"
-                {...register('lift.rep', {
-                  valueAsNumber: true,
-                  required: true,
-                })}
-                required
-                aria-invalid={!!errors.lift?.rep}
-                className="w-16"
-              />
-            </LabeledFieldLayout>
-
-            <LabeledFieldLayout
-              controls={[3, 4].map((sets) => (
-                <button
-                  type="button"
-                  key={sets}
-                  className="btn"
-                  aria-label={`Set sets to ${sets}`}
-                  onClick={() =>
-                    setValue('lift.set', sets, { shouldDirty: true })
-                  }
-                >
-                  {sets}
-                </button>
-              ))}
-            >
-              <label className="label text-slate-400" htmlFor="lift-set">
-                Sets
-              </label>
-              <input
-                id="lift-set"
-                type="number"
-                {...register('lift.set', {
-                  valueAsNumber: true,
-                  required: true,
-                })}
-                required
-                aria-invalid={!!errors.lift?.set}
-                className="w-16"
-              />
-            </LabeledFieldLayout>
-
-            <label className="flex flex-col gap-1" htmlFor="lift-comment">
-              <span>Notes (optional)</span>
-              <textarea
-                id="lift-comment"
-                {...register('lift.comment')}
-                className="textarea textarea-bordered w-full"
-              />
-            </label>
-          </section>
-          {Object.keys(errors).length > 0 && (
-            <p role="alert">
-              Complete all required workout fields before saving.
-            </p>
+                  <button
+                    type="button"
+                    className={`ib ib-36 ghost${notesOpen ? ' on' : ''}`}
+                    aria-label="Notes"
+                    aria-expanded={notesOpen}
+                    onClick={() => setNotesOpen(!notesOpen)}
+                  >
+                    <IconNotes size={20} aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    className={`ib ib-36 ghost${tagsOpen ? ' on' : ''}`}
+                    aria-label="Tags"
+                    aria-expanded={tagsOpen}
+                    onClick={() => setTagsOpen(!tagsOpen)}
+                  >
+                    <IconHash size={20} aria-hidden="true" />
+                  </button>
+                </div>
+                {notesOpen && (
+                  <textarea
+                    className="field"
+                    aria-label="Entry notes"
+                    value={draft.notes}
+                    onChange={(event) =>
+                      setDraft({ ...draft, notes: event.target.value })
+                    }
+                  />
+                )}
+                {tagsOpen && (
+                  <TagPicker
+                    tags={tags}
+                    knownTags={knownTags}
+                    value={tagDraft}
+                    onValueChange={setTagDraft}
+                    disabled={busy}
+                    onChange={(values) => {
+                      setTags(values)
+                      return true
+                    }}
+                  />
+                )}
+              </section>
+            )
           )}
-          <div className="bg-slate-100 p-2"></div>
-          <div className="flex flex-wrap gap-2 justify-center p-5 pb-10">
-            <button className="btn btn-primary" type="submit" value="save">
-              {busy
-                ? 'Saving...'
-                : title === 'Edit'
-                  ? 'Save changes'
-                  : 'Save workout'}
+        </fieldset>
+        {preferences.error && (
+          <p className="form-error" role="alert">
+            Preferences could not be read or saved: {preferences.error}
+          </p>
+        )}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+      {confirmation}
+      {deleting && source ? (
+        <section
+          className="confirm"
+          role="alertdialog"
+          aria-label="Delete this entry?"
+          aria-describedby="delete-description"
+        >
+          <p id="delete-description">
+            <b>Delete this entry?</b>
+            {initial.exerciseName}, {dateLabel(source.trainingDate, true)}:{' '}
+            {source.groups
+              .map(
+                (group) =>
+                  `${loadLabel(group.weight, group.unit)}, ${group.sets} × ${group.reps}`
+              )
+              .join(' | ')}
+            . Its notes go too. This cannot be undone. Other entries and
+            attendance marks on this day stay.
+          </p>
+          <div className="counter-grid">
+            <button
+              ref={keep}
+              type="button"
+              className="btn lg"
+              disabled={saving}
+              onClick={() => setDeleting(false)}
+            >
+              Keep
             </button>
             <button
-              className="btn btn-info"
-              type="submit"
-              name="action"
-              value="tags"
+              type="button"
+              className="btn danger fill lg"
+              disabled={saving}
+              onClick={() => {
+                void onDelete?.()
+              }}
             >
-              Save and tag
+              Delete
             </button>
-            {onDelete && (
-              <button
-                className="btn btn-error"
-                type="button"
-                onClick={() => {
-                  if (
-                    confirm('Delete this saved workout? This cannot be undone.')
-                  ) {
-                    void onDelete()
-                  }
-                }}
-              >
-                Delete workout
-              </button>
-            )}
           </div>
-        </fieldset>
-      </form>
-    </div>
+        </section>
+      ) : (
+        <div className="entry-save">
+          <button
+            type="submit"
+            className="btn y lg"
+            disabled={saving || !draft.exerciseName.trim()}
+          >
+            {saving ? 'Saving…' : editing ? 'Save changes' : 'Save'}
+          </button>
+        </div>
+      )}
+    </form>
   )
 }

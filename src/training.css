@@ -1,0 +1,408 @@
+.entry-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.entry-form fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.entry-form fieldset.grp {
+  padding: 10px 16px 0;
+}
+.entry-scroll {
+  overflow: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+.entry-save {
+  padding: 10px 16px 12px;
+  flex-shrink: 0;
+  background: #fff;
+  position: sticky;
+  bottom: 0;
+}
+.entry-save > .btn {
+  width: 100%;
+}
+.counter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.counter-grid > div,
+.counter-grid > label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.entry-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.entry-form .last {
+  flex-wrap: wrap;
+}
+.entry-form .last b,
+.entry-form .last span {
+  overflow-wrap: anywhere;
+}
+.date-control {
+  position: relative;
+}
+.date-control input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.date-control:focus-within {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.form-error {
+  padding: 10px 16px;
+  color: var(--red);
+  overflow-wrap: anywhere;
+}
+.row .all-groups {
+  flex-wrap: wrap;
+  white-space: normal;
+  gap: 4px 6px;
+  overflow-wrap: anywhere;
+}
+.all-groups > span {
+  max-width: 100%;
+}
+.group-separator {
+  color: var(--line);
+}
+.row.saved {
+  background: var(--y-tint);
+}
+.small-sheet-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow: auto;
+}
+.tag-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tag-choices,
+.chips.tag-choices {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.tag-choices .chip {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.empty-state {
+  padding: 16px;
+  overflow-wrap: anywhere;
+}
+.empty-state h2 {
+  font-size: 15px;
+  font-weight: 700;
+}
+.empty-state p + p {
+  margin-top: 8px;
+}
+
+.calendar-top h1 {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  text-align: center;
+  line-height: 1.2;
+}
+.calendar-week {
+  display: contents;
+}
+.calendar-cell {
+  min-width: 0;
+}
+.calendar-attendance-check {
+  position: absolute;
+  left: 4px;
+  bottom: 3px;
+  width: 14px;
+  height: 14px;
+}
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--ink);
+}
+.calendar-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.calendar-swatch {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--line-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r);
+}
+.calendar-swatch.entries {
+  background: var(--y);
+  border-color: var(--y-press);
+}
+.calendar-swatch.attendance {
+  border: 1px dashed var(--ink);
+}
+.calendar-swatch svg {
+  width: 12px;
+  height: 12px;
+}
+.calendar-day-header {
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 52px;
+}
+.calendar-day-header .t {
+  flex: 1 1 90px;
+}
+.calendar-day-header h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+.calendar-entry .name {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.calendar-notes,
+.calendar-attendance-notes {
+  padding: 6px 12px 10px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--line-2);
+}
+.calendar-notice {
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+
+button.srow {
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 0;
+  border-bottom: 1px solid var(--line-2);
+  color: var(--ink);
+}
+.srow.active {
+  background: var(--bg-2);
+}
+.settings-page .srow {
+  flex-wrap: wrap;
+}
+.settings-page .srow .t {
+  flex-basis: 90px;
+}
+.settings-page .lbl {
+  display: block;
+  padding: 12px 12px 4px;
+}
+.recovery-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.recovery-json {
+  max-height: 16rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  background: var(--bg-2);
+  padding: 8px;
+  border: 1px solid var(--line);
+}
+.recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.recovery-actions > .btn {
+  flex: 1 1 auto;
+}
+.recovery-error {
+  color: var(--red);
+  overflow-wrap: anywhere;
+}
+.recovery-stack h2,
+.recovery-stack h3 {
+  font-weight: 700;
+  font-size: 15px;
+}
+.recovery-stack p,
+.recovery-stack label {
+  overflow-wrap: anywhere;
+}
+.recovery-stack label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.recovery-stack :is(.input, .select, .file-input, .textarea) {
+  border: 1px solid var(--ink);
+  border-radius: var(--r);
+  background: #fff;
+  color: var(--ink);
+  min-height: 40px;
+  padding: 6px;
+  font-size: 16px;
+  max-width: 100%;
+}
+.recovery-stack details {
+  border: 1px solid var(--line);
+  padding: 8px;
+}
+.recovery-stack summary {
+  min-height: 32px;
+}
+.recovery-stack input[type='checkbox'] {
+  min-width: 18px;
+  min-height: 18px;
+  accent-color: var(--ink);
+}
+.update-prompt,
+[aria-label='App update'] {
+  position: fixed;
+  z-index: 50;
+  bottom: calc(60px + env(safe-area-inset-bottom));
+  left: 8px;
+  right: 8px;
+  max-width: 40rem;
+  margin-inline: auto;
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  padding: 12px;
+  max-height: calc(100vh - 100px);
+  max-height: calc(100dvh - 100px);
+  overflow: auto;
+}
+.navigation-guard {
+  position: fixed;
+  z-index: 80;
+  top: max(12px, env(safe-area-inset-top));
+  left: 8px;
+  right: 8px;
+  max-width: 40rem;
+  margin-inline: auto;
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--ink);
+  padding: 16px;
+}
+.guard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media (max-width: 360px) {
+  .settings-page .seg button {
+    padding-inline: 8px;
+  }
+  .row .stat {
+    gap: 4px;
+  }
+}
+
+.entry-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.rename-note {
+  font-size: 12px;
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+.settings-label {
+  padding: 14px 12px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+.recovery-sheet {
+  overflow: auto;
+}
+.recovery-review,
+.recovery-review fieldset {
+  min-width: 0;
+}
+.recovery-filename,
+.recovery-records {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.recovery-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.recovery-review input[type='file'] {
+  width: 100%;
+  max-width: 100%;
+}
+
+.grp .hd {
+  flex-wrap: wrap;
+}
+.grp .seg {
+  max-width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.grp .seg button {
+  overflow-wrap: anywhere;
+  white-space: normal;
+  min-width: 0;
+}
+.wnum small {
+  max-width: 100%;
+}
+.grow b {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}

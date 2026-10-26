@@ -1,8 +1,8 @@
 # Progressive Overload — revival mission brief
 
-**CORE MISSION APPROVED · MANUAL MIGRATION PERMITTED · 25 October 2026**
+**CORE PUBLISHED · APPROVED DESIGN VERIFIED LOCALLY · 26 October 2026**
 
-The operator accepted this initiative brief and permits a necessary manual migration: users may export old data from Settings and import it into the refreshed app. Core observation, daily-logging repair, and recovery work can proceed in local-trunk mode. Optional feature families still need their recorded decisions; approval does not authorize every historical request, PR closure, push, deployment, or discarding user data.
+The operator approved the designer's 26 October developer package and requested adoption. Section 21 governs this wave: search-first logging, compact bottom sheets, exercise history, a calendar day panel, timer navigation and settings. It supersedes older presentation and copied-note prescriptions, not the recoverable-data, offline or silent signed-timer contracts. Preserve the familiar yellow, compact, boxy friends-tool character. Running remains backlog. Work remains local-trunk/private-preview only; no new publication, remote issue/PR mutation or destructive user-data operation is authorized.
 
 ## 1. Purpose and audience
 
@@ -10,7 +10,7 @@ The operator's original intent was “housekeeping, upgrade stuff, revive the pr
 
 **Mission:** make the existing local-first workout logger dependable, easier to use during a workout, and straightforward to maintain—without sacrificing anyone's accumulated history.
 
-The primary audience is the current small group of lifters, especially returning users recording another session from a phone. A public launch, account system, growth programme, or general fitness platform is not assumed. Phone-first is a proposed priority based on the existing interface and workout setting; actual devices and the most painful tasks still need the operator's input.
+The primary audience is the current small group of lifters, especially returning users recording another effort from a phone. The operator explicitly selected iPhone and Android, with finding and repeating a previous lift as the leading UX outcome. A public launch, account system, growth programme, or general fitness platform is not assumed.
 
 The unit of success is a real workout journey: find the previous effort, record what happened, verify the result, revisit it later, and recover it from a backup. More dependencies, screens, fields, or closed issues are not success measures.
 
@@ -23,8 +23,8 @@ The unit of success is a real workout journey: find the previous effort, record 
 | Checks exercised               | Frozen install, lint, and production build passed on Node 22.13. Disposable Chromium exercised old-to-new worker takeover with unchanged legacy storage, create/edit/copy, tags/filters/history, raw backup restoration, and offline logging. These are baseline proofs, not acceptance of future changes. |
 | Security findings retained     | Recorded audit: zero high/critical entries; five moderate dependency paths across three advisories. Current applicability is qualified in `README.md`; this is not a zero-vulnerability claim.                                                                                                             |
 | Backlog review completed       | The reviewed snapshot has 26 open issues and 14 open PRs. All PRs received intent/acceptance/disposition comments; titles and descriptions were preserved. No PR was closed or merged.                                                                                                                     |
-| Production unchanged           | Local integration has not been pushed or deployed. Existing users have not received the revival changes.                                                                                                                                                                                                   |
-| Unknown                        | Real-device/Safari behavior, the operator's highest-friction tasks, the intended date/time policy, and acceptance of any optional feature family. Source-level risk findings still need focused reproduction before a repair is selected.                                                                  |
+| Production published           | The operator separately authorized publication. Vercel deployed `e52919a` to https://gains.odjhey.com; live old-client close/reopen preserved synthetic legacy data, and offline logging passed. The operator reported that the upgrade worked and backed up their data.                                   |
+| Unknown                        | Comprehensive real-device/Safari, screen-reader and IME behavior, intended date/time policy, and optional feature-family semantics. Device priorities are now iPhone/Android; the approved UX priority is finding and repeating a previous lift.                                                           |
 
 The product contract is in `README.md`. Historical requests remain in the [issue queue](https://github.com/odjhey/progressive-overload-is-the-name-of-the-game/issues) and [PR queue](https://github.com/odjhey/progressive-overload-is-the-name-of-the-game/pulls); they are inputs, not an automatically approved release specification.
 
@@ -66,14 +66,14 @@ A returning lifter should be able to:
 
 This is an outcome map, not a fixed implementation stack. Each wave should contain small end-to-end changes. Observation may reorder work; data-loss risk takes precedence over cosmetic improvement.
 
-| Wave                                                 | Observable outcome                                                                                                                                                                                                                                                                                   | Status / scope                                                                                                                                                                       |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 0 — Recover a maintainable baseline                  | A reproducible, reviewed local build that preserves existing storage and offline operation; old PR intent is understandable.                                                                                                                                                                         | **COMPLETED LOCALLY** in `afbf1ec`; 14 review comments published.                                                                                                                    |
-| 1 — Observe the real daily workflow                  | A representative populated workout journey is observed, friction is ranked, and operator device/task priorities are explicit. Include code-blind UX observation rather than only implementation opinion.                                                                                             | **AGENT OBSERVATION COMPLETE.** Baseline and guided acceptance/retest retained. Human/device acceptance remains separate.                                                            |
-| 2 — Repair daily logging                             | Search/clear, create vs edit/copy, saved-record visibility, tags, and numeric entry behave coherently. Include any reproduced save/data-loss defect in the affected path rather than postponing it for polish.                                                                                       | **IMPLEMENTED LOCALLY.** Composed Chromium success/failure and independent source review completed.                                                                                  |
-| 3 — Make recovery and lifecycle behavior trustworthy | Backup/restore and any necessary manual migration are understandable and complete; failure/cancel preserves recoverability. Offline reload, update takeover, and in-progress entry behavior are explicit and exercised. Refine accessibility and actual-device behavior across the repaired journey. | **IMPLEMENTED / LOCAL PROOF COMPLETE.** Actual legacy JSON migration, offline logging, and per-tab update consent exercised; physical-device/first-production rollout checks remain. |
-| 4 — Select extensions deliberately                   | Each historical feature family is accepted with semantics, deferred with rationale, or retired as obsolete. Only selected extensions are implemented.                                                                                                                                                | **DECISION NEEDED.** Not a promise to ship the whole backlog.                                                                                                                        |
-| 5 — Accept and release safely                        | The composed daily journey meets the acceptance envelope; the operator accepts it. A separately authorized release reaches the existing origin and is checked for update/data compatibility.                                                                                                         | **LATER / AUTHORITY NEEDED.** Until then the result is local-ready, not a completed live rollout.                                                                                    |
+| Wave                                                 | Observable outcome                                                                                                                                                                                                                                                                                   | Status / scope                                                                                                                                                                        |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0 — Recover a maintainable baseline                  | A reproducible, reviewed local build that preserves existing storage and offline operation; old PR intent is understandable.                                                                                                                                                                         | **COMPLETED LOCALLY** in `afbf1ec`; 14 review comments published.                                                                                                                     |
+| 1 — Observe the real daily workflow                  | A representative populated workout journey is observed, friction is ranked, and operator device/task priorities are explicit. Include code-blind UX observation rather than only implementation opinion.                                                                                             | **AGENT OBSERVATION COMPLETE.** Baseline and guided acceptance/retest retained. Human/device acceptance remains separate.                                                             |
+| 2 — Repair daily logging                             | Search/clear, create vs edit/copy, saved-record visibility, tags, and numeric entry behave coherently. Include any reproduced save/data-loss defect in the affected path rather than postponing it for polish.                                                                                       | **IMPLEMENTED LOCALLY.** Composed Chromium success/failure and independent source review completed.                                                                                   |
+| 3 — Make recovery and lifecycle behavior trustworthy | Backup/restore and any necessary manual migration are understandable and complete; failure/cancel preserves recoverability. Offline reload, update takeover, and in-progress entry behavior are explicit and exercised. Refine accessibility and actual-device behavior across the repaired journey. | **IMPLEMENTED / LOCAL PROOF COMPLETE.** Actual legacy JSON migration, offline logging, and per-tab update consent exercised; physical-device/first-production rollout checks remain.  |
+| 4 — Select extensions deliberately                   | Each historical feature family is accepted with semantics, deferred with rationale, or retired as obsolete. Only selected extensions are implemented.                                                                                                                                                | **DECISION NEEDED.** Not a promise to ship the whole backlog.                                                                                                                         |
+| 5 — Accept and release safely                        | The composed daily journey meets the acceptance envelope; the operator accepts it. A separately authorized release reaches the existing origin and is checked for update/data compatibility.                                                                                                         | **FIRST CORE RELEASE COMPLETE** at `e52919a`; operator reported success. Subsequent UX work needs its own review and release authorization; broad device acceptance remains separate. |
 
 Maintenance follows the same small worktree/review/smoke pattern after release. Keep setup and verification instructions usable; agree a lightweight dependency-review cadence with the operator rather than creating a maintenance service or another tracking system.
 
@@ -135,7 +135,7 @@ No fabricated performance target, automatic training recommendation, all-browser
 
 ## 9. Decisions for the operator
 
-Only the first two decisions materially shape the next core wave; the others can wait until their feature family is selected.
+The operator selected iPhone/Android, finding and repeating a previous lift, and the compact original yellow/boxy character. They have now accepted the broader redesign direction and the silent signed rest timer/calendar requirements in section 18. Running remains backlog. Difficulty-scale wording, detailed progress formulas, and multi-dataset semantics still need their specific definitions before those features are implemented.
 
 | Decision                                  | Recommended starting position                                                                                                   | Alternative / tradeoff                                                                                                                    |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -155,7 +155,7 @@ Only the first two decisions materially shape the next core wave; the others can
 
 **Review:** use independent code/safety review and actual-surface observation where they answer different questions. An author smoke, passing lint, or attractive screenshot does not by itself establish acceptance. UI changes get before/after evidence; data changes get compatibility/failure-path proof.
 
-**Authority now:** the operator has approved the core mission, local worktree/commit/integration workflow, and a necessary manual Settings export/import migration. Proceed with core observation, bounded daily-logging repair, and recovery work; routine reversible engineering within that scope does not need repeated approval. Optional feature semantics, PR closures, issue rewrites, remote merges, pushes, deployment, production-origin changes, destructive operations on users' data, and paid/external service adoption remain separate decisions. Manual migration permission is not permission to discard history or an instruction to rewrite the schema.
+**Authority now:** advance the approved intent-first redesign, including user-flow and model changes where needed for section 18, in task worktrees; preserve recoverable history/offline operation, commit and integrate verified increments into local `next`, and provide a private tailnet preview. This approval supersedes earlier presentation-only schema/identity freezes, not data safety. The prior core publication grant was fulfilled and is not standing release permission. Running implementation, unrelated backlog features or issue/PR closure/rewrites, remote merges, pushes/deployment, production-origin changes, destructive user-data operations and paid/external service adoption remain separate decisions. Manual migration is permitted with an explicit, proven preservation mapping.
 
 ## 11. Stopping conditions and next step
 
@@ -163,7 +163,7 @@ The **core** initiative is locally ready when its agreed daily journeys and reco
 
 At each wave, continue, reshape, or stop from evidence. If a required capability or authority is missing, name the exact missing prerequisite and continue independent authorized work; do not relabel a partial build as complete.
 
-**Next:** review the locally implemented candidate on the intended devices, then choose a separately authorized first rollout. The representative journey has agent/source/composed runtime evidence; actual human acceptance, optional feature decisions, and publication authority remain separate. Manual migration is supported through legacy JSON restore without an unnecessary schema rewrite.
+**Next:** review the local section 19 calendar/timer slice on the selected phones, then make a separate publication decision. Progress/rating rules, routine machinery and running remain deferred rather than being inferred from this delivery.
 
 ## 12. Core wave receipt — local readiness, not deployment
 
@@ -181,4 +181,367 @@ The coordinator exercised these actual browser paths with synthetic data:
 
 Independent source reviewers accepted the persistence/update, recovery, and logging corrections after reported findings were resolved. Fresh code-blind agent acceptance completed the daily journey and one-category restore; a separate retest confirmed the unsaved-navigation repair. These are not human, screen-reader, physical-phone, Safari, all-storage-driver, or cross-device acceptance claims.
 
-No push, deployment, production data operation, optional feature implementation, or GitHub issue/PR closure occurred. Next: operator review on the intended devices and a separately authorized first-rollout plan; keep optional feature decisions separate.
+At the local core-wave handoff, no push, deployment, production data operation, optional feature implementation, or GitHub issue/PR closure had occurred. The subsequently authorized first publication is recorded below; the original 14 reviewed PRs remain separate from release-correction PR #92.
+
+## 13. First production publication
+
+The operator authorized “publish”. Vercel deployed the core and a hosting correction to the existing https://gains.odjhey.com origin at `e52919aa02727cc7f85627e6b04c84e7e9be0320`. Live verification found direct `/new` navigation returned 404 without a worker cache. [PR #92](https://github.com/odjhey/progressive-overload-is-the-name-of-the-game/pull/92) added the documented Vercel SPA fallback; `/new`, `/tags`, and `/about` then returned 200 and rendered correctly with the service worker bypassed, while JS/CSS and PWA files retained their actual content types.
+
+In an isolated owned browser, closing old clients and reopening activated the new worker without clearing storage and preserved all synthetic workouts, tags, filters, legacy extras, and an unrelated key. Live offline create/save/reload and final stored-field assertions passed; browser error logs were empty. This does not establish every user's storage driver or device behavior. For the first update, save work/back up, close all app tabs/PWA, and reopen; do not clear storage or uninstall.
+
+The operator then reported “worked. i backed up my stuff. i think safe to do a UX rework now”. This is human confirmation of their upgrade, not permission to discard history or assume the next UX is already accepted.
+
+## 14. Previous UX wave — find and repeat
+
+**Operator choices:** iPhone and Android; lead with finding and repeating a previous lift. Scope owner is the coordinator, with delegated UI implementation and independent UX observation; the operator retains product/release acceptance.
+
+**Observable outcome:** a returning lifter sees useful previous efforts before advanced filters, finds the intended lift, chooses **Repeat**, sees the chosen source effort while adjusting the new one, saves a distinct record, and can verify both new and original history. Edit remains explicitly different from Repeat. Search, tags, dates, latest/history, custom units, notes, and recovery remain available.
+
+**Design direction — amended by the operator:** keep the original bumblebee yellow/white/black feel of an internal tool for friends. Minimal, compact layouts for smaller phones, flat rectangular controls/sections, ordinary-sized type and numbers, little rounding, no shadows or decorative branding. Search and lift records lead; less frequent filtering can remain disclosed with active filters visible. Preserve usable labels/touch targets/keyboard focus, and reuse the existing stack. The earlier green/warm-paper notebook direction is superseded, not a requirement.
+
+**Boundaries of that completed presentation wave:** existing hooks, schemas, name/date identity, tag meaning, date policy, backup validation and restore lifecycle were retained. The broader redesign in section 18 now permits deliberate model changes with proven migration. No account/sync feature, invented progress formula, automatic load recommendation or publication is implied by either wave.
+
+**Local acceptance:** exercise a populated find → Repeat → inspect previous values → adjust → save → revisit/history flow; original records and legacy extras survive. Preserve truthful failure/retry, dirty navigation, save-and-tag, recovery, and offline use. Capture matched before/after views and check 320px reflow, phone-sized keyboard/focus clearance and a wider layout. Independent agent evidence is distinct from physical iPhone/Safari/Android and human acceptance.
+
+## 15. First UX candidate — functional proof, visual direction rejected
+
+Code candidate `15ebeb8` composes the UI author commits `af73b5c` / `2451515`, formatted scope commit `9921f3e`, and the independently observed History-return correction. Node 22.13 lint and TypeScript/Vite/PWA build passed; final runtime fingerprints are `index-5F2HiI8L.js` and `index-BUEScfn3.css`. There are no new dependencies, storage hooks, persistence formats, or recovery implementations.
+
+A fresh code-blind agent completed find → repeat 62.5 kg at 63.75 kg / 3 × 8 → save → history, preserving the original, and verified that selecting the older 60 kg effort retained that source after entry-page reload. Its initial report found that canceling an older-record entry returned Latest and could hide the record under an older date filter. The correction carries only the UI view separately in the query; independent source delta review and a separate guided observer retest confirmed Back/Home, Keep/Discard, and Edit cancellation retain History and the original date/tag filters. Original observations remain unchanged.
+
+Source-informed composed browser proof exercised failed-save retention and successful retry, seven original records/extras preserved after Repeat, source reference absent from saved records, newest-first history, identity-changing edit, collision refusal, dirty Keep/Discard, and save-and-tag. A later final-runtime save-and-tag → Home check retained History/date context and did not persist query context. Offline create/save/reload preserved decimal weight, arbitrary custom unit, and Unicode notes; recovery preview required acknowledgment, cancel wrote nothing, the generated JSON download payload matched stored workouts, and legacy workout restore matched the source envelope while leaving other categories and an unrelated key unchanged. Browser disk download capture was unavailable in this coordinator pass; the JSON blob payload, not a saved file location, was verified.
+
+Matched before/after Home, Repeat, Settings, narrow and wide views were captured against the same synthetic fixture. Chromium reflow checks covered 320 px, 200% root text, and a 390 × 450 short viewport. Keyboard Notes → Tab focused Save above the fixed navigation in both normal and short viewports; final browser error log was empty. Evidence is retained outside product commits and has not been uploaded to a remote PR in this local-only wave.
+
+This is responsive Chromium and agent/source evidence, not physical iPhone/Safari/Android, software-keyboard, screen-reader or human design acceptance. Existing date policy and concurrent-editor/restore limitations remain. Review the private tailnet candidate; production stays at `e52919a` until a separate release is authorized.
+
+## 16. Authorized visual correction — compact friends' tool
+
+Operator feedback: “we want the old feel and color. like an internal tool for friends. not a saas looking commercial one”; “keep it minimal but improve the layouts, keep it compact, assume it will be used by smaller phones”; “keep the boxy feeling”.
+
+The coordinator's previous neutral/green notebook styling was an assumption, not an operator preference. Restore the exact original bumblebee palette and plain yellow navigation/header, remove the monogram/tagline/hero treatment, use compact rows/forms and minimally rounded or square boxes, and delete obsolete bespoke style scaffolding rather than layering another theme over it. Judge the layout on 320px-wide, short phones as well as larger views.
+
+Retain the independently verified find/repeat, selected-source reference, newest-first/history-context, dirty/error, recovery and offline behavior. This is a presentation correction, not a data-model rewrite or permission to weaken interaction safety. Work in task worktrees, integrate verified commits locally and refresh the private tailnet preview; no push/deployment or remote issue/PR mutation is authorized. Physical-device and human visual acceptance remain separate from agent checks.
+
+## 17. Compact correction receipt — local, not published
+
+Code candidate `bdad39a` retains the find/repeat behavior and restores the original bumblebee presentation. Markup `a9ba499`, style simplification `a440347`, composed scope/formatting `cac072a`, and reference refinements `1b722ff` / `bdad39a` remove the rejected brand/hero/card treatment. Original theme variables and actual header/footer colors were compared with the live original and matched exactly. Inputs/buttons have 2px corners, ordinary-sized numbers and flat styling; no data hooks, schemas, dependencies or recovery implementations changed.
+
+Node 22.13 lint and TypeScript/Vite/PWA builds passed. Final runtime fingerprints are `index-B7xkgSus.js` and `index-Br-SV32s.css`. Independent source review found no material changes to callbacks, fields, query context or safety behavior. A fresh code-blind agent completed the populated repeat/save/history and dirty-cancel flow at 320 × 568, and observed the restored plain yellow/boxy direction without claiming human aesthetic approval.
+
+That observer and the coordinator identified that the previous-effort reference still occupied most of the initial entry screen. The source date/time now shares its heading, previous notes remain available in a native disclosure, and the copy instruction is shorter. On the coordinator's typical 320 × 568 fixture the complete Weight input was visible above the fixed navigation; this is not a guarantee for every name, locale, text size or device. A separate guided observer retest verified that disclosed source notes and copied editable notes remained intact, and separate saves/History and dirty cancellation still worked.
+
+Composed browser proof also exercised failed-save value/storage retention and retry, unchanged original records/extras, History/date return context, recovery-preview acknowledgment and no-write Cancel, offline save/reload, 320px reflow and enlarged text, and short-viewport keyboard Save clearance. Final-runtime reference reload, note expansion, separate save/reload/History and browser error checks passed. Evidence and original reports remain outside product commits.
+
+The private tailnet preview is the review surface. Production remains `e52919a`; no push, publication or remote issue/PR mutation occurred. This proof is responsive Chromium/agent evidence, not physical iPhone/Android, software-keyboard, screen-reader or human visual acceptance.
+
+## 18. Accepted intent-first redesign
+
+### Intent and retained character
+
+The operator clarified that redesign includes the data model and user flows where needed, and said “agree, with your design proposals.” The goal is to remember previous training, record actual work without unnecessary re-entry, inspect meaningful history, organize exercises/workouts, and own/recover the data. Preserve the compact bumblebee yellow/white/black, boxy internal-tool-for-friends character on small iPhone/Android screens. Do not turn this into coaching, a social network, a dashboard product or a mandatory set-by-set workflow.
+
+This accepted direction preceded implementation. Section 19 records the first local delivery through calendar and timer; it does not claim the entire optional backlog or a new production release.
+
+### Model and recording flows
+
+- **Exercise:** stable identity, name and tags. Renaming should not split history or orphan tags; labels are not identifiers. Migration must not silently merge different legacy names/variants.
+- **Entry:** an actual performance with stable identity, training date, recorded-at time, notes and optionally reported effort. Recording time is not the performance's primary key. Old absence of a rating remains unrated; repeating does not copy an effort rating as a new observation.
+- **Set group:** compactly records repeated work with its actual count, reps, load and unit. Different groups can capture different values. A legacy aggregate remains a group; do not manufacture separately observed per-set records or force a tap for every identical set.
+- **Workout:** optional grouping of entries, with explicit attendance-only confirmation when someone trained but will add details later. Quick logging does not require starting/finishing a workout. An empty started draft is not confirmed training.
+- **Tags:** classify exercises through their stable identities, not name-string relationships.
+- **Draft versus actual:** Repeat/routine reuse prefills a draft, never completed history. Save records actual work. Routines describe intended work and stay separate from performances; do not add a second logging system or implement speculative routine machinery before the recording flow proves useful.
+- **Progress:** begin with comparable history and explicit changes in recorded values. Do not equate a heavier load with better training or silently compare incompatible units. Define any metric and rating scale before shipping it.
+- **Migration/recovery:** retain complete original exports, timestamps, units, notes, associations and unrecognized metadata through an explicit mapping. Do not invent old workout boundaries, ratings or precise individual-set details. A complete versioned backup must restore the redesigned data; manual migration is permitted, silent loss is not.
+
+### Silent persistent rest timer
+
+Operator requirement: “don't make sounds. thats not a requirement. we don't want to be intrusive”; show negative time to answer how long it has been since the rest period ended.
+
+- One optional active rest timer persists locally across routes/reload and recovers elapsed time after backgrounding or reopening. Calculate signed remaining time from its saved deadline rather than decrementing a counter as though background callbacks were reliable.
+- Continue below zero, for example `−00:35`; do not clamp to zero, stop automatically at expiry, or mistake expiry for readiness to lift.
+- No sound, vibration, notification permission, push service, flashing expiry, automatic modal or completion nag. This is display-only rest assistance, not a lock-screen alarm guarantee.
+- Manual start works without individual-set logging. Duration choice, extension, restart and stop remain explicit. Optional start after an explicit set-completion action must not start a timer merely because history was edited or an entry copied/saved.
+- Timer state is transient local utility state, separate from training history. Starting/expiring it never creates a set or fills a calendar day. Restoring a history backup must not resurrect an old running countdown.
+- No timer use is required to log training. Keep its persistent display compact rather than allowing it to consume the small-phone working area.
+
+### Simple calendar and backfill
+
+Operator requirement: a simple “did I workout?” calendar; seeing an unfilled date helps people notice training they did without the phone and enter it later.
+
+- Show a simple month calendar with a binary recorded-training marker. Use accessible non-color-only day states. No fabricated intensity scale, streak pressure, leaderboard or implied requirement to train every day.
+- Empty means **nothing recorded**, not proof that no training occurred. A marker comes from saved actual performance or an explicit “Trained — details later” confirmation, not a plan, draft, opened workout or running timer.
+- Tap a date to see its recorded work and add/backfill a workout or entry with that training date preselected. Allow truthful attendance-only confirmation without inventing exercises, weights or sets; detailed entries can be added later without counting the day twice.
+- Distinguish the selected civil **training date** from **recordedAt**, the instant the record was created. Logging an old workout today must fill the chosen old day, not today. Keep date-only attendance date-only; do not invent its exact performance time.
+- Do not silently shift an already selected training day when the device timezone changes. Preserve legacy timestamp text and make import date interpretation reviewable rather than silently re-bucketing old history.
+- Deletion/correction recomputes markers from remaining actual records and explicit attendance confirmations. An automatically derived marker is not a second editable source of truth; explicit attendance can be corrected/removed independently.
+- The calendar represents this user's local training record. The mention of friends does not authorize shared accounts, remote observation of friends, telemetry or social comparison.
+
+### Running — backlog, not this implementation
+
+Operator: “we need to support runners as well (but this will be in the backlog, some of my friends started running).”
+
+Retain the intent to log/review running appropriately later, rather than forcing distance/duration into weight/reps. Keep calendar presence activity-independent so future running records can contribute. Do not build running fields/screens, reserved placeholder models, GPS/location tracking, routes, live tracking, coaching or integrations now. Define the runner's actual recording/comparison needs when this backlog item is selected.
+
+### Composed acceptance and first delivery slice
+
+Prove legacy history remains recoverable under the selected model; then a user can find/repeat a prior effort, save actual work with originals intact, see its correct calendar day, notice an empty past day, backfill actual work/attendance without fabricated numbers, and revisit both history and calendar after offline reload. A silent timer must survive navigation/reload/background return, display signed overtime, and never trigger alerts or create training records. Backup/restore preserves the relationships and selected dates without restoring transient timer state.
+
+Begin with the smallest populated quick-log → calendar → backfill → revisit path and its model/import contract; progress comparisons/routines follow only their defined user need. Implement the independent timer against its explicit state contract without turning it into a required recording step. Running stays deferred. Preserve meaningful failure/retry and draft recovery, inspect 320px/short-phone input/focus behavior, and separate agent/browser evidence from real-device and human acceptance. No new push/deployment follows from approving this brief.
+
+## 19. Calendar and silent timer — local delivery receipt
+
+The operator selected “go, work until the timer and calendar.” Runtime candidate
+`bf41e61` implements that slice from `f4bff14`, retaining the original bumblebee
+yellow/white/dark, flat boxy friends' tool. Final application fingerprints are
+`index-DpSRXfDz.js` and `index-D4M7iLkE.css`. This is local-only work; the prior
+publication grant is not reused.
+
+### Delivered behavior
+
+- Stable exercise/entry/group/workout identities, civil training dates separate
+  from recording times, multiple aggregate set groups, ID-based Repeat/Edit,
+  explicit global exercise rename and identity-linked tags. New entry URLs
+  carry IDs and bounded view/date context, not complete private records.
+- A reviewed version 2 cutover under new storage keys. Every original legacy
+  key stays untouched; written/local date interpretation is explicit. Duplicate
+  old name/date rows, exact names, notes, units, tag associations and unknown source
+  metadata remain recoverable; old creation times remain unknown. A legacy aggregate
+  is not expanded into invented individual sets or sessions.
+- One complete training/preferences JSON backup and reviewed replacement restore,
+  plus staged import of the three original per-key exports. Invalid/canceled
+  previews do not write. Unverified and partially verified outcomes stay visible;
+  malformed destinations are not silently treated as empty. Raw export remains
+  available, including for unreadable current history.
+- A binary month calendar from actual saved entries or explicit attendance.
+  Choosing a day exposes its details/backfill actions. “Trained — details later”
+  does not invent exercise data; later details count the day once. Removing that
+  confirmation preserves actual entries, and deleting the final actual entry
+  clears the day when no confirmation remains.
+- An optional manually operated, locally persisted deadline timer with presets
+  and custom seconds, extension/restart/stop, and signed negative overtime.
+  No sound, vibration, notification permission, push, flashing expiry or popup.
+  It never starts on save, records training, fills a calendar day or enters a
+  history backup.
+
+### Exercised evidence
+
+Node 22.13 / Yarn 1.22 lint and TypeScript/Vite/PWA production build passed on
+`bf41e61`. Independent model/recovery review found no material defect; source
+flow review's saved-entry return finding was corrected and delta-reviewed.
+Source reviews and fresh code-blind observation are separate from author proof.
+Original reports and before/after screenshots remain in local session evidence,
+not product assets or an unauthorized remote PR.
+
+The composed browser proof used synthetic data only:
+
+- Actual default-store migration preserved all seven original rows and their
+  associations/extras. Downloaded original JSON matched source values; preview
+  and Cancel wrote nothing; committed IDs matched the reviewed preview.
+- Actual three-file manual migration into an empty origin, then generated
+  complete-backup restoration into a second empty origin, preserved stable IDs,
+  relationships, source metadata and preferences. The source's running timer was
+  excluded; the destination acquired no timer.
+- Repeat/reload, variable groups, durable Save and tag, retained-filter saved-entry
+  visibility, explicit rename/tags, entry-only exercise moves and creation-time
+  preservation worked. Quota failure retained form/storage; an accepted write
+  with failed read-back stayed unverified, and retry reconciled the same entry
+  with exactly one write rather than duplicating it.
+- Attendance/backfill kept the chosen old training day while recording the real
+  new creation time. Confirmation removal retained detail; deleting its final
+  entry returned the day to blank. Selected dates stayed fixed in Adak and
+  Kiritimati timezones. Cached offline reload, new-entry save and another reload
+  retained the result.
+- Timer duration choice did not restart it; cross-tab extension moved the saved
+  deadline by 30 seconds. Navigation/reload, closing the owned app tabs and
+  reopening, and native Chromium freeze/resume recovered negative overtime.
+  Intrusive API counters remained zero and training/preferences stayed unchanged.
+  Failed timer writes and corrupt timer JSON reported failure; explicit timer-only
+  recovery did not change history.
+
+A fresh code-blind phone pass completed logging/repeat, attendance/backfill,
+confirmation removal, overtime and backup/restore. It found narrow recovery-result
+overflow; a separate guided retest confirmed the corrected action fits, recording
+time is distinguished from training time, scrolled-record entry opens at the top,
+and selected-day returns are understandable. It did not establish human preference
+or physical-device acceptance.
+
+Final responsive proof covered 320 × 568, a 320 × 480 short viewport, 390 × 844,
+a wider desktop, and enlarged root text. Original computed palette/header/footer
+colors matched exactly. In the ordinary tagged fixture, Repeat/Edit fit above
+fixed navigation; the six-row month fit with 44px-high days. Notes → Tab focused
+Save above navigation on the short viewport. A cold calendar reload restored its
+saved scroll position after history hydration. Larger text, long content,
+expanded filters/timer controls or shorter screens still require normal scrolling;
+these measurements are not a universal no-scroll promise.
+
+### Retained boundaries
+
+No running fields/screens, routine system, effort scale, invented progress metric,
+account/sync service or remote observation of friends was added. No issue/PR was
+closed or rewritten, and no push/deployment or real-user data operation occurred.
+Physical iPhone/Safari/Android, real software-keyboard, screen-reader and human
+acceptance remain separate.
+
+Snapshot/revision checks are not cross-tab CAS; history and preference restore
+are not cross-key atomic. Invalid current version 2 data is raw-exportable but
+deliberately not overwrite-repaired by this API. Browser eviction and device-clock
+changes remain real risks. The old production build cannot read new-format
+records after a code rollback; keep complete backups and use a forward-capable
+build for recovery. Publication still needs separate operator authorization.
+
+## 20. Smaller icon controls — local presentation refinement
+
+The operator asked for smaller buttons and icons so more content is visible
+without scrolling. Candidate `6b5e5b3` applies that refinement without changing
+storage, hooks, URLs, validation, confirmation guards or save/restore semantics.
+It retains the original yellow/white/dark boxy appearance.
+
+Repeat/Edit sit beside the exercise heading; dates share the effort metadata
+area. New entry, filters, month navigation and routine removal actions use
+familiar decorative icons with meaningful accessible names and titles. Save,
+Save and tag, attendance meaning and recovery/destructive confirmations retain
+text. Compact secondary targets use a 2rem minimum, Save a 2.25rem minimum, and
+inputs retain 16px text. This deliberately reduces the earlier 44px density
+preference; it is not a physical finger-accuracy or WCAG conformance claim.
+
+The running timer has explicit restart/extension/stop and a native options
+disclosure alongside the clock. Collapsed options no longer consume a second
+row. Expanded options remain open until the user closes them, including after
+Start; failed/unverified storage results are not hidden to save space.
+
+Measured default-size synthetic fixture at 320 × 568:
+
+| Region                           | Before | After |
+| -------------------------------- | ------ | ----- |
+| Running timer, options collapsed | 97px   | 43px  |
+| Bottom navigation                | 60px   | 42px  |
+| First tagged workout row         | 198px  | 155px |
+| Six-row month grid bottom        | 507px  | 401px |
+
+Lint and TypeScript/Vite/PWA build passed on `6b5e5b3`. Independent source review
+found no concrete patch-introduced defect. A fresh code-blind agent completed
+logging/repeat/reload, calendar confirmation/correction and silent timer overtime,
+including keyboard activation; its two short Bench history cards fit at 320 × 480.
+These are bounded observations, not a guarantee for long names, active filters,
+save banners, expanded controls or every device.
+
+Coordinator browser proof also exercised icon group/tag removal with retained
+confirmation, durable Save and tag/return context, calendar backfill and entry
+edit, timer restart/extension/stop and failed-storage recovery. At 200% root text,
+closed/open timer options stayed reachable without horizontal overflow or
+occluded hit targets. Notes → Tab focused Save above navigation on 320 × 480,
+with visible focus and 16px input text; Keep/Discard still worked. Matched
+before/after screenshots remain in local session evidence, not product assets.
+
+No production publication, remote issue/PR operation, model migration or new
+dependency is part of this refinement. Physical-phone, screen-reader and human
+acceptance remain separate. The private tailnet preview remains the review
+surface.
+
+## 21. Approved designer package — adoption
+
+Operator mandate: “the design turned up really well
+`/tmp/progressive-overload-dev-package-2026-10-26.zip` i really like it. adopt it”.
+The package's `CHANGES.md`, `APPLYING.md`, `BRIEFS.md` and standalone boards define
+the approved direction. Package SHA-256:
+`7b14540b76f01ac9677880d4d4663e30791cf4edbe979b3c6772954044aabad5`.
+
+Adopt the flows, not just the palette: search-first latest efforts; creation from
+search; a shared compact Create/Repeat/Edit sheet; tap/hold weight and set/rep
+controls; per-exercise history, rename and tags; collapsed set groups; in-place
+delete confirmation; a calendar day panel; a four-slot navigation with silent
+timer popover; confirmed-save feedback with an explicit rest-start action; and
+compact settings with reviewed backup replacement. Repeat notes start blank.
+The old global History switch, date-text search and top timer strip are replaced,
+while every historical entry remains reachable from its exercise and calendar.
+
+Resolve the package's open points conservatively: unit switches relabel without
+conversion; rename collisions are refused, not merged; the chosen step applies
+in either unit; save feedback lasts six seconds and can be dismissed. Existing
+stored precision, group units, stable IDs and migration metadata remain intact.
+The sample one-decimal display is not permission to misrepresent historical
+weights. New exercise defaults and weight steps are device preferences; the
+existing timer duration remains the single rest-preset source.
+
+The simpler import board does not waive safety backups, explicit replacement
+consent, destination rechecks or truthful partial/unverified outcomes. Import
+replaces training and saved filters, not arbitrary device data or timer state.
+Missing prototype states—custom timer, empty/error states, old-history review,
+dirty-draft confirmation and larger widths—must work in the same visual language.
+
+Implement from `6fc060b3992a1e2650f861391b1bdccb224300c1` in
+`.worktrees/adopt-approved-design`, then prove the composed mobile flows and
+offline/reload recovery before local integration. Matched before/after captures
+use synthetic data only. Responsive Chromium evidence is not physical-device,
+screen-reader or human acceptance. No new production release is authorized.
+
+## 22. Approved design adoption — local receipt
+
+Runtime candidate `ccb51bc` completes the approved package from `6fc060b`,
+including feature commit `37ad9f0`. Final assets are `index-Bs7gIq3S.js` and
+`index-CDQb7VUZ.css`. The obsolete standalone Tags page and its redirect/query
+compatibility path are removed; exercise history owns tags and rename.
+No dependency, training document, backup format or original-storage change is
+introduced. Device defaults use the separate preferences key documented in
+`README.md`.
+
+### Proof and corrections
+
+- Node 22.13 / Yarn 1.22.22 lint and TypeScript/Vite/PWA production build passed.
+- Matched synthetic captures cover Log and Repeat at 320 × 568 and 360 × 720,
+  plus Calendar, Settings and signed timer at 320 × 568. The final private HTTPS
+  origin served the expected assets and all five application destinations;
+  JavaScript, CSS, worker and manifest returned their actual content.
+- Eight ordinary Log rows fit the small viewport; eleven fit 360 × 720.
+  Repeat Save ends at 556px and 708px respectively. Captures are 2× PNGs
+  (640 × 1136 and 720 × 1440). Additional checks covered a 320 × 480 sheet,
+  1280px layout and forced doubled computed text. Enlarged step labels now
+  reflow into two rows rather than overlap, while Save stays reachable.
+- Independent source review found an orphan-exercise logging dead end, a
+  toast-dependent saved-row lifetime and a partially verified tag retry failure.
+  Corrections expose Add entry, retain selected entry identity in the return URL
+  and reconcile confirmed entry/tag phases. A focused rereview found no concrete
+  remaining defect in those fixes.
+- Runtime regression checks logged an existing exercise without entries,
+  retained its identity, then deleted its last entry and still offered Add entry
+  after reload.
+  A saved entry outside a retained month remained reachable in exercise history.
+- A rejected write retained draft/group IDs, values and notes, showed no success,
+  and retried into one record. An accepted tag write with failed verification
+  recovered without replaying its verified Edit: two initial writes, no retry
+  write. Deliberately changed Edit values reconciled first and added one write.
+  Reloading for reconciliation keeps the editor mounted.
+- Repeat left its source intact and started with blank notes. Multiple groups,
+  tap/hold controls, numeric floors, precise historical weights, arbitrary units,
+  rename collision refusal and exercise-tag changes were exercised. Immediate
+  changed-draft Escape warned and Keep retained the input. Import dismissal
+  restored focus to its launcher.
+- Real complete/original/safety JSON downloads completed. Invalid input wrote
+  nothing. Reviewed replacement restored fifteen exact entries and saved filters
+  while leaving timer/default preferences unchanged. A separate legacy-only
+  fixture converted seven entries/four exercises under Written dates; reload
+  retained date mappings, unknown source metadata and untouched original JSON.
+- Settings survived reload; malformed preferences remained unmodified with an
+  explicit error. Custom rest elapsed into negative time after reload; extension
+  moved the deadline by exactly thirty seconds, Stop cleared it, and changing a
+  Settings preset did not restart an active deadline.
+- A controlled worker reloaded offline, created a real entry using persisted
+  lb/step defaults and showed that entry after another offline reload.
+- Same-origin old-to-new worker proof retained an unfinished 75kg draft while an
+  update waited. Later preserved it; it was saved before close/reopen. The
+  approved UI then showed all sixteen entries with the entire stored document
+  unchanged. This takeover ran before the final standalone-route removal; the
+  final route cutover received fresh HTTPS and exercise-tags smoke.
+
+The independent code-blind observer used a dedicated profile and disposable
+context. Its guided logging, repeat, date edit, attendance, timer and
+backup-review journeys succeeded. Early clean-first failures were invalidated by
+incorrect automation targets, not treated as product defects. Source exclusion
+was instruction-only. That pass does not attest the later corrections; the
+coordinator's final proof covers those.
+
+Screenshots and detailed local evidence stay outside Git and contain synthetic
+data only. No physical iPhone/Safari/Android, software-keyboard, screen-reader or
+human acceptance is claimed. The private preview is not a production release.
+No push, deployment or remote issue/PR mutation is part of this adoption.

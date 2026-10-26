@@ -1,106 +1,176 @@
+import localforage from 'localforage'
+import {
+  convertLegacy,
+  FILTERS_KEY,
+  legacySavedFilters,
+  readLegacySnapshot,
+  TRAINING_KEY,
+  validateTrainingDocument,
+  validateSavedFilters,
+} from './trainingModel'
+import type {
+  LegacyDatePolicy,
+  LegacySnapshot,
+  SavedFilters,
+  TrainingBackup,
+  TrainingDocument,
+} from './trainingTypes'
+
 export const recoveryTargets = {
   workouts: { key: 'ZLDKSJF', label: 'Workouts' },
   tags: { key: 'TAGSlksajdf', label: 'Tags' },
   filters: { key: 'PersistendFilterakj', label: 'Saved filters' },
 } as const
-
 export type RecoveryTarget = keyof typeof recoveryTargets
+export const legacyTargets = Object.keys(recoveryTargets) as RecoveryTarget[]
 
-type JsonObject = Record<string, unknown>
-const isObject = (value: unknown): value is JsonObject =>
+const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
-// Check the legacy fields consumed by the app, without normalizing dates,
-// adding absent notes, or removing fields unknown to this version.
-export function validateBackup(target: RecoveryTarget, value: unknown): string {
-  if (!isObject(value)) {
+export function validateTrainingBackup(value: unknown): TrainingBackup {
+  if (
+    !isObject(value) ||
+    value.format !== 'progressive-overload' ||
+    value.version !== 2
+  ) {
     throw new Error(
-      'Expected a JSON object exported by Settings, not a list or empty value.'
+      'Choose a complete version 2 JSON backup, or stage all three old files below. CSV is not a restorable backup.'
     )
   }
-
-  if (target === 'workouts') {
-    if (!Array.isArray(value.lifts)) {
-      throw new Error('Workouts must contain a "lifts" list.')
-    }
-    value.lifts.forEach((lift: unknown, index: number) => {
-      const prefix = `Workout ${index + 1}`
-      if (!isObject(lift)) throw new Error(`${prefix} must be an object.`)
-      for (const field of ['name', 'date', 'uom']) {
-        if (typeof lift[field] !== 'string') {
-          throw new Error(`${prefix}: "${field}" must be text.`)
-        }
-      }
-      for (const field of ['weight', 'rep', 'set']) {
-        if (typeof lift[field] !== 'number' || !Number.isFinite(lift[field])) {
-          throw new Error(`${prefix}: "${field}" must be a finite number.`)
-        }
-      }
-      if (
-        lift.comment !== undefined &&
-        lift.comment !== null &&
-        typeof lift.comment !== 'string'
-      ) {
-        throw new Error(`${prefix}: optional "comment" must be text or null.`)
-      }
-    })
-    return `${value.lifts.length} workout records`
+  if (
+    typeof value.exportedAt !== 'string' ||
+    !Number.isFinite(Date.parse(value.exportedAt))
+  ) {
+    throw new Error('The backup must include a valid exportedAt timestamp.')
   }
-
-  if (!Array.isArray(value.tags)) {
-    throw new Error(
-      `${recoveryTargets[target].label} must contain a "tags" list.`
-    )
+  return {
+    format: 'progressive-overload',
+    version: 2,
+    exportedAt: value.exportedAt,
+    training: validateTrainingDocument(value.training),
+    filters: validateSavedFilters(value.filters),
   }
-  if (target === 'filters') {
-    if (
-      typeof value.term !== 'string' ||
-      !value.tags.every((tag: unknown) => typeof tag === 'string')
-    ) {
-      throw new Error(
-        'Saved filters need a text "term" and a list of tag names (text).'
-      )
-    }
-    return `Search: ${JSON.stringify(value.term)}; ${value.tags.length} selected tags`
-  }
-
-  value.tags.forEach((tag: unknown, index: number) => {
-    if (
-      !isObject(tag) ||
-      typeof tag.name !== 'string' ||
-      typeof tag.liftName !== 'string'
-    ) {
-      throw new Error(
-        `Tag ${index + 1} needs text "name" and "liftName" fields.`
-      )
-    }
-  })
-  return `${value.tags.length} tag associations`
 }
 
-export function identifyBackup(value: unknown): RecoveryTarget {
-  if (
-    isObject(value) &&
-    typeof value.term === 'string' &&
-    Array.isArray(value.tags) &&
-    value.tags.every((tag: unknown) => typeof tag === 'string')
-  ) {
-    return 'filters'
+export function makeTrainingBackup(
+  training: TrainingDocument,
+  filters: SavedFilters
+): TrainingBackup {
+  return {
+    format: 'progressive-overload',
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    training: validateTrainingDocument(training),
+    filters: validateSavedFilters(filters),
   }
-  const matches = (Object.keys(recoveryTargets) as RecoveryTarget[]).filter(
-    (target) => {
-      try {
-        validateBackup(target, value)
-        return true
-      } catch {
-        return false
-      }
-    }
-  )
-  if (matches.length !== 1) {
+}
+
+export type RecoveryDestination = {
+  revision: number | null
+  training: TrainingDocument | null
+  trainingExists: boolean
+  filtersExist: boolean
+  filters: unknown
+  legacy: LegacySnapshot
+}
+
+// Read-only snapshot. The provider remains the sole training write owner.
+export async function readRecoveryDestination(): Promise<RecoveryDestination> {
+  const keys = await localforage.keys()
+  const trainingExists = keys.includes(TRAINING_KEY)
+  const filtersExist = keys.includes(FILTERS_KEY)
+  const training = trainingExists
+    ? validateTrainingDocument(await localforage.getItem(TRAINING_KEY))
+    : null
+  return {
+    revision: training?.revision ?? null,
+    training,
+    trainingExists,
+    filtersExist,
+    filters: filtersExist ? await localforage.getItem(FILTERS_KEY) : null,
+    legacy: await readLegacySnapshot(),
+  }
+}
+
+export async function assertRecoveryDestination(
+  expected: RecoveryDestination
+): Promise<void> {
+  const current = await readRecoveryDestination()
+  if (JSON.stringify(current) !== JSON.stringify(expected)) {
     throw new Error(
-      'Cannot identify this backup safely. Choose Workouts, Tags, or Saved filters, then preview again to see validation details.'
+      'The destination changed after preview. Nothing was written by this attempt. Cancel and preview again, then back up the new destination.'
     )
   }
-  return matches[0]
+}
+
+export type RecoveryPreview = {
+  training: TrainingDocument
+  filters: SavedFilters
+  source: unknown
+  sourceLabel: string
+  policy?: LegacyDatePolicy
+  destination: RecoveryDestination
+  localSource?: LegacySnapshot
+}
+
+export async function previewLegacy(
+  snapshot: LegacySnapshot,
+  policy: LegacyDatePolicy,
+  sourceLabel: string,
+  localSource = false
+): Promise<RecoveryPreview> {
+  // Convert exactly once: reviewed IDs are the ones passed to replaceDocument.
+  const training = convertLegacy(snapshot, policy)
+  const filters = legacySavedFilters(snapshot)
+  return {
+    training,
+    filters,
+    source: snapshot,
+    sourceLabel,
+    policy,
+    destination: await readRecoveryDestination(),
+    ...(localSource ? { localSource: snapshot } : {}),
+  }
+}
+
+export type LegacyStage = Record<
+  RecoveryTarget,
+  { file?: File; absent: boolean }
+>
+export async function readLegacyStage(
+  stage: LegacyStage
+): Promise<LegacySnapshot> {
+  const snapshot: LegacySnapshot = {
+    keys: [],
+    workouts: undefined,
+    tags: undefined,
+    filters: undefined,
+  }
+  for (const target of legacyTargets) {
+    const item = stage[target]
+    if (item.absent) continue
+    if (!item.file)
+      throw new Error(
+        `Choose the old ${recoveryTargets[target].label.toLowerCase()} JSON file, or explicitly mark it not stored in the original app.`
+      )
+    try {
+      snapshot[target] = JSON.parse(await item.file.text()) as unknown
+    } catch {
+      throw new Error(
+        `Could not read ${item.file.name} as JSON. Keep the original file unchanged.`
+      )
+    }
+    snapshot.keys.push(recoveryTargets[target].key)
+  }
+  if (snapshot.keys.length === 0)
+    throw new Error(
+      'This staged set contains no stored items. Choose at least one original JSON file.'
+    )
+  return snapshot
+}
+
+export function recoveryError(cause: unknown): string {
+  return cause instanceof Error
+    ? cause.message
+    : 'Recovery outcome could not be verified. Keep the source and destination backups and inspect storage before retrying.'
 }
