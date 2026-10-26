@@ -1,6 +1,6 @@
 # Progressive Overload — revival mission brief
 
-**CORE PUBLISHED · APPROVED DESIGN ADOPTION IN PROGRESS · 26 October 2026**
+**CORE PUBLISHED · APPROVED DESIGN VERIFIED LOCALLY · 26 October 2026**
 
 The operator approved the designer's 26 October developer package and requested adoption. Section 21 governs this wave: search-first logging, compact bottom sheets, exercise history, a calendar day panel, timer navigation and settings. It supersedes older presentation and copied-note prescriptions, not the recoverable-data, offline or silent signed-timer contracts. Preserve the familiar yellow, compact, boxy friends-tool character. Running remains backlog. Work remains local-trunk/private-preview only; no new publication, remote issue/PR mutation or destructive user-data operation is authorized.
 
@@ -475,3 +475,73 @@ Implement from `6fc060b3992a1e2650f861391b1bdccb224300c1` in
 offline/reload recovery before local integration. Matched before/after captures
 use synthetic data only. Responsive Chromium evidence is not physical-device,
 screen-reader or human acceptance. No new production release is authorized.
+
+## 22. Approved design adoption — local receipt
+
+Runtime candidate `ccb51bc` completes the approved package from `6fc060b`,
+including feature commit `37ad9f0`. Final assets are `index-Bs7gIq3S.js` and
+`index-CDQb7VUZ.css`. The obsolete standalone Tags page and its redirect/query
+compatibility path are removed; exercise history owns tags and rename.
+No dependency, training document, backup format or original-storage change is
+introduced. Device defaults use the separate preferences key documented in
+`README.md`.
+
+### Proof and corrections
+
+- Node 22.13 / Yarn 1.22.22 lint and TypeScript/Vite/PWA production build passed.
+- Matched synthetic captures cover Log and Repeat at 320 × 568 and 360 × 720,
+  plus Calendar, Settings and signed timer at 320 × 568. The final private HTTPS
+  origin served the expected assets and all five application destinations;
+  JavaScript, CSS, worker and manifest returned their actual content.
+- Eight ordinary Log rows fit the small viewport; eleven fit 360 × 720.
+  Repeat Save ends at 556px and 708px respectively. Captures are 2× PNGs
+  (640 × 1136 and 720 × 1440). Additional checks covered a 320 × 480 sheet,
+  1280px layout and forced doubled computed text. Enlarged step labels now
+  reflow into two rows rather than overlap, while Save stays reachable.
+- Independent source review found an orphan-exercise logging dead end, a
+  toast-dependent saved-row lifetime and a partially verified tag retry failure.
+  Corrections expose Add entry, retain selected entry identity in the return URL
+  and reconcile confirmed entry/tag phases. A focused rereview found no concrete
+  remaining defect in those fixes.
+- Runtime regression checks logged an existing exercise without entries,
+  retained its identity, then deleted its last entry and still offered Add entry
+  after reload.
+  A saved entry outside a retained month remained reachable in exercise history.
+- A rejected write retained draft/group IDs, values and notes, showed no success,
+  and retried into one record. An accepted tag write with failed verification
+  recovered without replaying its verified Edit: two initial writes, no retry
+  write. Deliberately changed Edit values reconciled first and added one write.
+  Reloading for reconciliation keeps the editor mounted.
+- Repeat left its source intact and started with blank notes. Multiple groups,
+  tap/hold controls, numeric floors, precise historical weights, arbitrary units,
+  rename collision refusal and exercise-tag changes were exercised. Immediate
+  changed-draft Escape warned and Keep retained the input. Import dismissal
+  restored focus to its launcher.
+- Real complete/original/safety JSON downloads completed. Invalid input wrote
+  nothing. Reviewed replacement restored fifteen exact entries and saved filters
+  while leaving timer/default preferences unchanged. A separate legacy-only
+  fixture converted seven entries/four exercises under Written dates; reload
+  retained date mappings, unknown source metadata and untouched original JSON.
+- Settings survived reload; malformed preferences remained unmodified with an
+  explicit error. Custom rest elapsed into negative time after reload; extension
+  moved the deadline by exactly thirty seconds, Stop cleared it, and changing a
+  Settings preset did not restart an active deadline.
+- A controlled worker reloaded offline, created a real entry using persisted
+  lb/step defaults and showed that entry after another offline reload.
+- Same-origin old-to-new worker proof retained an unfinished 75kg draft while an
+  update waited. Later preserved it; it was saved before close/reopen. The
+  approved UI then showed all sixteen entries with the entire stored document
+  unchanged. This takeover ran before the final standalone-route removal; the
+  final route cutover received fresh HTTPS and exercise-tags smoke.
+
+The independent code-blind observer used a dedicated profile and disposable
+context. Its guided logging, repeat, date edit, attendance, timer and
+backup-review journeys succeeded. Early clean-first failures were invalidated by
+incorrect automation targets, not treated as product defects. Source exclusion
+was instruction-only. That pass does not attest the later corrections; the
+coordinator's final proof covers those.
+
+Screenshots and detailed local evidence stay outside Git and contain synthetic
+data only. No physical iPhone/Safari/Android, software-keyboard, screen-reader or
+human acceptance is claimed. The private preview is not a production release.
+No push, deployment or remote issue/PR mutation is part of this adoption.
