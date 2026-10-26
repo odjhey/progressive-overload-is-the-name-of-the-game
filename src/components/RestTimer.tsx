@@ -1,168 +1,289 @@
-import { useId } from 'react'
-import { IconPlayerStop, IconRefresh, IconSettings } from '@tabler/icons-react'
+import { useEffect, useId, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import {
+  IconBellOff,
+  IconPencil,
+  IconPlayerStop,
+  IconRefresh,
+  IconClock,
+  IconX,
+} from '@tabler/icons-react'
 import { formatRestTime, useRestTimer } from '../hooks/useRestTimer'
 import './RestTimer.css'
 
 export function RestTimer() {
-  const {
-    timer,
-    remainingMs,
-    ready,
-    error,
-    setDuration,
-    start,
-    extend,
-    stop,
-    reload,
-    reset,
-  } = useRestTimer()
+  const timer = useRestTimer()
+  const [open, setOpen] = useState(false)
+  const [custom, setCustom] = useState(false)
+  const [customError, setCustomError] = useState('')
+  const [confirmReset, setConfirmReset] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const popoverRef = useRef<HTMLElement>(null)
+  const popoverId = useId()
   const durationId = useId()
-  const hintId = useId()
-  const active = remainingMs !== null
-  const chosenDuration = formatRestTime(timer.durationSeconds * 1000)
+  const location = useLocation()
+  const active = timer.remainingMs !== null
+  const overtime = timer.remainingMs !== null && timer.remainingMs < 0
+  const duration = formatRestTime(timer.timer.durationSeconds * 1000)
+  const time =
+    timer.remainingMs === null ? duration : formatRestTime(timer.remainingMs)
+
+  useEffect(() => {
+    setOpen(false)
+  }, [location.pathname, location.search])
+  useEffect(() => {
+    if (!open) return
+    popoverRef.current?.focus({ preventScroll: true })
+    const outside = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !popoverRef.current?.contains(event.target) &&
+        !buttonRef.current?.contains(event.target)
+      )
+        setOpen(false)
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setOpen(false)
+        buttonRef.current?.focus()
+      }
+    }
+    const onFocus = (event: FocusEvent) => {
+      if (
+        event.target instanceof Node &&
+        !popoverRef.current?.contains(event.target) &&
+        !buttonRef.current?.contains(event.target)
+      )
+        setOpen(false)
+    }
+    document.addEventListener('pointerdown', outside, true)
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('focusin', onFocus)
+    return () => {
+      document.removeEventListener('pointerdown', outside, true)
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('focusin', onFocus)
+    }
+  }, [open])
 
   return (
-    <section className="rest-timer" aria-label="Rest timer">
-      {active && (
-        <div className="rest-timer-strip">
-          <span>Rest</span>
-          <span
-            className="rest-timer-clock"
-            role="timer"
-            aria-live="off"
-            aria-label={`${formatRestTime(remainingMs)} ${remainingMs < 0 ? 'past rest deadline' : 'remaining'}`}
-          >
-            {formatRestTime(remainingMs)}
-          </span>
-          <button
-            type="button"
-            className="rest-timer-icon"
-            onClick={start}
-            disabled={!ready}
-            aria-label={`Restart rest timer · ${chosenDuration}`}
-            title={`Restart rest timer · ${chosenDuration}`}
-          >
-            <IconRefresh size={20} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={extend}
-            disabled={!ready}
-            aria-label="Extend rest timer by 30 seconds (+30s)"
-            title="Extend rest timer by 30 seconds (+30s)"
-          >
-            +30s
-          </button>
-          <button
-            type="button"
-            className="rest-timer-icon"
-            onClick={stop}
-            disabled={!ready}
-            aria-label="Stop rest timer"
-            title="Stop rest timer"
-          >
-            <IconPlayerStop size={20} aria-hidden="true" />
-          </button>
-        </div>
-      )}
-      <details
-        className={`rest-timer-settings${active ? ' rest-timer-settings-active' : ''}`}
+    <>
+      <button
+        ref={buttonRef}
+        type="button"
+        className={`nav-timer${open || active ? ' on' : ''}${overtime || timer.error ? ' over' : ''}`}
+        aria-label={`Rest timer${timer.error ? ', storage error' : active ? `, ${time} ${overtime ? 'past deadline' : 'remaining'}` : ''}, open options`}
+        aria-expanded={open}
+        aria-controls={open ? popoverId : undefined}
+        aria-haspopup="dialog"
+        onClick={() => setOpen(!open)}
       >
-        <summary
-          aria-label={active ? 'Rest timer options' : undefined}
-          title="Rest timer options"
+        {timer.error ? (
+          <span aria-hidden="true">!</span>
+        ) : active ? (
+          <span role="timer" aria-live="off">
+            {time}
+          </span>
+        ) : (
+          <IconClock size={24} aria-hidden="true" />
+        )}
+      </button>
+      {open && (
+        <section
+          ref={popoverRef}
+          id={popoverId}
+          className="pop rest-timer-popover"
+          role="dialog"
+          aria-label="Rest timer"
+          tabIndex={-1}
         >
-          <IconSettings size={20} aria-hidden="true" />
-          {!active && <span>Rest timer · {chosenDuration} · optional</span>}
-        </summary>
-        <div className="rest-timer-options">
-          <div className="rest-timer-presets" aria-label="Duration presets">
+          <div className="rest-timer-heading">
+            <IconBellOff size={20} role="img" aria-label="Silent" />
+            <output
+              className={`rest-timer-clock${overtime ? ' over' : ''}`}
+              aria-live="off"
+            >
+              {active ? time : 'Rest timer'}
+            </output>
+            <button
+              className="ib ib-36 ghost"
+              type="button"
+              aria-label="Close rest timer"
+              onClick={() => {
+                setOpen(false)
+                buttonRef.current?.focus()
+              }}
+            >
+              <IconX size={20} aria-hidden="true" />
+            </button>
+          </div>
+          <div
+            className="rest-timer-presets"
+            role="group"
+            aria-label="Rest length; choosing a preset starts the timer"
+          >
             {[60, 90, 120, 180].map((seconds) => (
               <button
                 key={seconds}
                 type="button"
-                aria-pressed={timer.durationSeconds === seconds}
-                disabled={!ready}
-                onClick={() => setDuration(seconds)}
+                className={`chip${timer.timer.durationSeconds === seconds ? ' on' : ''}`}
+                aria-pressed={timer.timer.durationSeconds === seconds}
+                aria-label={`Start ${formatRestTime(seconds * 1000)} rest timer`}
+                disabled={!timer.ready}
+                onClick={() => {
+                  timer.setDuration(seconds)
+                  timer.start()
+                }}
               >
-                {seconds}s
+                {formatRestTime(seconds * 1000)}
               </button>
             ))}
+            <button
+              className={`chip${custom ? ' on' : ''}`}
+              type="button"
+              aria-label="Custom rest length"
+              aria-expanded={custom}
+              onClick={() => setCustom(!custom)}
+            >
+              <IconPencil size={16} aria-hidden="true" />
+            </button>
           </div>
-          <form
-            className="rest-timer-custom"
-            onSubmit={(event) => {
-              event.preventDefault()
-              const values = new FormData(event.currentTarget)
-              setDuration(Number(values.get('duration')))
-            }}
-          >
-            <label htmlFor={durationId}>Custom seconds</label>
-            <div className="rest-timer-custom-controls">
-              <input
-                key={timer.durationSeconds}
-                id={durationId}
-                name="duration"
-                type="number"
-                inputMode="numeric"
-                min="1"
-                max={Number.MAX_SAFE_INTEGER}
-                step="1"
-                required
-                defaultValue={timer.durationSeconds}
-                aria-describedby={hintId}
-                disabled={!ready}
-              />
-              <button type="submit" disabled={!ready}>
-                Use duration
-              </button>
+          {custom && (
+            <form
+              className="rest-timer-custom"
+              onSubmit={(event) => {
+                event.preventDefault()
+                const seconds = Number(
+                  new FormData(event.currentTarget).get('duration')
+                )
+                if (
+                  !Number.isSafeInteger(seconds) ||
+                  seconds <= 0 ||
+                  !Number.isSafeInteger(Date.now() + seconds * 1000)
+                ) {
+                  setCustomError(
+                    'Choose a positive whole number of seconds within timer range.'
+                  )
+                  return
+                }
+                setCustomError('')
+                timer.setDuration(seconds)
+                timer.start()
+              }}
+            >
+              <label className="lbl" htmlFor={durationId}>
+                Custom seconds
+              </label>
+              <div className="rest-timer-custom-controls">
+                <input
+                  className="field"
+                  key={timer.timer.durationSeconds}
+                  id={durationId}
+                  name="duration"
+                  type="number"
+                  inputMode="numeric"
+                  min="1"
+                  step="1"
+                  required
+                  defaultValue={timer.timer.durationSeconds}
+                  disabled={!timer.ready}
+                />
+                <button className="btn y" type="submit" disabled={!timer.ready}>
+                  Start
+                </button>
+              </div>
+              {customError && (
+                <p className="recovery-error" role="alert">
+                  {customError}
+                </p>
+              )}
+            </form>
+          )}
+          <div className="rest-timer-actions">
+            <button
+              type="button"
+              className="btn y"
+              aria-label={`${active ? 'Restart' : 'Start'} rest timer, ${duration}`}
+              disabled={!timer.ready}
+              onClick={timer.start}
+            >
+              <IconRefresh size={18} aria-hidden="true" />
+              {duration}
+            </button>
+            <button
+              type="button"
+              className="btn"
+              disabled={!timer.ready || !active}
+              onClick={timer.extend}
+              aria-label="Add 30 seconds"
+            >
+              +30 s
+            </button>
+            <button
+              type="button"
+              className="btn"
+              disabled={!timer.ready || !active}
+              onClick={timer.stop}
+              aria-label="Stop rest timer"
+            >
+              <IconPlayerStop size={20} aria-hidden="true" />
+            </button>
+          </div>
+          {timer.error && (
+            <div className="rest-timer-error" role="alert">
+              <p>{timer.error}</p>
+              <p>
+                {active
+                  ? 'Showing the last confirmed deadline; it may be out of date.'
+                  : 'Controls are paused until saved state is verified.'}
+              </p>
+              <div className="recovery-actions">
+                <button type="button" className="btn sm" onClick={timer.reload}>
+                  Reload saved timer
+                </button>
+                <button
+                  type="button"
+                  className="btn sm danger"
+                  onClick={() => setConfirmReset(true)}
+                >
+                  Reset timer…
+                </button>
+              </div>
+              {confirmReset && (
+                <div className="confirm">
+                  <p>
+                    <b>Replace saved timer?</b>Only the timer is replaced with a
+                    stopped 1:30 preset. Training history is unchanged.
+                  </p>
+                  <div className="recovery-actions">
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setConfirmReset(false)}
+                    >
+                      Keep
+                    </button>
+                    <button
+                      type="button"
+                      className="btn danger"
+                      onClick={() => {
+                        timer.reset()
+                        setConfirmReset(false)
+                      }}
+                    >
+                      Reset timer
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          </form>
-          <p id={hintId} className="rest-timer-hint">
-            Changing duration does not start or restart the timer. +30s extends
-            the current deadline, including overtime.
-          </p>
-          <button
-            type="button"
-            className="rest-timer-start"
-            onClick={start}
-            disabled={!ready}
-          >
-            {active ? 'Restart' : 'Start'} · {chosenDuration}
-          </button>
-          <p className="rest-timer-hint">
-            Silent, using this device’s clock. Keeps counting below zero; no
-            alerts. Separate from training history and backups.
-          </p>
-        </div>
-      </details>
-      {error && (
-        <div className="rest-timer-error" role="status">
-          <p>{error}</p>
-          <p>
-            {active
-              ? 'Showing the last confirmed deadline; it may be out of date.'
-              : 'Timer controls are paused until saved state can be verified.'}{' '}
-            Nothing here changes your training history.
-          </p>
-          <div className="rest-timer-recovery">
-            <button type="button" onClick={reload}>
-              Reload saved timer
-            </button>
-            <button type="button" onClick={reset}>
-              Reset saved timer
-            </button>
-          </div>
-          <p className="rest-timer-hint">
-            Reset replaces only the saved timer with a stopped 90-second timer.
-            If storage is blocked, allow site storage and reload the saved
-            timer.
-          </p>
-        </div>
+          )}
+          {!timer.ready && !timer.error && (
+            <p role="status">Reading saved timer…</p>
+          )}
+        </section>
       )}
-      {!ready && !error && (
-        <p className="rest-timer-hint">Reading saved timer…</p>
-      )}
-    </section>
+    </>
   )
 }

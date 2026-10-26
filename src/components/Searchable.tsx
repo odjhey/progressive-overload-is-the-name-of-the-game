@@ -1,49 +1,38 @@
-import { PropsWithChildren, useId } from 'react'
-import { IconX } from '@tabler/icons-react'
+import { IconSearch, IconX } from '@tabler/icons-react'
 
-export const Searchable = ({
+export function Searchable({
   searchTerm,
-  children,
   setSearchTerm,
-  placeholder = 'Search workouts',
   clear,
-}: PropsWithChildren<{
+  disabled = false,
+}: {
   searchTerm: string
-  setSearchTerm: (searchTerm: string) => void
+  setSearchTerm: (value: string) => void
   clear: () => void
-  placeholder?: string
-}>) => {
-  const id = useId()
+  disabled?: boolean
+}) {
   return (
-    <>
-      <div className="search-control">
-        <label className="field-label" htmlFor={id}>
-          <span>{placeholder}</span>
-          <input
-            id={id}
-            type="search"
-            placeholder={
-              placeholder === 'Search workouts'
-                ? 'Lift name, notes, date…'
-                : placeholder
-            }
-            className="input input-bordered"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </label>
+    <div className="search">
+      <IconSearch size={20} aria-hidden="true" />
+      <input
+        type="search"
+        aria-label="Search or add exercise"
+        placeholder="Search or add exercise"
+        value={searchTerm}
+        disabled={disabled}
+        onChange={(event) => setSearchTerm(event.target.value)}
+      />
+      {searchTerm && (
         <button
+          className="clr"
           type="button"
-          className="btn btn-outline icon-action search-clear"
-          aria-label={`Clear ${placeholder.toLowerCase()}`}
-          title={`Clear ${placeholder.toLowerCase()}`}
+          aria-label="Clear search"
+          disabled={disabled}
           onClick={clear}
-          disabled={!searchTerm}
         >
-          <IconX size={20} aria-hidden="true" />
+          <IconX size={18} aria-hidden="true" />
         </button>
-      </div>
-      {children}
-    </>
+      )}
+    </div>
   )
 }

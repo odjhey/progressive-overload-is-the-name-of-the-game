@@ -1,8 +1,8 @@
 # Progressive Overload — revival mission brief
 
-**CORE PUBLISHED · INTENT-FIRST REDESIGN APPROVED · SILENT TIMER / CALENDAR · 25 October 2026**
+**CORE PUBLISHED · APPROVED DESIGN ADOPTION IN PROGRESS · 26 October 2026**
 
-The operator accepted the broader intent-first redesign, including user flows and a new data model where needed, then added a silent persistent rest timer with negative overtime and a simple recorded-training calendar with backfill. Running support is explicitly backlog. Preserve the familiar yellow, compact, boxy friends-tool character, offline use and recoverable history. Earlier presentation-only data/schema freezes describe completed waves, not a veto on this approved redesign. Current work remains local-trunk/private-preview only; no new publication, remote issue/PR mutation, or destructive user-data operation is authorized.
+The operator approved the designer's 26 October developer package and requested adoption. Section 21 governs this wave: search-first logging, compact bottom sheets, exercise history, a calendar day panel, timer navigation and settings. It supersedes older presentation and copied-note prescriptions, not the recoverable-data, offline or silent signed-timer contracts. Preserve the familiar yellow, compact, boxy friends-tool character. Running remains backlog. Work remains local-trunk/private-preview only; no new publication, remote issue/PR mutation or destructive user-data operation is authorized.
 
 ## 1. Purpose and audience
 
@@ -438,3 +438,40 @@ No production publication, remote issue/PR operation, model migration or new
 dependency is part of this refinement. Physical-phone, screen-reader and human
 acceptance remain separate. The private tailnet preview remains the review
 surface.
+
+## 21. Approved designer package — adoption
+
+Operator mandate: “the design turned up really well
+`/tmp/progressive-overload-dev-package-2026-10-26.zip` i really like it. adopt it”.
+The package's `CHANGES.md`, `APPLYING.md`, `BRIEFS.md` and standalone boards define
+the approved direction. Package SHA-256:
+`7b14540b76f01ac9677880d4d4663e30791cf4edbe979b3c6772954044aabad5`.
+
+Adopt the flows, not just the palette: search-first latest efforts; creation from
+search; a shared compact Create/Repeat/Edit sheet; tap/hold weight and set/rep
+controls; per-exercise history, rename and tags; collapsed set groups; in-place
+delete confirmation; a calendar day panel; a four-slot navigation with silent
+timer popover; confirmed-save feedback with an explicit rest-start action; and
+compact settings with reviewed backup replacement. Repeat notes start blank.
+The old global History switch, date-text search and top timer strip are replaced,
+while every historical entry remains reachable from its exercise and calendar.
+
+Resolve the package's open points conservatively: unit switches relabel without
+conversion; rename collisions are refused, not merged; the chosen step applies
+in either unit; save feedback lasts six seconds and can be dismissed. Existing
+stored precision, group units, stable IDs and migration metadata remain intact.
+The sample one-decimal display is not permission to misrepresent historical
+weights. New exercise defaults and weight steps are device preferences; the
+existing timer duration remains the single rest-preset source.
+
+The simpler import board does not waive safety backups, explicit replacement
+consent, destination rechecks or truthful partial/unverified outcomes. Import
+replaces training and saved filters, not arbitrary device data or timer state.
+Missing prototype states—custom timer, empty/error states, old-history review,
+dirty-draft confirmation and larger widths—must work in the same visual language.
+
+Implement from `6fc060b3992a1e2650f861391b1bdccb224300c1` in
+`.worktrees/adopt-approved-design`, then prove the composed mobile flows and
+offline/reload recovery before local integration. Matched before/after captures
+use synthetic data only. Responsive Chromium evidence is not physical-device,
+screen-reader or human acceptance. No new production release is authorized.

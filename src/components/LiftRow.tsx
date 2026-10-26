@@ -1,82 +1,90 @@
-import { IconPencil, IconRepeat } from '@tabler/icons-react'
-import { Link } from 'react-router-dom'
+import { Fragment } from 'react'
+import { IconNotes, IconPencil, IconRepeat } from '@tabler/icons-react'
+import { Link, useLocation } from 'react-router-dom'
 import type { Exercise, TrainingEntry } from '../libs/trainingTypes'
+import { dateLabel, loadLabel } from './dailyFlow'
 
-export const LiftRow = ({
+export function LiftRow({
   entry,
   exercise,
-  view = 'history',
   calendar = false,
-  reference = false,
+  history = false,
+  highlighted = false,
 }: {
   entry: TrainingEntry
   exercise: Exercise
-  view?: 'latest' | 'history'
   calendar?: boolean
-  reference?: boolean
-}) => {
+  history?: boolean
+  highlighted?: boolean
+}) {
+  const location = useLocation()
   const context: Record<string, string> = calendar
     ? { date: entry.trainingDate }
-    : { view }
+    : {}
+  const state = { backgroundLocation: location }
+  const edit = `/new?${new URLSearchParams({ edit: entry.id, ...context })}`
+  const first = entry.groups[0]
   return (
-    <article className="lift-card">
-      <header className="lift-card-heading">
-        <h2>{exercise.name}</h2>
-        {!reference && (
-          <div className="lift-card-actions">
-            <Link
-              className="btn btn-primary icon-action"
-              aria-label={`Repeat ${exercise.name} from ${entry.trainingDate}`}
-              title={`Repeat ${exercise.name} from ${entry.trainingDate}`}
-              to={`/new?${new URLSearchParams({ repeat: entry.id, ...context })}`}
+    <article
+      className={`row${highlighted ? ' saved' : ''}`}
+      data-entry-id={entry.id}
+    >
+      <Link
+        className="main"
+        to={history ? edit : `/exercise/${encodeURIComponent(exercise.id)}`}
+        state={history ? state : undefined}
+      >
+        <span className="name">
+          {history ? dateLabel(entry.trainingDate, true) : exercise.name}
+        </span>
+        <span className={`stat${history || calendar ? ' all-groups' : ''}`}>
+          {(history || calendar ? entry.groups : [first]).map(
+            (group, index) => (
+              <Fragment key={group.id}>
+                {index > 0 && <span aria-hidden="true">|</span>}
+                <b>{loadLabel(group.weight, group.unit)}</b>
+                <span>
+                  {group.sets} × {group.reps}
+                </span>
+              </Fragment>
+            )
+          )}
+          {!history && !calendar && entry.groups.length > 1 && (
+            <span
+              className="more"
+              aria-label={`${entry.groups.length} set groups`}
             >
-              <IconRepeat size={20} aria-hidden="true" />
-            </Link>
-            <Link
-              className="btn btn-outline icon-action"
-              aria-label={`Edit ${exercise.name} from ${entry.trainingDate}`}
-              title={`Edit ${exercise.name} from ${entry.trainingDate}`}
-              to={`/new?${new URLSearchParams({ edit: entry.id, ...context })}`}
-            >
-              <IconPencil size={20} aria-hidden="true" />
-            </Link>
-          </div>
-        )}
-      </header>
-      <div className="lift-card-effort">
-        <ul className="training-groups" aria-label="Recorded set groups">
-          {entry.groups.map((group) => (
-            <li key={group.id}>
-              <strong>
-                {group.weight} {group.unit}
-              </strong>
-              <span>
-                {group.sets} × {group.reps}{' '}
-                <span className="muted">sets × reps</span>
-              </span>
-            </li>
-          ))}
-        </ul>
+              +{entry.groups.length - 1}
+            </span>
+          )}
+          {history && entry.notes && (
+            <IconNotes size={16} role="img" aria-label="Has notes" />
+          )}
+          {!history && (
+            <time className="d" dateTime={entry.trainingDate}>
+              {dateLabel(entry.trainingDate)}
+            </time>
+          )}
+        </span>
+      </Link>
+      {!history && (
         <Link
-          className="date-action"
-          to={`/calendar?${new URLSearchParams({ date: entry.trainingDate, month: entry.trainingDate.slice(0, 7) })}`}
+          className="ib ib-36 ghost"
+          aria-label={`Edit ${exercise.name} from ${entry.trainingDate}`}
+          to={edit}
+          state={state}
         >
-          <time dateTime={entry.trainingDate}>{entry.trainingDate}</time>
+          <IconPencil size={20} aria-hidden="true" />
         </Link>
-      </div>
-      {entry.notes && (
-        <details className="previous-notes">
-          <summary>{reference ? 'Source notes' : 'Notes'}</summary>
-          <p className="lift-notes">{entry.notes}</p>
-        </details>
       )}
-      {exercise.tags.length > 0 && (
-        <ul className="lift-tags" aria-label="Exercise tags">
-          {exercise.tags.map((tag) => (
-            <li key={tag}>{tag}</li>
-          ))}
-        </ul>
-      )}
+      <Link
+        className="ib y"
+        aria-label={`Repeat ${exercise.name} from ${entry.trainingDate}`}
+        to={`/new?${new URLSearchParams({ repeat: entry.id, ...context })}`}
+        state={state}
+      >
+        <IconRepeat size={20} aria-hidden="true" />
+      </Link>
     </article>
   )
 }

@@ -1,15 +1,21 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  Link,
-  useBeforeUnload,
-  useBlocker,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom'
+import { useRef, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import type { Location } from 'react-router-dom'
 import { LiftForm } from '../components/LiftForm'
-import { LiftRow } from '../components/LiftRow'
+import { Sheet } from '../components/Sheet'
+import { DiscardConfirm } from '../components/DraftProtection'
+import { useDraftProtection } from '../components/useDraftProtection'
+import { matchingExercises, newestFirst } from '../components/dailyFlow'
 import { useTraining } from '../hooks/useTraining'
-import { isTrainingDate, localDate, newId } from '../libs/trainingModel'
+import { usePreferences } from '../hooks/usePreferences'
+import { useFeedback } from '../hooks/useFeedback'
+import {
+  isTrainingDate,
+  localDate,
+  newId,
+  readTrainingDocument,
+  sameValue,
+} from '../libs/trainingModel'
 import type {
   EntryInput,
   TrainingDocument,
@@ -19,63 +25,64 @@ import type {
 export default function New() {
   const training = useTraining()
   const location = useLocation()
+  const navigate = useNavigate()
+  const [retained, setRetained] = useState<{
+    key: string
+    document: TrainingDocument
+  } | null>(null)
+  const retainedDocument =
+    retained?.key === location.key ? retained.document : null
   const params = new URLSearchParams(location.search)
   const edit = params.get('edit')
   const repeat = params.get('repeat')
   const source = training.document?.entries.find(
     (entry) => entry.id === (edit ?? repeat)
   )
-  if (training.loading) return <p role="status">Loading training…</p>
-  if (training.loadError)
+  const date = params.get('date')
+  const invalid =
+    (edit !== null && repeat !== null) ||
+    ((edit !== null || repeat !== null) && !source)
+  const failure = training.loadError
+    ? `Training could not be read: ${training.loadError.message}`
+    : !training.document
+      ? 'Import or recover your training in Settings before logging.'
+      : invalid
+        ? 'The requested entry was not found, or this link selects both Edit and Repeat. Nothing has been changed.'
+        : date !== null && !isTrainingDate(date)
+          ? 'This link does not contain a real calendar date. Nothing has been saved.'
+          : ''
+  if (!retainedDocument && (training.loading || failure))
     return (
-      <p role="alert">
-        Training could not be read: {training.loadError.message}
-      </p>
-    )
-  if (!training.document)
-    return (
-      <p role="alert">
-        Import or recover your training in Settings before logging.
-      </p>
-    )
-  if (
-    (edit !== null || repeat !== null) &&
-    (!source || (edit !== null && repeat !== null))
-  ) {
-    return (
-      <section className="form-page">
-        <h1>Entry unavailable</h1>
-        <p role="alert">
-          The requested saved entry was not found, or the link selects both Edit
-          and Repeat. Nothing has been created or overwritten.
-        </p>
-        <Link className="back-link" to="/?view=history">
-          ← Back to history
-        </Link>
-      </section>
-    )
-  }
-  const requestedDate = params.get('date')
-  if (requestedDate !== null && !isTrainingDate(requestedDate))
-    return (
-      <section>
-        <h1>Invalid training date</h1>
-        <p role="alert">
-          This link does not contain a real calendar date. Nothing has been
-          saved.
-        </p>
-        <Link className="back-link" to="/calendar">
-          Back to calendar
-        </Link>
-      </section>
+      <Sheet
+        title="Entry unavailable"
+        onClose={() =>
+          navigate(
+            date && isTrainingDate(date)
+              ? `/calendar?date=${date}&month=${date.slice(0, 7)}`
+              : '/'
+          )
+        }
+      >
+        <div className="small-sheet-body">
+          {training.loading ? (
+            <p role="status">Loading training…</p>
+          ) : (
+            <p role="alert">{failure}</p>
+          )}
+          <Link className="btn" to="/">
+            Back to log
+          </Link>
+        </div>
+      </Sheet>
     )
   return (
     <EntryEditor
       key={location.key}
-      document={training.document}
+      document={training.document ?? retainedDocument!}
       source={source}
       editing={edit !== null}
       params={params}
+      onRetainDraft={(document) => setRetained({ key: location.key, document })}
     />
   )
 }
@@ -85,106 +92,206 @@ function EntryEditor({
   source,
   editing,
   params,
+  onRetainDraft,
 }: {
   document: TrainingDocument
   source?: TrainingEntry
   editing: boolean
   params: URLSearchParams
+  onRetainDraft: (document: TrainingDocument) => void
 }) {
-  const { saveEntry, deleteEntry, saving } = useTraining()
+  const { saveEntry, deleteEntry, setExerciseTags, reload } = useTraining()
+  const preferences = usePreferences()
+  const { showFeedback } = useFeedback()
   const navigate = useNavigate()
-  const view = params.get('view') === 'history' ? 'history' : 'latest'
+  const location = useLocation()
+  const background = (
+    location.state as { backgroundLocation?: Location } | null
+  )?.backgroundLocation
   const calendarDate = params.get('date')
-  const back = calendarDate
-    ? `/calendar?${new URLSearchParams({ date: calendarDate, month: calendarDate.slice(0, 7) })}#selected-date`
-    : `/?${new URLSearchParams({ view })}`
+  const [resolvedSource] = useState(() => {
+    if (source) return source
+    const matches = matchingExercises(
+      document.exercises,
+      params.get('name') ?? ''
+    )
+    return matches.length === 1
+      ? document.entries
+          .filter((entry) => entry.exerciseId === matches[0].id)
+          .sort(newestFirst)[0]
+      : undefined
+  })
   const [initial] = useState<EntryInput>(() => {
+    const matches = matchingExercises(
+      document.exercises,
+      params.get('name') ?? ''
+    )
+    const exercise =
+      document.exercises.find(
+        (item) => item.id === resolvedSource?.exerciseId
+      ) ?? (matches.length === 1 ? matches[0] : undefined)
     const trainingDate =
-      editing && source ? source.trainingDate : (calendarDate ?? localDate())
+      editing && resolvedSource
+        ? resolvedSource.trainingDate
+        : (calendarDate ?? localDate())
     const workout = document.workouts.find(
       (item) =>
         item.id === params.get('workout') && item.trainingDate === trainingDate
     )
     return {
-      id: editing && source ? source.id : newId(),
-      exerciseId: source?.exerciseId,
-      exerciseName:
-        document.exercises.find(
-          (exercise) => exercise.id === source?.exerciseId
-        )?.name ?? '',
+      id: editing && resolvedSource ? resolvedSource.id : newId(),
+      exerciseId: exercise?.id,
+      exerciseName: exercise?.name ?? params.get('name')?.trim() ?? '',
       trainingDate,
-      ...(editing && source?.performedAt !== undefined
-        ? { performedAt: source.performedAt }
+      ...(editing && resolvedSource?.performedAt !== undefined
+        ? { performedAt: resolvedSource.performedAt }
         : {}),
-      groups: source
-        ? source.groups.map((group) => ({
+      groups: resolvedSource
+        ? resolvedSource.groups.map((group) => ({
             ...group,
             id: editing ? group.id : newId(),
           }))
-        : [{ id: newId(), sets: 3, reps: 8, weight: 0, unit: 'lbs' }],
-      notes: source?.notes ?? '',
-      workoutId: editing ? source?.workoutId : workout?.id,
+        : [
+            {
+              id: newId(),
+              sets: 3,
+              reps: 8,
+              weight: 0,
+              unit: preferences.unit,
+            },
+          ],
+      notes: editing ? (resolvedSource?.notes ?? '') : '',
+      workoutId: editing ? resolvedSource?.workoutId : workout?.id,
     }
   })
+  const [sheetTitle, setSheetTitle] = useState(
+    editing ? 'Edit entry' : initial.exerciseId ? 'New entry' : 'New exercise'
+  )
   const [dirty, setDirty] = useState(false)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
-  const navigationAllowed = useRef(false)
   const inFlight = useRef(false)
-  const keepEditing = useRef<HTMLButtonElement>(null)
-  const blocker = useBlocker(
-    () => !navigationAllowed.current && (dirty || inFlight.current)
-  )
-  useEffect(() => {
-    if (blocker.state === 'blocked') keepEditing.current?.focus()
-  }, [blocker.state])
-  useBeforeUnload(
-    useCallback(
-      (event) => {
-        if (!navigationAllowed.current && (dirty || inFlight.current)) {
-          event.preventDefault()
-          event.returnValue = ''
-        }
-      },
-      [dirty]
-    )
-  )
-  const leave = (to: string) => {
-    navigationAllowed.current = true
-    navigate(to)
+  const confirmedEntry = useRef<{
+    input: EntryInput
+    entry: TrainingEntry
+  } | null>(null)
+  const tagAttempt = useRef<{
+    before: string[]
+    requested: string[]
+  } | null>(null)
+  const guard = useDraftProtection(dirty, pending)
+  const destination = (savedDate?: string, selectedId?: string) => {
+    if (calendarDate)
+      return `/calendar?${new URLSearchParams({ date: savedDate ?? calendarDate, month: (savedDate ?? calendarDate).slice(0, 7) })}#selected-date`
+    const pathname = background?.pathname ?? '/'
+    const search = new URLSearchParams(background?.search)
+    if (pathname === '/' && selectedId) search.set('selected', selectedId)
+    const query = search.toString()
+    return `${pathname}${query ? `?${query}` : ''}${background?.hash ?? ''}`
   }
-  const save = async (input: EntryInput, tag: boolean) => {
+  const leave = (date?: string, selectedId?: string) => {
+    guard.allow()
+    navigate(destination(date, selectedId), { replace: true })
+  }
+  const close = () => guard.close(() => leave())
+  const save = async (input: EntryInput, tags: string[]) => {
     if (inFlight.current) return
     inFlight.current = true
     setPending(true)
     setError('')
+    let entrySaved = confirmedEntry.current !== null
     try {
-      const exercise = document.exercises.find(
-        (item) => item.name === input.exerciseName
-      )
-      const workout = document.workouts.find(
+      let currentDocument = document
+      const confirmed = confirmedEntry.current
+      if (confirmed) {
+        // Reload may temporarily clear the provider document. Keep this editor
+        // mounted so both a successful reconciliation and another read failure
+        // retain the exact draft and its IDs.
+        onRetainDraft(document)
+        await reload()
+        const stored = await readTrainingDocument()
+        if (!stored)
+          throw new Error(
+            'Saved training is unavailable. No retry write was attempted.'
+          )
+        const persisted = stored.entries.find(
+          (entry) => entry.id === confirmed.entry.id
+        )
+        const persistedExercise = stored.exercises.find(
+          (exercise) => exercise.id === confirmed.entry.exerciseId
+        )
+        if (
+          !persistedExercise ||
+          !sameValue(persisted, confirmed.entry) ||
+          persistedExercise.name !== confirmed.input.exerciseName
+        )
+          throw new Error(
+            'The confirmed entry or its exercise changed since this save. Review saved history before overwriting it; no retry write was attempted.'
+          )
+        const priorTags = tagAttempt.current
+        if (
+          priorTags &&
+          !sameValue(persistedExercise.tags, priorTags.before) &&
+          !sameValue(persistedExercise.tags, priorTags.requested)
+        )
+          throw new Error(
+            'Exercise tags changed beyond this save attempt. Review them before overwriting; no retry write was attempted.'
+          )
+        currentDocument = stored
+      }
+      const matches = input.exerciseId
+        ? currentDocument.exercises.filter(
+            (item) => item.id === input.exerciseId
+          )
+        : matchingExercises(currentDocument.exercises, input.exerciseName)
+      if (matches.length > 1)
+        throw new Error(
+          'Several imported exercises share this name ignoring case or spaces. Open the intended exercise from the log; histories have not been merged.'
+        )
+      const exercise = matches[0]
+      const workout = currentDocument.workouts.find(
         (item) =>
           item.id === input.workoutId &&
           item.trainingDate === input.trainingDate
       )
-      const saved = await saveEntry(
-        { ...input, exerciseId: exercise?.id, workoutId: workout?.id },
-        editing ? initial.id : undefined
-      )
-      if (tag) {
-        leave(
-          `/tags?${new URLSearchParams({ exercise: saved.exerciseId, selected: saved.id, view, ...(calendarDate ? { date: saved.trainingDate } : {}) })}`
-        )
-      } else if (calendarDate) {
-        leave(
-          `/calendar?${new URLSearchParams({ date: saved.trainingDate, month: saved.trainingDate.slice(0, 7) })}#selected-date`
-        )
-      } else {
-        leave(`/?${new URLSearchParams({ view, selected: saved.id })}`)
+      const candidate: EntryInput = {
+        ...input,
+        exerciseId: exercise?.id,
+        exerciseName: exercise?.name ?? input.exerciseName.trim(),
+        workoutId: workout?.id,
       }
+      const changed = confirmed && !sameValue(candidate, confirmed.input)
+      if (changed && !editing)
+        throw new Error(
+          'This new entry is already confirmed saved. Its changed values were not written over that entry. Restore the saved values to finish its tags, or close and explicitly Edit the saved entry.'
+        )
+      // An unchanged confirmed Edit is not replayed merely to retry its tags.
+      // A deliberate subsequent Edit is safe only after the reconciliation above.
+      let saved: TrainingEntry
+      if (confirmed && !changed) saved = confirmed.entry
+      else {
+        entrySaved = false
+        saved = await saveEntry(candidate, editing ? initial.id : undefined)
+      }
+      confirmedEntry.current = {
+        input: { ...candidate, exerciseId: saved.exerciseId },
+        entry: saved,
+      }
+      entrySaved = true
+      const currentTags = exercise?.tags ?? []
+      if (!sameValue(tags, currentTags)) {
+        tagAttempt.current = {
+          before: [...currentTags],
+          requested: [...tags],
+        }
+        await setExerciseTags(saved.exerciseId, tags)
+        tagAttempt.current = null
+      }
+      showFeedback({ kind: 'saved', entryId: saved.id })
+      leave(saved.trainingDate, saved.id)
     } catch (cause) {
       setError(
-        `Could not confirm a durable save: ${cause instanceof Error ? cause.message : String(cause)} Your entered values are still here. Retry or check Settings; nothing is treated as saved until storage confirms it.`
+        `${entrySaved ? 'The entry is saved, but its tags could not be confirmed.' : 'Could not confirm a durable save.'} ${cause instanceof Error ? cause.message : String(cause)} Your values remain here. Retry uses this same entry ID; no success is assumed before storage confirms it.`
       )
     } finally {
       inFlight.current = false
@@ -198,83 +305,54 @@ function EntryEditor({
     setError('')
     try {
       await deleteEntry(initial.id)
-      leave(back)
+      showFeedback({ kind: 'deleted' })
+      leave()
     } catch (cause) {
       setError(
-        `Deletion could not be confirmed: ${cause instanceof Error ? cause.message : String(cause)} Your form is still here.`
+        `Deletion could not be confirmed: ${cause instanceof Error ? cause.message : String(cause)} Your form is still here. Review saved history before another deletion if storage could not verify the write.`
       )
     } finally {
       inFlight.current = false
       setPending(false)
     }
   }
-  const sourceExercise = document.exercises.find(
-    (exercise) => exercise.id === source?.exerciseId
-  )
   return (
-    <div className="form-page training-page">
-      {blocker.state === 'blocked' && (
-        <section
-          role="alert"
-          aria-label="Unsaved entry"
-          className="navigation-guard"
-        >
-          <p>
-            {pending
-              ? 'A save is still in progress. Stay here until its result is known.'
-              : 'This entry has unsaved changes. Leave without saving?'}
-          </p>
-          <div className="guard-actions">
-            <button
-              ref={keepEditing}
-              className="btn btn-primary"
-              onClick={() => blocker.reset()}
-            >
-              Keep editing
-            </button>
-            <button
-              className="btn btn-outline"
-              disabled={pending}
-              onClick={() => blocker.proceed()}
-            >
-              Discard changes
-            </button>
-          </div>
-        </section>
-      )}
-      <Link className="back-link" to={back}>
-        ← Back to {calendarDate ? 'calendar' : 'workouts'}
-      </Link>
-      <header className="page-heading">
-        <h1>
-          {editing ? 'Edit entry' : source ? 'Repeat entry' : 'New entry'}
-        </h1>
-        {source && !editing && (
-          <p className="muted">
-            A new draft. The source below is unchanged; only Save records
-            training.
-          </p>
-        )}
-      </header>
-      {source && !editing && sourceExercise && (
-        <section
-          className="previous-effort"
-          aria-label="Repeat source, read only"
-        >
-          <p className="muted">Source · reference only</p>
-          <LiftRow entry={source} exercise={sourceExercise} reference />
-        </section>
-      )}
-      {error && <p role="alert">{error}</p>}
+    <Sheet
+      title={sheetTitle}
+      className="entry-sheet"
+      initialFocus={
+        !editing && !resolvedSource && !initial.exerciseId
+          ? '#entry-name'
+          : undefined
+      }
+      onClose={close}
+    >
       <LiftForm
         initial={initial}
         exercises={document.exercises}
+        entries={document.entries}
+        source={resolvedSource}
         editing={editing}
-        saving={saving || pending}
+        saving={pending}
+        error={error}
+        confirmation={<DiscardConfirm guard={guard} />}
         onSubmit={save}
         onDelete={editing ? remove : undefined}
+        onClose={close}
+        onExerciseRecognized={() => setSheetTitle('New entry')}
+        onEditReference={(id) =>
+          navigate(
+            `/new?${new URLSearchParams({ edit: id, ...(calendarDate ? { date: calendarDate } : {}) })}`,
+            {
+              state: background
+                ? { backgroundLocation: background }
+                : undefined,
+              replace: true,
+            }
+          )
+        }
         onDirtyChange={setDirty}
       />
-    </div>
+    </Sheet>
   )
 }

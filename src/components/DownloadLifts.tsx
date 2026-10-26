@@ -1,3 +1,4 @@
+import { IconChevronRight, IconDownload } from '@tabler/icons-react'
 import localforage from 'localforage'
 import { useEffect, useRef, useState } from 'react'
 import { useTraining } from '../hooks/useTraining'
@@ -52,22 +53,10 @@ export const DownloadLifts = () => {
   }, [storedRevision, refresh])
 
   return (
-    <section
-      className="flex flex-col gap-3 border border-secondary p-3"
-      aria-labelledby="backup-heading"
-    >
-      <h2 id="backup-heading" className="text-lg font-bold">
-        Back up your data
-      </h2>
-      <p>
-        One complete version 2 JSON file contains exercises, tags, entries, set
-        groups, workouts, dates, notes, metadata and current saved filters. The
-        rest timer is never included. Keep the file outside this browser before
-        clearing storage or moving devices.
-      </p>
+    <section aria-label="Export backups">
       <button
         type="button"
-        className="btn btn-sm self-start"
+        className="srow"
         disabled={loading || saving || busy || !document || !!legacy}
         onClick={async () => {
           if (running.current || !document) return
@@ -90,7 +79,7 @@ export const DownloadLifts = () => {
             )
             await assertRecoveryDestination(destination)
             downloadFile(
-              `progressive-overload-v2-${backup.exportedAt}.json`,
+              `progressive-overload-${backup.exportedAt.slice(0, 10)}.json`,
               JSON.stringify(backup, null, 2)
             )
             setMessage(
@@ -104,95 +93,125 @@ export const DownloadLifts = () => {
           }
         }}
       >
-        Download complete version 2 JSON
+        <IconDownload className="ic" aria-hidden="true" />
+        <span className="t">
+          {busy ? 'Exporting…' : 'Export backup'}
+          <span className="s">JSON file</span>
+        </span>
+        <IconChevronRight className="ic" aria-hidden="true" />
       </button>
-      {legacy && (
-        <p>
-          Original history is awaiting conversion. Use the original downloads
-          below first.
-        </p>
-      )}
-      {originals &&
-        legacyTargets.some((target) =>
-          originals.keys.includes(recoveryTargets[target].key)
-        ) && (
-          <details>
-            <summary>Original legacy JSON downloads</summary>
-            <LegacySourceDownloads snapshot={originals} />
-            <details>
-              <summary>Inspect original legacy source JSON</summary>
-              <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-all text-sm">
-                {JSON.stringify(originals, null, 2)}
-              </pre>
-            </details>
-          </details>
-        )}
       <details>
-        <summary>
-          Raw stored JSON — including unreadable current history
-        </summary>
-        <p>
-          These are unmodified per-key safety copies, not complete version 2
-          backups. No raw file is written back directly. A malformed current
-          history cannot be overwritten here; keep its raw copy and restore a
-          valid complete backup in a fresh browser profile instead. Unrelated
-          keys are never modified. Timer storage is excluded.
-        </p>
-        <button
-          type="button"
-          className="btn btn-sm"
-          disabled={busy || reading}
-          onClick={() => setRefresh((value) => value + 1)}
-        >
-          Refresh stored items
-        </button>
-        {reading && <p role="status">Reading stored item names…</p>}
-        {rawKeys.map((key) => (
-          <div key={key} className="flex flex-col gap-1">
-            <span className="break-all">{key}</span>
+        <summary className="srow">Export recovery files</summary>
+        <div className="recovery-stack">
+          <p>
+            A complete version 2 backup contains exercises, tags, entries, set
+            groups, workouts, dates, notes, metadata and saved filters. Timer
+            and default unit/weight step are not included. Keep the file outside
+            this browser.
+          </p>
+          {legacy && (
+            <p>
+              Original history is awaiting conversion. Use the original
+              downloads below first.
+            </p>
+          )}
+          {originals &&
+            legacyTargets.some((target) =>
+              originals.keys.includes(recoveryTargets[target].key)
+            ) && (
+              <details>
+                <summary>Original legacy JSON downloads</summary>
+                <LegacySourceDownloads snapshot={originals} />
+                <details>
+                  <summary>Inspect original legacy source JSON</summary>
+                  <pre className="recovery-json">
+                    {JSON.stringify(originals, null, 2)}
+                  </pre>
+                </details>
+              </details>
+            )}
+          <details>
+            <summary>
+              Raw stored JSON — including unreadable current history
+            </summary>
+            <p>
+              These are unmodified per-key safety copies, not complete version 2
+              backups. No raw file is written back directly. A malformed current
+              history cannot be overwritten here; keep its raw copy and restore
+              a valid complete backup in a fresh browser profile instead.
+              Unrelated keys are never modified. Timer storage is excluded.
+            </p>
             <button
               type="button"
-              className="btn btn-sm self-start"
+              className="btn sm"
               disabled={busy || reading}
-              onClick={async () => {
-                if (running.current) return
-                running.current = true
-                setBusy(true)
-                setError('')
-                try {
-                  if (!(await localforage.keys()).includes(key))
-                    throw new Error(
-                      'This item is no longer stored. Refresh the stored items.'
-                    )
-                  const text = JSON.stringify(await localforage.getItem(key))
-                  if (text === undefined)
-                    throw new Error('This value cannot be represented as JSON.')
-                  downloadFile(
-                    `raw-${encodeURIComponent(key)}-${new Date().toISOString()}.json`,
-                    text
-                  )
-                  setMessage(
-                    'Raw JSON download requested. Check the browser saved it. This file alone is not a complete history backup.'
-                  )
-                } catch (cause) {
-                  setError(recoveryError(cause))
-                } finally {
-                  running.current = false
-                  setBusy(false)
-                }
-              }}
+              onClick={() => setRefresh((value) => value + 1)}
             >
-              Download raw JSON: {key}
+              Refresh stored items
             </button>
-          </div>
-        ))}
+            {reading && <p role="status">Reading stored item names…</p>}
+            {rawKeys.map((key) => (
+              <div key={key} className="recovery-stack">
+                <span className="break-all">{key}</span>
+                <button
+                  type="button"
+                  className="btn sm"
+                  disabled={busy || reading}
+                  onClick={async () => {
+                    if (running.current) return
+                    running.current = true
+                    setBusy(true)
+                    setError('')
+                    setMessage('')
+                    try {
+                      if (!(await localforage.keys()).includes(key))
+                        throw new Error(
+                          'This item is no longer stored. Refresh the stored items.'
+                        )
+                      const text = JSON.stringify(
+                        await localforage.getItem(key)
+                      )
+                      if (text === undefined)
+                        throw new Error(
+                          'This value cannot be represented as JSON.'
+                        )
+                      downloadFile(
+                        `raw-${encodeURIComponent(key)}-${new Date().toISOString()}.json`,
+                        text
+                      )
+                      setMessage(
+                        'Raw JSON download requested. Check the browser saved it. This file alone is not a complete history backup.'
+                      )
+                    } catch (cause) {
+                      setError(recoveryError(cause))
+                    } finally {
+                      running.current = false
+                      setBusy(false)
+                    }
+                  }}
+                >
+                  Download raw JSON: {key}
+                </button>
+              </div>
+            ))}
+          </details>
+          <p>
+            Unrelated browser data is left untouched. JSON is the restorable
+            backup format; no partial spreadsheet export is presented as a
+            backup.
+          </p>
+        </div>
       </details>
-      <p>
-        Unrelated browser data is left untouched. JSON is the restorable backup
-        format; no partial spreadsheet export is presented as a backup.
-      </p>
-      {error && <p role="alert">{error}</p>}
-      <p role="status">{message}</p>
+      {error && (
+        <p className="recovery-error" role="alert">
+          {error}
+        </p>
+      )}
+      {message && (
+        <p className="recovery-stack" role="status">
+          {message}
+        </p>
+      )}
     </section>
   )
 }

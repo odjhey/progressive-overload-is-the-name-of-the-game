@@ -1,314 +1,223 @@
-import { IconFilter, IconPlus } from '@tabler/icons-react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { IconCalendar, IconFilter, IconPlus } from '@tabler/icons-react'
+import { useState } from 'react'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { Searchable } from '../components/Searchable'
 import { LiftRow } from '../components/LiftRow'
+import { matchingExercises, newestFirst } from '../components/dailyFlow'
 import { useTraining } from '../hooks/useTraining'
 import { usePersistentFilters } from '../hooks/usePersistentFilters'
-import { localDate } from '../libs/trainingModel'
-
-function knownTime(value: string | null | undefined): number {
-  const time = Date.parse(value ?? '')
-  return Number.isFinite(time) ? time : -Infinity
-}
+import { useFeedback } from '../hooks/useFeedback'
 
 export default function Home() {
   const { document, loading, loadError } = useTraining()
   const filters = usePersistentFilters()
+  const { feedback, dismissFeedback } = useFeedback()
+  const location = useLocation()
   const [params, setParams] = useSearchParams()
-  const view = params.get('view') === 'history' ? 'history' : 'latest'
-  const setView = (next: 'latest' | 'history') => {
-    const search = new URLSearchParams({ view: next })
-    const selected = params.get('selected')
-    if (selected) search.set('selected', selected)
-    setParams(search, { replace: true })
-  }
-  if (loading || filters.loading)
-    return <p role="status">Loading workouts and filters…</p>
+  const [filterOpen, setFilterOpen] = useState(false)
+  const month = /^\d{4}-(0[1-9]|1[0-2])$/.test(params.get('month') ?? '')
+    ? params.get('month')!
+    : ''
+  if (loading || filters.loading) return <p role="status">Loading training…</p>
   if (loadError)
     return <p role="alert">Training could not be read: {loadError.message}</p>
   if (!document)
     return (
       <p role="alert">
-        Import or recover your training in Settings to view workouts.
+        Import or recover your training in Settings to view the log.
       </p>
     )
   const exercises = new Map(
     document.exercises.map((exercise) => [exercise.id, exercise])
   )
-  const ordered = [...document.entries].sort(
-    (a, b) =>
-      b.trainingDate.localeCompare(a.trainingDate) ||
-      knownTime(b.recordedAt ?? b.performedAt) -
-        knownTime(a.recordedAt ?? a.performedAt) ||
-      a.id.localeCompare(b.id)
-  )
-  const latest = new Set<string>()
-  const term = filters.data.term.toLocaleLowerCase()
-  const visible = ordered.filter((entry) => {
-    const exercise = exercises.get(entry.exerciseId)
-    if (!exercise) return false
-    const isLatest = !latest.has(entry.exerciseId)
-    latest.add(entry.exerciseId)
-    if (view === 'latest' && !isLatest) return false
-    if (
-      !filters.data.tags.every((tag) =>
-        exercise.tags.some((value) =>
-          value.toLocaleLowerCase().includes(tag.toLocaleLowerCase())
-        )
+  const ordered = [...document.entries].sort(newestFirst)
+  const seen = new Set<string>()
+  const latest = ordered
+    .filter((entry) => {
+      if (
+        (month && !entry.trainingDate.startsWith(month)) ||
+        seen.has(entry.exerciseId)
       )
+        return false
+      seen.add(entry.exerciseId)
+      return true
+    })
+    .sort(
+      (a, b) =>
+        b.trainingDate.localeCompare(a.trainingDate) ||
+        exercises
+          .get(a.exerciseId)!
+          .name.localeCompare(exercises.get(b.exerciseId)!.name)
     )
-      return false
-    const searchable = [
-      exercise.name,
-      entry.trainingDate,
-      entry.notes,
-      ...exercise.tags,
-      ...entry.groups.flatMap((group) => [
-        group.unit,
-        String(group.weight),
-        String(group.sets),
-        String(group.reps),
-      ]),
-    ]
-      .join(' ')
-      .toLocaleLowerCase()
-    return searchable.includes(term)
+  const term = filters.data.term.trim().toLocaleLowerCase()
+  const visible = latest.filter((entry) => {
+    const exercise = exercises.get(entry.exerciseId)!
+    return (
+      (!filters.data.tags.length ||
+        exercise.tags.some((tag) => filters.data.tags.includes(tag))) &&
+      (!term ||
+        exercise.name.toLocaleLowerCase().includes(term) ||
+        document.entries.some(
+          (item) =>
+            item.exerciseId === exercise.id &&
+            item.notes.toLocaleLowerCase().includes(term)
+        ))
+    )
   })
-  const selected = document.entries.find(
-    (entry) => entry.id === params.get('selected')
-  )
-  const selectedExercise = selected
-    ? exercises.get(selected.exerciseId)
+  const selectedId =
+    feedback?.kind === 'saved' ? feedback.entryId : params.get('selected')
+  const selected = selectedId
+    ? document.entries.find((entry) => entry.id === selectedId)
     : undefined
-  const hasFilters = !!filters.data.term || filters.data.tags.length > 0
-  const clear = () => {
-    void filters.saveFilters({ term: '', tags: [] })
-  }
-  const setTerm = (value: string) => {
-    void filters.saveFilters({ term: value })
-  }
   const tags = [
-    ...new Set(document.exercises.flatMap((exercise) => exercise.tags)),
+    ...new Set([
+      ...filters.data.tags,
+      ...document.exercises.flatMap((exercise) => exercise.tags),
+    ]),
   ].sort((a, b) => a.localeCompare(b))
+  const matching = matchingExercises(document.exercises, filters.data.term)
+  const create = term && matching.length === 0
+  const entryName = create
+    ? filters.data.term.trim()
+    : matching.length === 1 &&
+        !document.entries.some((entry) => entry.exerciseId === matching[0].id)
+      ? matching[0].name
+      : ''
+  const setMonth = (value: string) => {
+    const next = new URLSearchParams(params)
+    if (value) next.set('month', value)
+    else next.delete('month')
+    setParams(next, { replace: true })
+  }
   return (
-    <div className="workout-collection training-page">
-      <header className="page-heading training-heading">
-        <h1>Workouts</h1>
-        <Link
-          className="btn btn-primary icon-action"
-          aria-label="New entry"
-          title="New entry"
-          to={`/new?${new URLSearchParams({ view })}`}
+    <div className="page home-page">
+      <header className="top">
+        <Searchable
+          searchTerm={filters.data.term}
+          setSearchTerm={(value) => {
+            void filters.saveFilters({ term: value })
+          }}
+          clear={() => {
+            void filters.saveFilters({ term: '' })
+          }}
+          disabled={!!filters.loadError}
+        />
+        <button
+          type="button"
+          className={`ib${filterOpen || filters.data.tags.length || month ? ' on' : ''}`}
+          aria-label="Filters"
+          aria-expanded={filterOpen}
+          onClick={() => setFilterOpen(!filterOpen)}
         >
-          <IconPlus size={20} aria-hidden="true" />
-        </Link>
+          <IconFilter size={20} aria-hidden="true" />
+        </button>
       </header>
-      {filters.loadError && (
-        <p role="alert">
-          Saved filters could not be read: {filters.loadError.message} Recover
-          them in Settings before changing them.
-        </p>
-      )}
-      {filters.error && (
-        <p role="alert">
-          Filters could not be saved: {filters.error.message} Your current
-          filters are shown; change or clear them to retry.
-        </p>
-      )}
-      <div className="collection-tools">
-        <fieldset disabled={!!filters.loadError}>
-          <legend className="sr-only">Search entries</legend>
-          <Searchable
-            searchTerm={filters.data.term}
-            setSearchTerm={setTerm}
-            clear={() => setTerm('')}
-          />
-        </fieldset>
-        <div className="collection-options">
-          <div className="view-switch" role="group" aria-label="Workout view">
-            <button
-              type="button"
-              aria-pressed={view === 'latest'}
-              onClick={() => setView('latest')}
-            >
-              Latest
-            </button>
-            <button
-              type="button"
-              aria-pressed={view === 'history'}
-              onClick={() => setView('history')}
-            >
-              History
-            </button>
-          </div>
-          <details className="advanced-filters">
-            <summary
-              className="icon-action"
-              aria-label="Date and tag filters"
-              title="Date and tag filters"
-            >
-              <IconFilter size={20} aria-hidden="true" />
-            </summary>
-            <fieldset disabled={!!filters.loadError} className="filter-fields">
-              <div className="date-filter">
-                <label className="field-label" htmlFor="search-date">
-                  <span>Search date</span>
-                  <input
-                    id="search-date"
-                    className="input input-bordered"
-                    type="date"
-                    value={
-                      /^\d{4}-\d{2}-\d{2}$/.test(filters.data.term)
-                        ? filters.data.term
-                        : ''
-                    }
-                    onChange={(event) => setTerm(event.target.value)}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() => setTerm(localDate())}
-                >
-                  Today
-                </button>
-              </div>
-              <p className="field-hint">
-                Choosing a date replaces the search text.
-              </p>
-              <Searchable
-                placeholder="Tag filter"
-                searchTerm={filters.data.tags[0] ?? ''}
-                setSearchTerm={(value) => {
-                  void filters.saveFilters({ tags: value ? [value] : [] })
-                }}
-                clear={() => {
-                  void filters.saveFilters({ tags: [] })
-                }}
-              />
-              <div className="tag-shortcuts">
-                {tags.map((tag) => (
-                  <button
-                    className="btn btn-outline"
-                    type="button"
-                    key={tag}
-                    onClick={() => {
-                      void filters.saveFilters({ tags: [tag] })
-                    }}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-              <Link className="back-link" to="/tags">
-                Exercises &amp; tags
-              </Link>
-            </fieldset>
-          </details>
-        </div>
-      </div>
-      <div className="collection-summary">
-        <p role="status">
-          {visible.length} of {document.entries.length} entries ·{' '}
-          {view === 'latest'
-            ? 'Most recent per exercise'
-            : 'All saved training'}
-        </p>
-        {hasFilters && (
+      {(filterOpen || filters.data.tags.length > 0 || month) && (
+        <div className="chips" aria-label="Search filters">
           <button
-            className="text-action"
+            className={`chip${!filters.data.tags.length && !month ? ' on' : ''}`}
             type="button"
             disabled={!!filters.loadError}
-            onClick={clear}
+            onClick={() => {
+              void filters.saveFilters({ tags: [] })
+              setMonth('')
+            }}
           >
-            Clear all filters
+            All
           </button>
-        )}
-      </div>
-      {hasFilters && (
-        <div className="active-filters" aria-label="Active filters">
-          {filters.data.term && (
-            <span className="filter-chip">Search: {filters.data.term}</span>
-          )}
-          {filters.data.tags.map((tag) => (
-            <span className="filter-chip" key={tag}>
-              Tag: {tag}
-            </span>
-          ))}
-        </div>
-      )}
-      {selected && selectedExercise && (
-        <section className="saved-notice" aria-label="Selected saved entry">
-          <p role="status">
-            <strong>
-              Saved entry: {selectedExercise.name} · {selected.trainingDate}
-            </strong>
-          </p>
-          {!visible.includes(selected) && (
-            <>
-              <p>This entry is outside the current filters or Latest view.</p>
-              <LiftRow
-                entry={selected}
-                exercise={selectedExercise}
-                view={view}
-              />
-              <button
-                type="button"
-                className="btn btn-outline"
-                disabled={!!filters.loadError}
-                onClick={() => {
-                  clear()
-                  setView('history')
-                }}
-              >
-                Show in history
-              </button>
-            </>
-          )}
-        </section>
-      )}
-      {params.has('selected') && !selected && (
-        <p role="alert">The selected entry is no longer in saved history.</p>
-      )}
-      {visible.length === 0 && (
-        <section className="empty-state">
-          <h2>
-            {document.entries.length === 0
-              ? 'No saved entries yet'
-              : 'No matching entries'}
-          </h2>
-          <p>
-            {document.entries.length === 0
-              ? 'Record actual training, or use Calendar to backfill a day.'
-              : 'Clear filters or switch to History to find an older effort.'}
-          </p>
-          {document.entries.length > 0 && (
+          {tags.map((tag) => (
             <button
+              className={`chip${filters.data.tags.includes(tag) ? ' on' : ''}`}
               type="button"
-              className="btn btn-outline"
+              key={tag}
+              aria-pressed={filters.data.tags.includes(tag)}
               disabled={!!filters.loadError}
               onClick={() => {
-                clear()
-                setView('history')
+                void filters.saveFilters({
+                  tags: filters.data.tags.includes(tag)
+                    ? filters.data.tags.filter((value) => value !== tag)
+                    : [...filters.data.tags, tag],
+                })
               }}
             >
-              Show all history
+              {tag}
+            </button>
+          ))}
+          <label className="chip date date-control">
+            <IconCalendar size={16} aria-hidden="true" />
+            {month
+              ? new Date(`${month}-15T12:00:00`).toLocaleDateString('en-GB', {
+                  month: 'short',
+                  year: 'numeric',
+                })
+              : 'Month'}
+            <input
+              type="month"
+              aria-label="Filter training month"
+              value={month}
+              onChange={(event) => setMonth(event.target.value)}
+            />
+          </label>
+          {month && (
+            <button type="button" className="chip" onClick={() => setMonth('')}>
+              Clear month
             </button>
           )}
-        </section>
+        </div>
       )}
-      <div className="lift-list">
-        {visible.map((entry) => {
-          const exercise = exercises.get(entry.exerciseId)!
-          return (
-            <section
-              className={`lift-entry${entry.id === selected?.id ? ' is-saved' : ''}`}
-              key={entry.id}
+      <div className="list" onScroll={dismissFeedback}>
+        {filters.loadError && (
+          <p className="form-error" role="alert">
+            Saved filters could not be read: {filters.loadError.message} Recover
+            them in Settings before changing them.
+          </p>
+        )}
+        {filters.error && (
+          <p className="form-error" role="alert">
+            Filters could not be saved: {filters.error.message}. Your current
+            filters remain visible.
+          </p>
+        )}
+        {selected && !visible.some((entry) => entry.id === selected.id) && (
+          <section aria-label="Saved entry outside filters">
+            <LiftRow
+              entry={selected}
+              exercise={exercises.get(selected.exerciseId)!}
+              highlighted
+            />
+          </section>
+        )}
+        {visible.map((entry) => (
+          <LiftRow
+            key={entry.id}
+            entry={entry}
+            exercise={exercises.get(entry.exerciseId)!}
+            highlighted={entry.id === selectedId}
+          />
+        ))}
+        {entryName && (
+          <div className="row create">
+            <Link
+              className="main"
+              to={`/new?${new URLSearchParams({ name: entryName })}`}
+              state={{ backgroundLocation: location }}
             >
-              <LiftRow entry={entry} exercise={exercise} view={view} />
-            </section>
-          )
-        })}
+              <span className="ib y">
+                <IconPlus size={20} aria-hidden="true" />
+              </span>
+              <span className="name">
+                {create ? 'Create' : 'Add entry'} “{entryName}”
+              </span>
+            </Link>
+          </div>
+        )}
+        {!visible.length && !entryName && (
+          <p className="form-error">
+            {document.exercises.length
+              ? 'No matching exercises'
+              : 'Search to add your first exercise'}
+          </p>
+        )}
       </div>
     </div>
   )

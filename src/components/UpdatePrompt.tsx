@@ -1,5 +1,7 @@
+import { IconX } from '@tabler/icons-react'
 import { useRef, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
+import { Sheet } from './Sheet'
 
 export const UpdatePrompt = () => {
   const reloadApproved = useRef(false)
@@ -24,17 +26,11 @@ export const UpdatePrompt = () => {
   })
   const [updating, setUpdating] = useState(false)
   const [error, setError] = useState('')
+  const [confirming, setConfirming] = useState(false)
 
   if (!needRefresh) return null
 
   const update = async () => {
-    if (
-      !window.confirm(
-        'Updating reloads the app. Save any unfinished workout first. Reload now?'
-      )
-    ) {
-      return
-    }
     reloadApproved.current = true
     setUpdating(true)
     setError('')
@@ -76,30 +72,83 @@ export const UpdatePrompt = () => {
   }
 
   return (
-    <aside
-      aria-label="App update"
-      className="fixed bottom-20 left-2 right-2 z-50 mx-auto max-w-lg rounded border border-primary bg-base-100 p-3 shadow-lg"
-    >
-      <p role="status">
-        An update is ready. Save your workout before reloading.
-      </p>
-      {error && <p role="alert">{error}</p>}
-      <div className="mt-2 flex gap-2">
-        <button
-          className="btn btn-sm btn-primary"
-          disabled={updating}
-          onClick={update}
+    <>
+      <aside aria-label="App update" className="update-prompt">
+        <p role="status">Update ready</p>
+        {error && (
+          <p className="recovery-error" role="alert">
+            {error}
+          </p>
+        )}
+        <div className="recovery-actions">
+          <button
+            type="button"
+            className="btn y"
+            disabled={updating}
+            onClick={() => setConfirming(true)}
+          >
+            {updating ? 'Updating…' : 'Update now'}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            disabled={updating}
+            onClick={() => setNeedRefresh(false)}
+          >
+            Later
+          </button>
+        </div>
+      </aside>
+      {confirming && (
+        <Sheet
+          title="Reload to update?"
+          onClose={() => {
+            if (!updating) setConfirming(false)
+          }}
         >
-          {updating ? 'Updating…' : 'Update now'}
-        </button>
-        <button
-          className="btn btn-sm"
-          disabled={updating}
-          onClick={() => setNeedRefresh(false)}
-        >
-          Later
-        </button>
-      </div>
-    </aside>
+          <header className="sh-h">
+            <h2>Reload to update?</h2>
+            <button
+              className="ib ghost"
+              type="button"
+              aria-label="Close update confirmation"
+              disabled={updating}
+              onClick={() => setConfirming(false)}
+            >
+              <IconX className="ic" aria-hidden="true" />
+            </button>
+          </header>
+          <div className="confirm">
+            <p>
+              <b>Save unfinished entries first.</b>Updating reloads the app.
+              Unsaved changes can be lost; stored history is not cleared.
+            </p>
+            {error && (
+              <p className="recovery-error" role="alert">
+                {error}
+              </p>
+            )}
+            <div className="recovery-actions">
+              <button
+                type="button"
+                className="btn lg"
+                disabled={updating}
+                onClick={() => setConfirming(false)}
+              >
+                Keep working
+              </button>
+              <button
+                type="button"
+                className="btn lg y"
+                disabled={updating}
+                onClick={update}
+              >
+                {updating ? 'Updating…' : 'Reload now'}
+              </button>
+            </div>
+          </div>
+        </Sheet>
+      )}
+    </>
   )
 }

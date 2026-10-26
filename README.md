@@ -5,8 +5,8 @@ See [progressive overload](https://en.wikipedia.org/wiki/Progressive_overload).
 Live app: https://gains.odjhey.com.
 
 The [revival mission](docs/revival-mission.md) records rollout status and governing
-product intent. Section 18 is the approved redesign; section 19 records the local
-training/calendar/timer slice. Local integration does not publish these changes.
+product intent. Section 21 records adoption of the approved 26 October designer
+package. Local integration does not publish these changes.
 
 ## Development
 
@@ -67,11 +67,12 @@ storage does not follow a different hostname, scheme, port or browser profile.
 
 The redesigned app writes new namespaces rather than overwriting old data:
 
-| Storage      | Key                                  | Purpose                                                                                        |
-| ------------ | ------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| localforage  | `progressive-overload:training:v2`   | One versioned document: stable exercises, entries, set groups and optional workouts/attendance |
-| localforage  | `progressive-overload:filters:v2`    | Saved search and tag filters                                                                   |
-| localStorage | `progressive-overload:rest-timer:v1` | Optional rest deadline and chosen duration; not history                                        |
+| Storage      | Key                                   | Purpose                                                                                        |
+| ------------ | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| localforage  | `progressive-overload:training:v2`    | One versioned document: stable exercises, entries, set groups and optional workouts/attendance |
+| localforage  | `progressive-overload:filters:v2`     | Saved search and tag filters                                                                   |
+| localStorage | `progressive-overload:rest-timer:v1`  | Optional rest deadline and chosen duration; not history                                        |
+| localStorage | `progressive-overload:preferences:v1` | Device defaults for new-entry unit and weight-step controls; not history                       |
 
 Original keys remain read-only migration sources:
 
@@ -138,48 +139,55 @@ reopen if the worker is waiting; do not clear site storage or uninstall to updat
 
 ## Daily logging, calendar and rest
 
-Keep the original bumblebee yellow/white/black, compact boxy friends' tool—not a
-commercial rebrand. Layouts reflow on small phones without replacing usable
-labels and controls with decorative cards.
+The approved design keeps the bumblebee yellow, white and ink, compact boxy
+friends-tool character. Search replaces the title bar; a four-slot bottom
+navigation holds Log, Calendar, Timer and Settings. The list scrolls independently
+of the navigation. Routine icon actions have accessible names; Save, replacement
+and destructive confirmations retain text. Inputs use 16px text, primary Save
+uses a 48px target, and compact controls retain usable hit areas.
 
-Routine actions use familiar named icons: Repeat/Edit beside the exercise,
-new-entry plus, calendar navigation, filters and removal controls. Compact
-secondary targets are at least 2rem; Save buttons retain text and a 2.25rem
-minimum. Inputs keep ordinary 16px text. Navigation is an icon row with accessible
-names, and the running timer fits one row while its native options are collapsed.
-Enlarged text may wrap rather than hide controls. Recovery and destructive
-confirmations retain explicit wording.
-
-- **Workouts:** Latest shows the most recent entry per exercise; History shows
-  all saved entries. Search, date and exercise-tag filters remain available with
-  visible active filters/reset. A just-saved entry remains reachable outside
-  retained filters, including after Save and tag.
-- **Repeat:** opens a new draft from the chosen persisted ID with a read-only
-  source, groups and disclosed notes. It defaults to today's local training date
-  unless opened for a calendar date. Adjust and review the copied values/notes;
-  no automatic progression or timer starts on save.
-- **Edit:** targets a stable entry ID, not its name/date. Distinct records may
-  share a date. Only Edit offers deletion. Changing an entry's exercise moves that
-  entry; explicit **Rename all history** changes the exercise name while retaining
-  its history and tags.
-- **Set groups:** record uniform repeated sets compactly, adding groups when
-  load/reps/unit differ. Save awaits durable storage; failures retain the entered
-  values. An identical retry after an accepted but unverified write reconciles
-  the same draft ID rather than creating another entry. Keep/Discard and reload
-  warnings protect unsaved navigation; this is not persistent draft autosave.
-- **Calendar:** a simple month grid marks saved entries or explicit attendance.
-  Blank means nothing recorded, not proof of a rest day. Tap a day to inspect it,
-  add details with that civil date, or mark **Trained — details later** without
-  inventing sets/weights. Removing confirmation leaves genuine entries; deleting
-  the last entry clears the marker only when no confirmation remains. Training
-  date is distinct from when it was recorded and does not shift with timezone.
-- **Rest timer:** optional manual presets/custom seconds, Start/Restart, +30s and
-  Stop. Its saved deadline survives routes, reload and reopening; signed overtime
-  continues below zero. Changing duration does not silently restart it. No sound,
-  vibration, notifications, permission request, expiry modal or training marker.
-  It uses the device clock, not a reliable background callback or lock-screen
-  alarm. Timer-only reset/recovery never changes training; history restore never
-  imports a timer.
+- **Log:** latest effort per exercise, sorted by training date. Search names and
+  notes, with OR tag filters and a month filter. A nonempty query without an exact
+  exercise-name match offers Create. Exercise names open their complete history;
+  that page replaces the global Latest/History switch.
+- **Create/Repeat/Edit:** one bottom-sheet flow. Repeat copies the selected
+  entry's groups and units into a distinct draft, with blank notes and a compact
+  Last reference. It defaults to today's local training date unless opened for a
+  calendar date. Edit targets a stable entry ID; only Edit offers deletion, with
+  an in-place confirmation naming the entry. Date changes update calendar marks.
+- **Set groups:** weight readout with six tap/hold buttons, unit segment and
+  set/rep steppers; no numeric keyboard is needed for ordinary logging. Settings
+  chooses step 1, 2.5 or 5, used at ×1, ×2 and ×4 in either unit. Groups collapse
+  to summaries while one is edited. Stored precision and group-specific units
+  remain intact; switching a unit relabels rather than converts the weight.
+- **History and organization:** an exercise page exposes every saved entry and
+  its own Repeat/Edit actions. Rename retains exercise identity, history and
+  tags; a collision is refused rather than merging logs. Tags belong to the
+  exercise, not one entry.
+- **Saving:** await durable storage before closing or showing Saved. Failure
+  retains entered values. An identical retry after an accepted but unverified
+  write reconciles the same draft ID. The saved entry stays reachable outside
+  retained filters. Keep/Discard and reload warnings protect unfinished input;
+  this is not persistent draft autosave. Saved feedback offers Edit and an
+  explicit rest-start action; saving never starts the timer itself.
+- **Calendar:** entries and separate Trained attendance mark recorded days with
+  distinguishable states. Blank means nothing recorded, not proof of rest. The
+  day panel offers Entry with that civil date and a Trained toggle for details
+  later. Removing attendance leaves genuine entries; adding details does not
+  count the day twice. Training date does not shift with timezone.
+- **Rest timer:** the navigation slot shows a running clock and signed negative
+  overtime. Its popover offers presets, custom duration, restart, +30s and Stop.
+  The saved deadline survives routes, reload and reopening. Settings changes
+  the chosen duration without restarting; selecting a popover preset explicitly
+  starts it. No sound, vibration, notifications, permission request, expiry modal
+  or training marker. This uses the device clock, not a background alarm.
+  Timer-only recovery never changes training; history restore never imports a
+  timer.
+- **Settings:** default new-exercise unit, weight step and the timer's existing
+  preset; complete JSON export, reviewed import and old-history migration.
+  Backup replacement changes training and saved filters, not timer state,
+  device defaults or unrelated browser data. Raw recovery downloads remain
+  available when current history cannot be read.
 
 Training writes are queued within this app instance, not transactional across
 tabs; simultaneous editors remain last-writer/race risks, not sync. Browser

@@ -195,7 +195,7 @@ const getSnapshot = () => snapshot
 export function formatRestTime(milliseconds: number) {
   const seconds = Math.ceil(Math.abs(milliseconds) / 1000)
   const minutes = Math.floor(seconds / 60)
-  return `${milliseconds < 0 ? '−' : ''}${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`
+  return `${milliseconds < 0 ? '−' : ''}${minutes}:${String(seconds % 60).padStart(2, '0')}`
 }
 
 export function useRestTimer() {
