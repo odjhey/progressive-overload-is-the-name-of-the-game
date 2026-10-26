@@ -113,9 +113,7 @@ export default function Nav({ children }: PropsWithChildren) {
             to="/about"
             title="Settings"
             aria-label="Settings"
-            className={({ isActive }) =>
-              isActive || location.pathname === '/tags' ? 'on' : ''
-            }
+            className={({ isActive }) => (isActive ? 'on' : '')}
           >
             <IconSettings size={24} aria-hidden="true" />
           </NavLink>

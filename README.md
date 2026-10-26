@@ -46,8 +46,9 @@ the PR route rather than relying on an administrator's direct-push bypass.
 
 The SPA fallback in `vercel.json` follows
 [Vercel's Vite guidance](https://vercel.com/docs/frameworks/frontend/vite#using-vite-to-make-spas).
-After publishing, check direct `/new`, `/calendar`, `/tags`, and `/about` requests
-with the service worker bypassed, not just in-app navigation or cached reloads. Verify
+After publishing, check direct `/new`, `/calendar`, `/about` and a saved
+`/exercise/<id>` request with the service worker bypassed, not just in-app navigation
+or cached reloads. Verify
 scripts, styles, `sw.js`, the Workbox runtime, and the manifest still return
 their actual content rather than the HTML fallback.
 

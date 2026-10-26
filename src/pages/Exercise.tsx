@@ -6,7 +6,7 @@ import {
   IconX,
 } from '@tabler/icons-react'
 import { useRef, useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { LiftRow } from '../components/LiftRow'
 import { Sheet } from '../components/Sheet'
 import { TagPicker } from '../components/TagPicker'
@@ -23,10 +23,7 @@ import type { Exercise as ExerciseRecord } from '../libs/trainingTypes'
 export default function Exercise() {
   const training = useTraining()
   const { id } = useParams()
-  const [params, setParams] = useSearchParams()
-  const [editor, setEditor] = useState<'rename' | 'tags' | null>(() =>
-    params.get('editor') === 'tags' ? 'tags' : null
-  )
+  const [editor, setEditor] = useState<'rename' | 'tags' | null>(null)
   if (training.loading) return <p role="status">Loading exercise…</p>
   if (training.loadError)
     return (
@@ -52,14 +49,6 @@ export default function Exercise() {
   const entries = training.document.entries
     .filter((entry) => entry.exerciseId === exercise.id)
     .sort(newestFirst)
-  const close = () => {
-    setEditor(null)
-    if (params.has('editor')) {
-      const next = new URLSearchParams(params)
-      next.delete('editor')
-      setParams(next, { replace: true })
-    }
-  }
   return (
     <div className="page exercise-page">
       <header className="top">
@@ -114,7 +103,7 @@ export default function Exercise() {
           exercise={exercise}
           mode={editor}
           count={entries.length}
-          onClose={close}
+          onClose={() => setEditor(null)}
         />
       )}
     </div>

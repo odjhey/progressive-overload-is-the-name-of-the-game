@@ -11,7 +11,6 @@ import Home from './pages/Home'
 import About from './pages/About'
 import Nav from './layouts/Nav'
 import New from './pages/New'
-import Tags from './pages/Tags'
 import Exercise from './pages/Exercise'
 import { UpdatePrompt } from './components/UpdatePrompt'
 import Calendar from './pages/Calendar'
@@ -51,7 +50,6 @@ function PageRoutes() {
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/about" element={<About />} />
         <Route path="/exercise/:id" element={<Exercise />} />
-        <Route path="/tags" element={<Tags />} />
         <Route
           path="*"
           element={
