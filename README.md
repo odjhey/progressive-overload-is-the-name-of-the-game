@@ -156,11 +156,16 @@ uses a 48px target, and compact controls retain usable hit areas.
   Last reference. It defaults to today's local training date unless opened for a
   calendar date. Edit targets a stable entry ID; only Edit offers deletion, with
   an in-place confirmation naming the entry. Date changes update calendar marks.
-- **Set groups:** weight readout with six tap/hold buttons, unit segment and
-  set/rep steppers; no numeric keyboard is needed for ordinary logging. Settings
-  chooses step 1, 2.5 or 5, used at ×1, ×2 and ×4 in either unit. Groups collapse
-  to summaries while one is edited. Stored precision and group-specific units
-  remain intact; switching a unit relabels rather than converts the weight.
+- **Set groups:** load value with six tap/hold buttons, a kg / lb / qty unit
+  segment and set/rep steppers; no numeric keyboard is needed for ordinary
+  logging, though tapping the value lets you type it. Settings chooses step 1,
+  2.5 or 5, used at ×1, ×2 and ×4 for kg and lb. **qty** is the unit for
+  anything that is counted rather than weighed (bands, plates, bodyweight
+  variations): its value is a whole number, steps by 1, 2 and 4, and typed
+  decimals are refused. Groups collapse to summaries while one is edited.
+  Stored precision and group-specific units remain intact; switching between kg
+  and lb relabels rather than converts, and switching to qty rounds the draft
+  value to a whole number.
 - **History and organization:** an exercise page exposes every saved entry and
   its own Repeat/Edit actions. Rename retains exercise identity, history and
   tags; a collision is refused rather than merging logs. Tags belong to the
@@ -184,7 +189,7 @@ uses a 48px target, and compact controls retain usable hit areas.
   or training marker. This uses the device clock, not a background alarm.
   Timer-only recovery never changes training; history restore never imports a
   timer.
-- **Settings:** default new-exercise unit, weight step and the timer's existing
+- **Settings:** default new-exercise unit (kg, lb or qty), weight step and the timer's existing
   preset; complete JSON export, reviewed import and old-history migration.
   Backup replacement changes training and saved filters, not timer state,
   device defaults or unrelated browser data. Raw recovery downloads remain

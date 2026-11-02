@@ -20,13 +20,17 @@ import type {
 } from '../libs/trainingTypes'
 import { usePreferences } from '../hooks/usePreferences'
 import {
+  CHOOSABLE_UNITS,
+  QTY_UNIT,
   dateLabel,
+  isChoosableUnit,
   loadLabel,
   matchingExercises,
   newestFirst,
   unitLabel,
   withTypedTag,
 } from './dailyFlow'
+import { LoadInput } from './LoadInput'
 import { StepButton } from './StepButton'
 import { TagPicker } from './TagPicker'
 
@@ -282,18 +286,20 @@ export function LiftForm({
                   {draft.groups.length > 1 && (
                     <span className="k">{index + 1}</span>
                   )}
-                  <span className="lbl">Weight</span>
+                  <span className="lbl">
+                    {group.unit === QTY_UNIT ? 'Qty' : 'Weight'}
+                  </span>
                   <div
                     className="seg sm"
                     role="group"
                     aria-label={`Group ${index + 1} unit`}
                   >
-                    {group.unit !== 'kg' && group.unit !== 'lbs' && (
+                    {!isChoosableUnit(group.unit) && (
                       <button type="button" className="on" aria-pressed="true">
                         {group.unit}
                       </button>
                     )}
-                    {(['kg', 'lbs'] as const).map((unit) => (
+                    {CHOOSABLE_UNITS.map((unit) => (
                       <button
                         key={unit}
                         type="button"
@@ -303,6 +309,11 @@ export function LiftForm({
                           updateGroup(group.id, (current) => ({
                             ...current,
                             unit,
+                            // A count cannot be fractional; other switches only relabel.
+                            weight:
+                              unit === QTY_UNIT
+                                ? Math.round(current.weight)
+                                : current.weight,
                           }))
                         }
                       >
@@ -329,14 +340,18 @@ export function LiftForm({
                     </button>
                   )}
                 </div>
-                <output
-                  className="wnum"
-                  aria-live="polite"
-                  aria-label={`Group ${index + 1} weight`}
-                >
-                  {group.weight}
-                  <small>{unitLabel(group.unit)}</small>
-                </output>
+                <LoadInput
+                  value={group.weight}
+                  unit={group.unit}
+                  label={`Group ${index + 1} ${group.unit === QTY_UNIT ? 'quantity' : 'weight'}`}
+                  disabled={busy}
+                  onChange={(weight) =>
+                    updateGroup(group.id, (current) => ({
+                      ...current,
+                      weight,
+                    }))
+                  }
+                />
                 <div className="steps">
                   {[
                     [-4, -2, -1],
@@ -344,12 +359,14 @@ export function LiftForm({
                   ].map((multipliers, side) => (
                     <div className={`half${side ? ' up' : ''}`} key={side}>
                       {multipliers.map((multiplier) => {
-                        const delta = multiplier * preferences.weightStep
+                        const qty = group.unit === QTY_UNIT
+                        const delta =
+                          multiplier * (qty ? 1 : preferences.weightStep)
                         return (
                           <StepButton
                             key={multiplier}
                             disabled={busy}
-                            aria-label={`${delta < 0 ? 'Minus' : 'Plus'} ${Math.abs(delta)} weight`}
+                            aria-label={`${delta < 0 ? 'Minus' : 'Plus'} ${Math.abs(delta)} ${qty ? 'quantity' : 'weight'}`}
                             onStep={() =>
                               updateGroup(group.id, (current) => {
                                 const weight = Math.max(

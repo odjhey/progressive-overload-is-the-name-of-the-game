@@ -25,6 +25,23 @@ export function newestFirst(a: TrainingEntry, b: TrainingEntry) {
 
 // Keep imported precision and arbitrary unit labels intact. lb is only a UI label.
 export const unitLabel = (unit: string) => (unit === 'lbs' ? 'lb' : unit)
+
+// "Other" work is counted, not weighed: a qty value is a whole number.
+export const QTY_UNIT = 'qty'
+export const CHOOSABLE_UNITS = ['kg', 'lbs', QTY_UNIT] as const
+export type ChoosableUnit = (typeof CHOOSABLE_UNITS)[number]
+export const isChoosableUnit = (unit: unknown): unit is ChoosableUnit =>
+  CHOOSABLE_UNITS.includes(unit as ChoosableUnit)
+
+// Parse a typed load. Returns null for anything that is not a usable value.
+export function parseLoad(text: string, unit: string) {
+  const trimmed = text.trim()
+  const pattern = unit === QTY_UNIT ? /^\d+$/ : /^(\d+\.?\d*|\.\d+)$/
+  if (!pattern.test(trimmed)) return null
+  const value = Number(trimmed)
+  return Number.isFinite(value) ? value : null
+}
+
 export const loadLabel = (weight: number, unit: string) =>
   `${weight} ${unitLabel(unit)}`
 
