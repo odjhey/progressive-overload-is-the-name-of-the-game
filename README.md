@@ -103,7 +103,10 @@ For a different browser/profile, Settings can stage the three old JSON exports
 together. Provide each category or explicitly mark it not stored in the original
 app. One old file is not a complete backup. Conversion retains exact exercise
 names, every aggregate row (including duplicate name/date pairs), units, notes,
-tag associations, raw date text and unknown source metadata. It does not invent
+tag associations, raw date text and unknown source metadata. Early original
+rows that stored sets, reps or weight as text (`"8"`) import as numbers when
+the text is a plain non-negative number; the untouched row stays in the entry's
+legacy metadata, and any other text is refused. It does not invent
 old creation times, sessions, individual sets or effort ratings.
 
 ### Complete backup and restore
