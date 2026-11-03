@@ -31,6 +31,15 @@ function finite(value: unknown, label: string): asserts value is number {
     throw new Error(`${label} must be a finite number.`)
   }
 }
+// Early versions of the original app saved form input as text ("8").
+// Accept a plain non-negative decimal string as its number; the original
+// row is kept verbatim in entry metadata. Anything else is still refused.
+function legacyNumber(value: unknown, label: string): number {
+  if (typeof value === 'string' && /^\d+(\.\d+)?$/.test(value.trim()))
+    value = Number(value.trim())
+  finite(value, label)
+  return value
+}
 function timestamp(value: unknown, label: string) {
   if (value !== null) {
     text(value, label)
@@ -232,8 +241,10 @@ export function convertLegacy(
     const row = object(raw, `Legacy workout ${index + 1}`)
     for (const field of ['name', 'date', 'uom'])
       text(row[field], `Legacy workout ${index + 1} ${field}`)
-    for (const field of ['set', 'rep', 'weight'])
-      finite(row[field], `Legacy workout ${index + 1} ${field}`)
+    const [sets, reps, weight] = (['set', 'rep', 'weight'] as const).map(
+      (field) =>
+        legacyNumber(row[field], `Legacy workout ${index + 1} ${field}`)
+    )
     if (row.comment !== undefined && row.comment !== null)
       text(row.comment, 'Legacy comment')
     const source = row.date as string
@@ -262,9 +273,9 @@ export function convertLegacy(
       groups: [
         {
           id: newId(),
-          sets: row.set as number,
-          reps: row.rep as number,
-          weight: row.weight as number,
+          sets,
+          reps,
+          weight,
           unit: row.uom as string,
         },
       ],
