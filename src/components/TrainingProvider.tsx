@@ -19,6 +19,7 @@ import {
   StorageMutationError,
   validateTrainingDocument,
 } from '../libs/trainingModel'
+import { mergeTransfer } from '../libs/transfer'
 
 type Snapshot = {
   document: TrainingDocument | null
@@ -391,6 +392,17 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
       }
     })
 
+  // Additive only: re-reads storage, refuses a stale view, then verifies the write.
+  const mergeTraining: TrainingContextValue['mergeTraining'] = (incoming) =>
+    mutate((doc) => {
+      const merged = mergeTransfer(doc, incoming)
+      return {
+        document: merged.document,
+        result: merged.summary,
+        unchanged: sameValue(merged.document, doc),
+      }
+    })
+
   const replaceDocument: TrainingContextValue['replaceDocument'] = async (
     next,
     expectedRevision
@@ -429,6 +441,7 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
     renameExercise,
     setExerciseTags,
     setAttendance,
+    mergeTraining,
     replaceDocument,
     reload,
   }
