@@ -2,6 +2,7 @@ import { IconDatabase } from '@tabler/icons-react'
 import { DownloadLifts } from '../components/DownloadLifts'
 import { UploadRaw } from '../components/UploadRaw'
 import { usePreferences } from '../hooks/usePreferences'
+import { CHOOSABLE_UNITS, unitLabel } from '../components/dailyFlow'
 import { formatRestTime, useRestTimer } from '../hooks/useRestTimer'
 
 export default function About() {
@@ -24,7 +25,7 @@ export default function About() {
             role="group"
             aria-label="Default unit for new exercises"
           >
-            {(['kg', 'lbs'] as const).map((unit) => (
+            {CHOOSABLE_UNITS.map((unit) => (
               <button
                 key={unit}
                 type="button"
@@ -33,14 +34,15 @@ export default function About() {
                 disabled={!!preferences.error}
                 onClick={() => preferences.setUnit(unit)}
               >
-                {unit === 'lbs' ? 'lb' : unit}
+                {unitLabel(unit)}
               </button>
             ))}
           </div>
         </div>
         <div className="srow">
           <span className="t">
-            Weight step<span className="s">Buttons use ×1, ×2, ×4</span>
+            Weight step
+            <span className="s">Buttons use ×1, ×2, ×4; qty steps by 1</span>
           </span>
           <div className="seg" role="group" aria-label="Weight step">
             {([1, 2.5, 5] as const).map((step) => (

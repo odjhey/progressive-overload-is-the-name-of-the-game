@@ -1,7 +1,13 @@
 import { useSyncExternalStore } from 'react'
+import { isChoosableUnit } from '../components/dailyFlow'
+import type { ChoosableUnit } from '../components/dailyFlow'
 
 const PREFERENCES_KEY = 'progressive-overload:preferences:v1'
-type Preferences = { version: 1; unit: 'kg' | 'lbs'; weightStep: 1 | 2.5 | 5 }
+type Preferences = {
+  version: 1
+  unit: ChoosableUnit
+  weightStep: 1 | 2.5 | 5
+}
 type Snapshot = {
   preferences: Preferences
   error: string | null
@@ -22,7 +28,7 @@ function readPreferences(): Preferences {
     !('version' in value) ||
     value.version !== 1 ||
     !('unit' in value) ||
-    (value.unit !== 'kg' && value.unit !== 'lbs') ||
+    !isChoosableUnit(value.unit) ||
     !('weightStep' in value) ||
     (value.weightStep !== 1 &&
       value.weightStep !== 2.5 &&
@@ -72,9 +78,9 @@ function change(update: (current: Preferences) => Preferences) {
   }
 }
 
-function setUnit(unit: 'kg' | 'lbs') {
+function setUnit(unit: ChoosableUnit) {
   change((current) => {
-    if (unit !== 'kg' && unit !== 'lbs') throw new Error('Choose kg or lb.')
+    if (!isChoosableUnit(unit)) throw new Error('Choose kg, lb or qty.')
     return { ...current, unit }
   })
 }

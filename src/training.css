@@ -402,6 +402,27 @@ button.srow {
 .wnum small {
   max-width: 100%;
 }
+.wnum-input {
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px dashed var(--ink-2);
+  border-radius: 0;
+  padding: 0 2px;
+  min-width: 2ch;
+  max-width: 100%;
+}
+.wnum-input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-bottom-style: solid;
+}
+.wnum-input[aria-invalid='true'] {
+  border-bottom-color: var(--red);
+}
 .grow b {
   overflow-wrap: anywhere;
   min-width: 0;
