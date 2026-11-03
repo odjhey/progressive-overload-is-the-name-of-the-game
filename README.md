@@ -109,6 +109,28 @@ the text is a plain non-negative number; the untouched row stays in the entry's
 legacy metadata, and any other text is refused. It does not invent
 old creation times, sessions, individual sets or effort ratings.
 
+### Move exercises between phones (clipboard)
+
+Settings → **Copy to clipboard** lists exercises with a filter, **All** and tag
+shortcuts. It copies compact JSON holding the chosen exercises, every entry for
+them and the workout days those entries reference. Device-level metadata (such
+as the retained original-app snapshot) is not copied. If the browser refuses
+clipboard access, the text is shown for manual copying.
+
+On the other phone, Settings → **Paste import** accepts that text (or a complete
+version 2 backup) via **Paste from clipboard** or by pasting into the box. It
+previews what will be added, then merges:
+
+- An entry whose ID is already on this phone is skipped; if its content differs,
+  this phone's version is kept and the preview says so. Re-pasting is safe.
+- A pasted exercise joins an existing one with the same ID, the same exact name,
+  or a unique case-insensitive name match; its tags are added. Otherwise it is
+  created.
+- Nothing is deleted or overwritten. The write uses the normal stale-view check
+  and read-back verification.
+
+This is a convenience transfer, not a backup. Keep complete JSON backups.
+
 ### Complete backup and restore
 
 Settings exports one **version 2 JSON** containing training and saved filters.

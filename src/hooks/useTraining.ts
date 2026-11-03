@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react'
+import type { MergeSummary } from '../libs/transfer'
 import type {
   EntryInput,
   LegacySnapshot,
@@ -23,6 +24,7 @@ export type TrainingContextValue = {
     confirmed: boolean,
     notes?: string
   ) => Promise<void>
+  mergeTraining: (incoming: TrainingDocument) => Promise<MergeSummary>
   replaceDocument: (
     next: TrainingDocument,
     expectedRevision: number | null

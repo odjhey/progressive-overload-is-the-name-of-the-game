@@ -1,4 +1,5 @@
 import { IconDatabase } from '@tabler/icons-react'
+import { ClipboardTransfer } from '../components/ClipboardTransfer'
 import { DownloadLifts } from '../components/DownloadLifts'
 import { UploadRaw } from '../components/UploadRaw'
 import { usePreferences } from '../hooks/usePreferences'
@@ -97,6 +98,7 @@ export default function About() {
           </div>
         )}
         <h2 className="lbl settings-label">Data</h2>
+        <ClipboardTransfer />
         <DownloadLifts />
         <UploadRaw />
         <div className="srow">
